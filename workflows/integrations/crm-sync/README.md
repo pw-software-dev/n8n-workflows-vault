@@ -147,7 +147,7 @@ Automated bidirectional synchronization between external CRM system and internal
 #### Access Control
 - **Required Permissions**: List required permissions for credentials
 - **Principle of Least Privilege**: Ensure minimal required permissions
-- **Credential Management**: Use n8n credential management, never hardcode secrets
+- **Credential Management**: ✅ Uses n8n credential expressions ({{ $credentials.slack_integration }}), never hardcode secrets
 
 ### Deployment
 

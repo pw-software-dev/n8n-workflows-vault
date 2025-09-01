@@ -129,8 +129,8 @@
       "position": [1120, 200],
       "credentials": {
         "slackApi": {
-          "id": "slack-bot-token",
-          "name": "Slack Bot Token"
+          "id": "{{ $credentials.slack_integration }}",
+          "name": "Slack Integration"
         }
       }
     },
@@ -165,8 +165,8 @@
       "position": [1120, 400],
       "credentials": {
         "slackApi": {
-          "id": "slack-bot-token",
-          "name": "Slack Bot Token"
+          "id": "{{ $credentials.slack_integration }}",
+          "name": "Slack Integration"
         }
       }
     }
