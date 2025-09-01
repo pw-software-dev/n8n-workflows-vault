@@ -60,13 +60,13 @@ jobs:
     - name: Check for secrets in workflows
       run: |
         echo "🔍 Checking for potential secrets in workflow files..."
-        # Check for common secret patterns
-        if grep -r -i "password\|secret\|token\|api_key" workflows/ --include="*.json" --include="*.md"; then
+        # Check for common secret patterns in JSON files only (exclude README.md documentation)
+        if grep -r -i "password\|secret\|token\|api_key" workflows/ --include="*.json" --exclude="README.md"; then
           echo "⚠️  Potential secrets found in workflow files"
           echo "Please ensure no actual secrets are committed to the repository"
           exit 1
         else
-          echo "✅ No obvious secrets found"
+          echo "✅ No obvious secrets found in workflow JSON files"
         fi
 
   documentation:
