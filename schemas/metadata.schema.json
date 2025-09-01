@@ -1,0 +1,320 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.n8n-workflows.org/metadata.schema.json",
+  "title": "n8n Workflow Metadata Schema",
+  "description": "JSON schema for validating n8n workflow metadata files",
+  "type": "object",
+  "required": ["name", "description", "version", "category"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9\\s\\-_]+$",
+      "description": "Human-readable workflow name"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 500,
+      "description": "Brief description of workflow purpose and functionality"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., 1.2.3)"
+    },
+    "category": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 50,
+      "pattern": "^[a-z0-9\\-]+$",
+      "description": "Workflow category (kebab-case)",
+      "examples": [
+        "data-processing",
+        "notifications",
+        "integrations",
+        "automation",
+        "reporting",
+        "monitoring"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 30,
+        "pattern": "^[a-z0-9\\-]+$"
+      },
+      "description": "Descriptive tags for the workflow"
+    },
+    "author": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 100,
+      "description": "Author or team responsible for the workflow"
+    },
+    "created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date (YYYY-MM-DD)"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date (YYYY-MM-DD)"
+    },
+    "n8n_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Compatible n8n version (semantic version)"
+    },
+    "requirements": {
+      "type": "object",
+      "description": "Workflow requirements and dependencies",
+      "properties": {
+        "credentials": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "description": "Required n8n credential types"
+        },
+        "nodes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 50
+          },
+          "description": "Required n8n node types"
+        },
+        "environment_variables": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$"
+          },
+          "description": "Required environment variables"
+        },
+        "external_services": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 100
+          },
+          "description": "External services or APIs used"
+        }
+      },
+      "additionalProperties": false
+    },
+    "triggers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "webhook",
+          "schedule",
+          "manual",
+          "email",
+          "file-system",
+          "database",
+          "queue",
+          "form",
+          "chat",
+          "sms",
+          "api"
+        ]
+      },
+      "description": "Types of triggers used in the workflow"
+    },
+    "complexity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "very-high"],
+      "description": "Workflow complexity level"
+    },
+    "execution_time": {
+      "type": "string",
+      "pattern": "^(<|≤|~)?\\d+(-\\d+)?\\s*(seconds?|minutes?|hours?)$",
+      "description": "Expected execution time (e.g., '30-60 seconds', '~5 minutes')",
+      "examples": [
+        "30-60 seconds",
+        "~5 minutes",
+        "<10 seconds",
+        "2-5 minutes",
+        "1-2 hours"
+      ]
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource usage characteristics",
+      "properties": {
+        "memory": {
+          "type": "string",
+          "enum": ["minimal", "low", "medium", "high", "very-high"],
+          "description": "Memory usage level"
+        },
+        "cpu": {
+          "type": "string",
+          "enum": ["minimal", "low", "medium", "high", "very-high"],
+          "description": "CPU usage level"
+        },
+        "storage": {
+          "type": "string",
+          "enum": ["minimal", "low", "medium", "high", "very-high"],
+          "description": "Storage usage level"
+        },
+        "network": {
+          "type": "string",
+          "enum": ["minimal", "low", "medium", "high", "very-high"],
+          "description": "Network usage level"
+        }
+      },
+      "additionalProperties": false
+    },
+    "business_impact": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Business impact level if workflow fails"
+    },
+    "maintenance": {
+      "type": "object",
+      "description": "Maintenance and support information",
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": ["none", "rarely", "monthly", "weekly", "daily"],
+          "description": "Expected maintenance frequency"
+        },
+        "last_reviewed": {
+          "type": "string",
+          "format": "date",
+          "description": "Last review date (YYYY-MM-DD)"
+        },
+        "next_review": {
+          "type": "string",
+          "format": "date",
+          "description": "Next scheduled review date (YYYY-MM-DD)"
+        },
+        "support_contact": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 100,
+          "description": "Primary support contact"
+        }
+      },
+      "additionalProperties": false
+    },
+    "testing": {
+      "type": "object",
+      "description": "Testing and validation information",
+      "properties": {
+        "test_data_required": {
+          "type": "boolean",
+          "description": "Whether test data is required"
+        },
+        "test_environment": {
+          "type": "string",
+          "enum": ["local", "development", "staging", "production"],
+          "description": "Recommended test environment"
+        },
+        "validation_steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 5,
+            "maxLength": 200
+          },
+          "description": "Steps to validate workflow functionality"
+        },
+        "known_issues": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 300
+          },
+          "description": "Known issues or limitations"
+        }
+      },
+      "additionalProperties": false
+    },
+    "security": {
+      "type": "object",
+      "description": "Security considerations",
+      "properties": {
+        "data_sensitivity": {
+          "type": "string",
+          "enum": ["public", "internal", "confidential", "restricted"],
+          "description": "Data sensitivity level"
+        },
+        "compliance_requirements": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["GDPR", "HIPAA", "SOX", "PCI-DSS", "SOC2", "ISO27001"]
+          },
+          "description": "Applicable compliance requirements"
+        },
+        "security_review_required": {
+          "type": "boolean",
+          "description": "Whether security review is required"
+        }
+      },
+      "additionalProperties": false
+    },
+    "documentation_urls": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "description": "Additional documentation URLs"
+    },
+    "changelog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["version", "date", "changes"],
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "changes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 200
+            }
+          },
+          "breaking_changes": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "description": "Version history and changes"
+    }
+  },
+  "additionalProperties": false
+}

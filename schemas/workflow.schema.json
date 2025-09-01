@@ -1,0 +1,224 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.n8n-workflows.org/workflow.schema.json",
+  "title": "n8n Workflow Schema",
+  "description": "JSON schema for validating n8n workflow export files",
+  "type": "object",
+  "required": ["name", "nodes", "connections"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the workflow"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "Human-readable name of the workflow"
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array of workflow nodes",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "connections": {
+      "type": "object",
+      "description": "Connections between nodes",
+      "patternProperties": {
+        "^[a-zA-Z0-9_-]+$": {
+          "type": "object",
+          "properties": {
+            "main": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/connection"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "active": {
+      "type": "boolean",
+      "description": "Whether the workflow is active"
+    },
+    "settings": {
+      "type": "object",
+      "description": "Workflow-level settings",
+      "properties": {
+        "executionOrder": {
+          "type": "string",
+          "enum": ["v0", "v1"]
+        },
+        "saveManualExecutions": {
+          "type": "boolean"
+        },
+        "callerPolicy": {
+          "type": "string"
+        },
+        "errorWorkflow": {
+          "type": "string"
+        }
+      }
+    },
+    "staticData": {
+      "type": "object",
+      "description": "Static data for the workflow"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "triggerCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of trigger nodes in the workflow"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "versionId": {
+      "type": "string",
+      "description": "Version identifier"
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": ["id", "name", "type", "typeVersion", "position"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique node identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Node display name"
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Node type identifier"
+        },
+        "typeVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Version of the node type definition"
+        },
+        "position": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "Node position [x, y]"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Node configuration parameters"
+        },
+        "credentials": {
+          "type": "object",
+          "description": "Node credential assignments",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "webhookId": {
+          "type": "string",
+          "description": "Webhook identifier for trigger nodes"
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Whether the node is disabled"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Node documentation/notes"
+        },
+        "continueOnFail": {
+          "type": "boolean",
+          "description": "Whether to continue execution on node failure"
+        },
+        "retryOnFail": {
+          "type": "boolean",
+          "description": "Whether to retry on node failure"
+        },
+        "maxTries": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum retry attempts"
+        },
+        "waitBetweenTries": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Wait time between retries in milliseconds"
+        },
+        "alwaysOutputData": {
+          "type": "boolean",
+          "description": "Whether to always output data even on failure"
+        },
+        "onError": {
+          "type": "string",
+          "enum": ["stopWorkflow", "continueRegularOutput", "continueErrorOutput"],
+          "description": "Error handling strategy"
+        }
+      }
+    },
+    "connection": {
+      "type": "object",
+      "required": ["node", "type", "index"],
+      "properties": {
+        "node": {
+          "type": "string",
+          "description": "Target node name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["main", "ai_languageModel", "ai_memory", "ai_tool"],
+          "description": "Connection type"
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Output index"
+        }
+      }
+    }
+  }
+}

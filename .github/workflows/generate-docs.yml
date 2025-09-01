@@ -1,0 +1,221 @@
+name: Generate Documentation
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_regenerate:
+        description: 'Force regenerate all README files'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Generate workflow READMEs
+      run: |
+        echo "📝 Generating workflow documentation..."
+        
+        if [[ "${{ github.event.inputs.force_regenerate }}" == "true" ]]; then
+          echo "🔄 Force regenerating all README files..."
+          find workflows -name "README.md" -delete
+        fi
+        
+        npm run generate-readme
+
+    - name: Generate repository statistics
+      run: |
+        echo "📊 Generating repository statistics..."
+        
+        # Create stats directory
+        mkdir -p docs/stats
+        
+        # Generate workflow statistics
+        cat > docs/stats/repository-stats.md << 'EOF'
+        # Repository Statistics
+        
+        Generated on: $(date -u)
+        
+        ## Workflow Count by Category
+        
+        EOF
+        
+        # Count workflows by category
+        for category in workflows/*/; do
+          if [ -d "$category" ]; then
+            category_name=$(basename "$category")
+            workflow_count=$(find "$category" -name "workflow.json" | wc -l)
+            echo "- **$category_name**: $workflow_count workflows" >> docs/stats/repository-stats.md
+          fi
+        done
+        
+        # Total count
+        total_workflows=$(find workflows -name "workflow.json" | wc -l)
+        echo "" >> docs/stats/repository-stats.md
+        echo "**Total Workflows**: $total_workflows" >> docs/stats/repository-stats.md
+
+    - name: Update main README
+      run: |
+        echo "📋 Updating main README with current statistics..."
+        
+        # Count workflows and categories for main README
+        workflow_count=$(find workflows -name "workflow.json" | wc -l)
+        category_count=$(find workflows -maxdepth 1 -type d | grep -v "^workflows$" | wc -l)
+        
+        # Update or create main README if it doesn't exist
+        if [ ! -f README.md ]; then
+          cat > README.md << EOF
+        # n8n Workflows Repository
+        
+        This repository contains a structured collection of n8n workflows organized by category.
+        
+        ## Current Statistics
+        - **Total Workflows**: $workflow_count
+        - **Categories**: $category_count
+        - **Last Updated**: $(date -u)
+        
+        ## Repository Structure
+        \`\`\`
+        workflows/
+        ├── data-processing/    # Data transformation and processing workflows
+        ├── notifications/      # Notification and alerting workflows  
+        ├── integrations/       # System integration workflows
+        └── ...
+        \`\`\`
+        
+        ## Usage
+        
+        ### Adding a New Workflow
+        1. Choose appropriate category or create a new one
+        2. Create workflow folder with kebab-case naming
+        3. Add required files: workflow.json, metadata.json, README.md
+        4. Run validation: \`npm run validate-all-workflows\`
+        
+        ### Validation
+        \`\`\`bash
+        npm install
+        npm run validate-all-workflows
+        npm run check-metadata-consistency
+        \`\`\`
+        
+        ### Documentation Generation
+        \`\`\`bash
+        npm run generate-readme
+        \`\`\`
+        
+        ## Categories
+        EOF
+          
+          # Add category descriptions
+          for category in workflows/*/; do
+            if [ -d "$category" ]; then
+              category_name=$(basename "$category")
+              workflow_count=$(find "$category" -name "workflow.json" | wc -l)
+              echo "- **$category_name** ($workflow_count workflows)" >> README.md
+            fi
+          done
+        fi
+
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if git diff --quiet; then
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No changes to commit"
+        else
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "Changes detected"
+        fi
+
+    - name: Commit and push changes
+      if: steps.check_changes.outputs.changes == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        git add .
+        git commit -m "docs: auto-generate workflow documentation
+        
+        - Updated workflow README files
+        - Refreshed repository statistics
+        - Generated on $(date -u)
+        
+        🤖 Generated with GitHub Actions"
+        
+        git push
+
+    - name: Create summary
+      if: always()
+      run: |
+        echo "## Documentation Generation Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ steps.check_changes.outputs.changes }}" == "true" ]]; then
+          echo "✅ Documentation updated successfully" >> $GITHUB_STEP_SUMMARY
+          echo "📝 Changes committed and pushed to repository" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "ℹ️ No documentation updates needed" >> $GITHUB_STEP_SUMMARY
+          echo "📋 All documentation is up to date" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Add statistics
+        workflow_count=$(find workflows -name "workflow.json" | wc -l)
+        category_count=$(find workflows -maxdepth 1 -type d | grep -v "^workflows$" | wc -l)
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Repository Statistics" >> $GITHUB_STEP_SUMMARY
+        echo "- **Total Workflows**: $workflow_count" >> $GITHUB_STEP_SUMMARY
+        echo "- **Categories**: $category_count" >> $GITHUB_STEP_SUMMARY
+        echo "- **Generated**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+
+  validate-generated-docs:
+    runs-on: ubuntu-latest
+    needs: generate-docs
+    if: always()
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Validate generated documentation
+      run: |
+        echo "🔍 Validating generated documentation..."
+        npm run validate-all-workflows
+        
+        # Check that all workflows have README files
+        missing_readmes=$(find workflows -name "workflow.json" -execdir test ! -f README.md \; -print | wc -l)
+        
+        if [ $missing_readmes -gt 0 ]; then
+          echo "❌ Found $missing_readmes workflows without README files"
+          exit 1
+        else
+          echo "✅ All workflows have README documentation"
+        fi

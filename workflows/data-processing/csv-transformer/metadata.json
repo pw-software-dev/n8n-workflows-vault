@@ -1,0 +1,81 @@
+{
+  "name": "CSV Data Transformer",
+  "description": "Transforms CSV files into structured JSON format with validation and error handling",
+  "version": "1.2.0",
+  "category": "data-processing",
+  "tags": ["csv", "transformation", "data", "json", "validation"],
+  "author": "data-team",
+  "created": "2024-01-15",
+  "updated": "2024-08-20",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [],
+    "nodes": ["Webhook", "Code", "If", "Respond to Webhook"],
+    "environment_variables": []
+  },
+  "triggers": ["webhook"],
+  "complexity": "medium",
+  "execution_time": "5-15 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  },
+  "business_impact": "medium",
+  "maintenance": {
+    "frequency": "monthly",
+    "last_reviewed": "2024-08-20",
+    "next_review": "2024-09-20",
+    "support_contact": "data-team@company.com"
+  },
+  "testing": {
+    "test_data_required": true,
+    "test_environment": "development",
+    "validation_steps": [
+      "Send POST request with sample CSV data",
+      "Verify JSON response structure",
+      "Test with malformed CSV data",
+      "Confirm error handling works correctly"
+    ],
+    "known_issues": [
+      "Large CSV files (>10MB) may cause timeout",
+      "Special characters in CSV headers need escaping"
+    ]
+  },
+  "security": {
+    "data_sensitivity": "internal",
+    "compliance_requirements": [],
+    "security_review_required": false
+  },
+  "documentation_urls": [],
+  "changelog": [
+    {
+      "version": "1.2.0",
+      "date": "2024-08-20",
+      "changes": [
+        "Added data validation step",
+        "Improved error handling",
+        "Enhanced response format"
+      ],
+      "breaking_changes": false
+    },
+    {
+      "version": "1.1.0",
+      "date": "2024-05-15",
+      "changes": [
+        "Added timestamp to response",
+        "Improved CSV parsing for edge cases"
+      ],
+      "breaking_changes": false
+    },
+    {
+      "version": "1.0.0",
+      "date": "2024-01-15",
+      "changes": [
+        "Initial release",
+        "Basic CSV to JSON transformation"
+      ],
+      "breaking_changes": false
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "n8n-workflows",
+  "version": "1.0.0",
+  "description": "Structured repository for managing n8n workflows with validation and automation",
+  "main": "index.js",
+  "scripts": {
+    "validate-all-workflows": "node scripts/validate-workflow.js",
+    "check-metadata-consistency": "node scripts/validate-workflow.js --check-consistency",
+    "validate-readme-completeness": "node scripts/validate-workflow.js --check-readme",
+    "generate-readme": "node scripts/generate-readme.js",
+    "migrate-workflow": "node scripts/migrate-workflow.js",
+    "test": "npm run validate-all-workflows"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
+  "keywords": [
+    "n8n",
+    "workflows",
+    "automation",
+    "validation"
+  ],
+  "author": "",
+  "license": "MIT"
+}

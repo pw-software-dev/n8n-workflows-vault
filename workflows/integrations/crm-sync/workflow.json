@@ -1,0 +1,253 @@
+{
+  "name": "CRM Data Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "value": "0 */6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-1234-5678-9012-345678901234",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.example-crm.com/contacts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "updated_since",
+              "value": "={{ $now.minus({hours: 6}).toISO() }}"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "http-request-1234-5678-9012-abcdef123456",
+      "name": "Fetch CRM Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "crm-api-key",
+          "name": "CRM API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform CRM data to internal format\nconst contacts = $input.first().json.data || [];\nconst transformed = [];\n\nfor (const contact of contacts) {\n  const transformedContact = {\n    external_id: contact.id,\n    email: contact.email,\n    first_name: contact.first_name,\n    last_name: contact.last_name,\n    company: contact.company_name,\n    phone: contact.phone,\n    status: contact.status,\n    last_activity: contact.updated_at,\n    sync_timestamp: new Date().toISOString(),\n    source: 'crm-sync'\n  };\n  \n  // Only include contacts with valid email\n  if (transformedContact.email && transformedContact.email.includes('@')) {\n    transformed.push(transformedContact);\n  }\n}\n\nconsole.log(`Processed ${transformed.length} valid contacts`);\n\nreturn transformed.map(contact => ({ json: contact }));"
+      },
+      "id": "transform-code-1234-5678-9012-defabc654321",
+      "name": "Transform Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.internal-system.com/contacts/bulk-upsert",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contacts: $input.all().map(item => item.json) }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "sync-request-1234-5678-9012-fedcba987654",
+      "name": "Sync to Internal System",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "internal-api-auth",
+          "name": "Internal API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "#integration-logs",
+        "text": "CRM Sync Completed",
+        "otherOptions": {
+          "attachments": [
+            {
+              "color": "good",
+              "fields": [
+                {
+                  "title": "Contacts Synced",
+                  "value": "={{ $json.synced_count }}",
+                  "short": true
+                },
+                {
+                  "title": "Status",
+                  "value": "Success",
+                  "short": true
+                },
+                {
+                  "title": "Timestamp",
+                  "value": "={{ new Date().toISOString() }}",
+                  "short": false
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "id": "slack-success-1234-5678-9012-abcdef789012",
+      "name": "Success Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1120, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-bot-token",
+          "name": "Slack Bot Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "#integration-alerts",
+        "text": "❌ CRM Sync Failed",
+        "otherOptions": {
+          "attachments": [
+            {
+              "color": "danger",
+              "fields": [
+                {
+                  "title": "Error",
+                  "value": "={{ $json.error?.message || 'Unknown error' }}",
+                  "short": false
+                },
+                {
+                  "title": "Timestamp",
+                  "value": "={{ new Date().toISOString() }}",
+                  "short": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "id": "slack-error-1234-5678-9012-fedcba456789",
+      "name": "Error Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1120, 400],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-bot-token",
+          "name": "Slack Bot Token"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch CRM Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CRM Contacts": {
+      "main": [
+        [
+          {
+            "node": "Transform Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform Data": {
+      "main": [
+        [
+          {
+            "node": "Sync to Internal System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync to Internal System": {
+      "main": [
+        [
+          {
+            "node": "Success Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "error-handler-workflow-id"
+  },
+  "versionId": "crm-sync-v2-1-0",
+  "id": "3",
+  "tags": [
+    {
+      "id": "integration",
+      "name": "integration"
+    },
+    {
+      "id": "crm",
+      "name": "crm"
+    },
+    {
+      "id": "sync",
+      "name": "sync"
+    }
+  ],
+  "triggerCount": 1,
+  "createdAt": "2024-03-10T08:00:00.000Z",
+  "updatedAt": "2024-08-25T16:45:00.000Z"
+}

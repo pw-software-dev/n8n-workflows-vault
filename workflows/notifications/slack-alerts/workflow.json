@@ -1,0 +1,213 @@
+{
+  "name": "Slack Alert System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alert",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-1111-2222-3333-444455556666",
+      "name": "Alert Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "alert-webhook-12345"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "severity-check-1",
+              "leftValue": "={{ $json.severity }}",
+              "rightValue": "critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "b2c3d4e5-2222-3333-4444-555566667777",
+      "name": "Check Severity",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "channel": "#alerts-critical",
+        "text": "🚨 CRITICAL ALERT 🚨",
+        "otherOptions": {
+          "attachments": [
+            {
+              "color": "danger",
+              "fields": [
+                {
+                  "title": "Service",
+                  "value": "={{ $json.service }}",
+                  "short": true
+                },
+                {
+                  "title": "Message",
+                  "value": "={{ $json.message }}",
+                  "short": false
+                },
+                {
+                  "title": "Timestamp",
+                  "value": "={{ $json.timestamp }}",
+                  "short": true
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "id": "c3d4e5f6-3333-4444-5555-666677778888",
+      "name": "Critical Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [680, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-bot-token",
+          "name": "Slack Bot Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channel": "#alerts-general",
+        "text": "⚠️ System Alert",
+        "otherOptions": {
+          "attachments": [
+            {
+              "color": "warning",
+              "fields": [
+                {
+                  "title": "Service",
+                  "value": "={{ $json.service }}",
+                  "short": true
+                },
+                {
+                  "title": "Severity",
+                  "value": "={{ $json.severity }}",
+                  "short": true
+                },
+                {
+                  "title": "Message",
+                  "value": "={{ $json.message }}",
+                  "short": false
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "id": "d4e5f6g7-4444-5555-6666-777788889999",
+      "name": "General Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [680, 400],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-bot-token",
+          "name": "Slack Bot Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Alert sent to Slack\",\n  \"channel\": \"{{ $json.channel }}\",\n  \"timestamp\": \"{{ new Date().toISOString() }}\"\n}"
+      },
+      "id": "e5f6g7h8-5555-6666-7777-888899990000",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Alert Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Severity": {
+      "main": [
+        [
+          {
+            "node": "Critical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "General Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critical Alert": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "General Alert": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "slack-alert-v1-2-0",
+  "id": "2",
+  "tags": [
+    {
+      "id": "notifications",
+      "name": "notifications"
+    },
+    {
+      "id": "alerts",
+      "name": "alerts"
+    }
+  ],
+  "triggerCount": 1,
+  "createdAt": "2024-02-01T09:00:00.000Z",
+  "updatedAt": "2024-08-15T11:20:00.000Z"
+}

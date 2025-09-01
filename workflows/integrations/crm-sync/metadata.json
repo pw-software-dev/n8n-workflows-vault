@@ -1,0 +1,113 @@
+{
+  "name": "CRM Data Sync",
+  "description": "Automated bidirectional synchronization between external CRM system and internal database with data transformation and error handling",
+  "version": "2.1.0",
+  "category": "integrations",
+  "tags": ["crm", "sync", "integration", "database", "automation", "scheduled"],
+  "author": "integration-team",
+  "created": "2024-03-10",
+  "updated": "2024-08-25",
+  "n8n_version": "1.47.0",
+  "requirements": {
+    "credentials": ["httpHeaderAuth", "httpBasicAuth", "slackApi"],
+    "nodes": ["Schedule Trigger", "HTTP Request", "Code", "Slack"],
+    "environment_variables": ["CRM_API_BASE_URL", "INTERNAL_API_BASE_URL"],
+    "external_services": ["CRM API", "Internal System API", "Slack API"]
+  },
+  "triggers": ["schedule"],
+  "complexity": "high",
+  "execution_time": "2-5 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low",
+    "network": "high"
+  },
+  "business_impact": "critical",
+  "maintenance": {
+    "frequency": "weekly",
+    "last_reviewed": "2024-08-25",
+    "next_review": "2024-09-25",
+    "support_contact": "integration-team@company.com"
+  },
+  "testing": {
+    "test_data_required": true,
+    "test_environment": "staging",
+    "validation_steps": [
+      "Verify CRM API connectivity and authentication",
+      "Test data transformation logic with sample records",
+      "Validate internal system API upsert functionality",
+      "Confirm Slack notifications are sent correctly",
+      "Check error handling with invalid data",
+      "Verify schedule trigger runs at correct intervals"
+    ],
+    "known_issues": [
+      "Large data sets (>1000 records) may require pagination implementation",
+      "CRM API has rate limits of 100 requests/minute",
+      "Internal system occasionally returns 503 during maintenance windows"
+    ]
+  },
+  "security": {
+    "data_sensitivity": "confidential",
+    "compliance_requirements": ["GDPR"],
+    "security_review_required": true
+  },
+  "documentation_urls": [
+    "https://docs.example-crm.com/api/v2",
+    "https://internal-docs.company.com/api/contacts"
+  ],
+  "changelog": [
+    {
+      "version": "2.1.0",
+      "date": "2024-08-25",
+      "changes": [
+        "Added bulk upsert functionality for improved performance",
+        "Enhanced data validation and transformation logic",
+        "Implemented comprehensive error notifications",
+        "Added support for company data synchronization"
+      ],
+      "breaking_changes": false
+    },
+    {
+      "version": "2.0.0",
+      "date": "2024-06-20",
+      "changes": [
+        "Migrated to new CRM API v2",
+        "Implemented bidirectional sync capability",
+        "Added Slack notifications for monitoring",
+        "Improved error handling and retry logic"
+      ],
+      "breaking_changes": true
+    },
+    {
+      "version": "1.2.0",
+      "date": "2024-05-01",
+      "changes": [
+        "Added data transformation for phone numbers",
+        "Implemented duplicate detection logic",
+        "Enhanced logging and monitoring"
+      ],
+      "breaking_changes": false
+    },
+    {
+      "version": "1.1.0",
+      "date": "2024-04-15",
+      "changes": [
+        "Added incremental sync based on timestamps",
+        "Improved performance for large datasets",
+        "Fixed timezone handling issues"
+      ],
+      "breaking_changes": false
+    },
+    {
+      "version": "1.0.0",
+      "date": "2024-03-10",
+      "changes": [
+        "Initial release",
+        "Basic CRM to internal system sync",
+        "Scheduled execution every 6 hours"
+      ],
+      "breaking_changes": false
+    }
+  ]
+}
