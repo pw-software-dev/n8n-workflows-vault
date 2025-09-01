@@ -1,9 +1,21 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
+import { WorkflowMetadata, ResourceUsage } from '../types/workflow';
+
+type MigrationFunction = (workflowPath: string, currentVersion: string) => string;
+
+interface MigrationSummary {
+  migrated: number;
+  skipped: number;
+  failed: number;
+  total: number;
+}
 
 class WorkflowMigrator {
+  private migrations: Map<string, MigrationFunction>;
+
   constructor() {
     this.migrations = new Map([
       ['1.0.0', this.migrateToV1_0_0.bind(this)],
@@ -13,11 +25,12 @@ class WorkflowMigrator {
   }
 
   // Migration to version 1.0.0 (initial structure)
-  migrateToV1_0_0(workflowPath, currentVersion) {
+  private migrateToV1_0_0(workflowPath: string, currentVersion: string): string {
     console.log(`Migrating ${workflowPath} from ${currentVersion} to 1.0.0`);
     
     const metadataPath = path.join(workflowPath, 'metadata.json');
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+    const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+    const metadata: WorkflowMetadata = JSON.parse(metadataContent);
     
     // Ensure basic required fields exist
     if (!metadata.category) {
@@ -37,11 +50,12 @@ class WorkflowMigrator {
   }
 
   // Migration to version 1.1.0 (add performance metrics)
-  migrateToV1_1_0(workflowPath, currentVersion) {
+  private migrateToV1_1_0(workflowPath: string, currentVersion: string): string {
     console.log(`Migrating ${workflowPath} from ${currentVersion} to 1.1.0`);
     
     const metadataPath = path.join(workflowPath, 'metadata.json');
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+    const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+    const metadata: WorkflowMetadata = JSON.parse(metadataContent);
     
     // Add performance characteristics if missing
     if (!metadata.execution_time) {
@@ -57,7 +71,7 @@ class WorkflowMigrator {
         memory: 'medium',
         cpu: 'medium',
         storage: 'minimal'
-      };
+      } as ResourceUsage;
     }
     
     metadata.version = '1.1.0';
@@ -66,11 +80,12 @@ class WorkflowMigrator {
   }
 
   // Migration to version 1.2.0 (add n8n version and enhanced requirements)
-  migrateToV1_2_0(workflowPath, currentVersion) {
+  private migrateToV1_2_0(workflowPath: string, currentVersion: string): string {
     console.log(`Migrating ${workflowPath} from ${currentVersion} to 1.2.0`);
     
     const metadataPath = path.join(workflowPath, 'metadata.json');
-    const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+    const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+    const metadata: WorkflowMetadata = JSON.parse(metadataContent);
     
     // Add n8n version if missing
     if (!metadata.n8n_version) {
@@ -104,7 +119,7 @@ class WorkflowMigrator {
     return '1.2.0';
   }
 
-  compareVersions(version1, version2) {
+  private compareVersions(version1: string, version2: string): number {
     const v1Parts = version1.split('.').map(Number);
     const v2Parts = version2.split('.').map(Number);
     
@@ -119,7 +134,7 @@ class WorkflowMigrator {
     return 0;
   }
 
-  getNextVersion(currentVersion, targetVersion = null) {
+  private getNextVersion(currentVersion: string, targetVersion?: string): string | null {
     const availableVersions = Array.from(this.migrations.keys()).sort((a, b) => 
       this.compareVersions(a, b)
     );
@@ -135,14 +150,15 @@ class WorkflowMigrator {
     return null;
   }
 
-  migrateWorkflow(workflowPath, targetVersion = null) {
+  migrateWorkflow(workflowPath: string, targetVersion?: string): string {
     const metadataPath = path.join(workflowPath, 'metadata.json');
     
     if (!fs.existsSync(metadataPath)) {
       throw new Error(`metadata.json not found in ${workflowPath}`);
     }
     
-    let metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+    const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+    const metadata: WorkflowMetadata = JSON.parse(metadataContent);
     let currentVersion = metadata.version || '0.0.0';
     
     console.log(`Starting migration for ${path.basename(workflowPath)}`);
@@ -162,7 +178,8 @@ class WorkflowMigrator {
           currentVersion = migrationFunc(workflowPath, currentVersion);
           console.log(`✅ Successfully migrated to ${currentVersion}`);
         } catch (error) {
-          console.error(`❌ Migration to ${nextVersion} failed: ${error.message}`);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.error(`❌ Migration to ${nextVersion} failed: ${errorMessage}`);
           throw error;
         }
       }
@@ -174,7 +191,7 @@ class WorkflowMigrator {
     return currentVersion;
   }
 
-  migrateAllWorkflows(targetVersion = null) {
+  migrateAllWorkflows(targetVersion?: string): MigrationSummary {
     const workflowsDir = './workflows';
     
     if (!fs.existsSync(workflowsDir)) {
@@ -214,9 +231,10 @@ class WorkflowMigrator {
             continue;
           }
 
+          const initialVersion = this.getWorkflowVersion(workflowPath);
           const finalVersion = this.migrateWorkflow(workflowPath, targetVersion);
           
-          if (finalVersion !== this.getWorkflowVersion(workflowPath)) {
+          if (finalVersion !== initialVersion) {
             migrated++;
           } else {
             console.log(`  ℹ️  ${workflow} already at target version`);
@@ -224,7 +242,8 @@ class WorkflowMigrator {
           }
           
         } catch (error) {
-          console.log(`  ❌ Failed to migrate ${workflow}: ${error.message}`);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.log(`  ❌ Failed to migrate ${workflow}: ${errorMessage}`);
           failed++;
         }
         
@@ -232,18 +251,27 @@ class WorkflowMigrator {
       }
     }
 
+    const summary: MigrationSummary = {
+      migrated,
+      skipped,
+      failed,
+      total: migrated + skipped + failed
+    };
+
     console.log(`📊 Migration Summary:`);
-    console.log(`  Migrated: ${migrated}`);
-    console.log(`  Skipped: ${skipped}`);
-    console.log(`  Failed: ${failed}`);
-    console.log(`  Total: ${migrated + skipped + failed}`);
+    console.log(`  Migrated: ${summary.migrated}`);
+    console.log(`  Skipped: ${summary.skipped}`);
+    console.log(`  Failed: ${summary.failed}`);
+    console.log(`  Total: ${summary.total}`);
 
     if (failed > 0) {
       process.exit(1);
     }
+
+    return summary;
   }
 
-  getWorkflowVersion(workflowPath) {
+  private getWorkflowVersion(workflowPath: string): string {
     const metadataPath = path.join(workflowPath, 'metadata.json');
     
     if (!fs.existsSync(metadataPath)) {
@@ -251,14 +279,15 @@ class WorkflowMigrator {
     }
     
     try {
-      const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+      const metadata: WorkflowMetadata = JSON.parse(metadataContent);
       return metadata.version || '0.0.0';
     } catch (error) {
       return '0.0.0';
     }
   }
 
-  listAvailableVersions() {
+  listAvailableVersions(): void {
     console.log('Available migration versions:');
     const versions = Array.from(this.migrations.keys()).sort((a, b) => 
       this.compareVersions(a, b)
@@ -287,23 +316,25 @@ if (args.includes('--list-versions')) {
   
   if (args.length > 2 && !args.includes('--target')) {
     // Migrate specific workflow
-    const workflowPath = args[0];
+    const workflowPath = args[0]!;
     try {
       migrator.migrateWorkflow(workflowPath, targetVersion);
     } catch (error) {
-      console.error(`Error: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Error: ${errorMessage}`);
       process.exit(1);
     }
   } else {
     // Migrate all workflows
     migrator.migrateAllWorkflows(targetVersion);
   }
-} else if (args.length === 1 && fs.existsSync(args[0])) {
+} else if (args.length === 1 && fs.existsSync(args[0]!)) {
   // Migrate specific workflow to latest
   try {
-    migrator.migrateWorkflow(args[0]);
+    migrator.migrateWorkflow(args[0]!);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`Error: ${errorMessage}`);
     process.exit(1);
   }
 } else {

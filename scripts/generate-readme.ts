@@ -1,17 +1,29 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
+import { N8nWorkflow, WorkflowMetadata, WorkflowNode, WorkflowRequirements } from '../types/workflow';
+
+interface GenerationSummary {
+  generated: number;
+  failed: number;
+  total: number;
+}
 
 class ReadmeGenerator {
+  private templatePath: string;
+
   constructor() {
     this.templatePath = './templates/workflow-readme.md';
   }
 
-  generateFromWorkflow(workflowPath) {
+  generateFromWorkflow(workflowPath: string): string {
     try {
-      const workflow = JSON.parse(fs.readFileSync(path.join(workflowPath, 'workflow.json'), 'utf8'));
-      const metadata = JSON.parse(fs.readFileSync(path.join(workflowPath, 'metadata.json'), 'utf8'));
+      const workflowContent = fs.readFileSync(path.join(workflowPath, 'workflow.json'), 'utf8');
+      const metadataContent = fs.readFileSync(path.join(workflowPath, 'metadata.json'), 'utf8');
+      
+      const workflow: N8nWorkflow = JSON.parse(workflowContent);
+      const metadata: WorkflowMetadata = JSON.parse(metadataContent);
 
       // Load template
       if (!fs.existsSync(this.templatePath)) {
@@ -49,11 +61,12 @@ class ReadmeGenerator {
       return readmeContent;
 
     } catch (error) {
-      throw new Error(`Failed to generate README for ${workflowPath}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Failed to generate README for ${workflowPath}: ${errorMessage}`);
     }
   }
 
-  generateTriggerTypes(triggerNodes) {
+  private generateTriggerTypes(triggerNodes: WorkflowNode[]): string {
     if (triggerNodes.length === 0) {
       return 'Manual trigger';
     }
@@ -64,7 +77,7 @@ class ReadmeGenerator {
     }).join(', ');
   }
 
-  generateProcessingSteps(processingNodes) {
+  private generateProcessingSteps(processingNodes: WorkflowNode[]): string {
     if (processingNodes.length === 0) {
       return '1. No processing nodes defined';
     }
@@ -76,12 +89,12 @@ class ReadmeGenerator {
     }).join('\n');
   }
 
-  generateDependencies(requirements) {
+  private generateDependencies(requirements?: WorkflowRequirements): string {
     if (!requirements) {
       return 'None specified';
     }
 
-    let deps = [];
+    const deps: string[] = [];
     
     if (requirements.credentials?.length) {
       deps.push(`**Credentials**: ${requirements.credentials.join(', ')}`);
@@ -98,7 +111,7 @@ class ReadmeGenerator {
     return deps.length > 0 ? deps.join('\n') : 'None specified';
   }
 
-  generateReadmeForWorkflow(workflowPath) {
+  generateReadmeForWorkflow(workflowPath: string): void {
     const readmeContent = this.generateFromWorkflow(workflowPath);
     const readmePath = path.join(workflowPath, 'README.md');
     
@@ -106,7 +119,7 @@ class ReadmeGenerator {
     console.log(`✅ Generated README for ${path.basename(workflowPath)}`);
   }
 
-  generateAllReadmes() {
+  generateAllReadmes(): GenerationSummary {
     const workflowsDir = './workflows';
     
     if (!fs.existsSync(workflowsDir)) {
@@ -150,16 +163,25 @@ class ReadmeGenerator {
           generated++;
           
         } catch (error) {
-          console.log(`  ❌ Failed to generate README for ${workflow}: ${error.message}`);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          console.log(`  ❌ Failed to generate README for ${workflow}: ${errorMessage}`);
           failed++;
         }
       }
     }
 
+    const summary: GenerationSummary = {
+      generated,
+      failed,
+      total: generated + failed
+    };
+
     console.log(`\n📊 Generation Summary:`);
-    console.log(`  Generated: ${generated}`);
-    console.log(`  Failed: ${failed}`);
-    console.log(`  Total: ${generated + failed}`);
+    console.log(`  Generated: ${summary.generated}`);
+    console.log(`  Failed: ${summary.failed}`);
+    console.log(`  Total: ${summary.total}`);
+
+    return summary;
   }
 }
 
@@ -167,12 +189,13 @@ class ReadmeGenerator {
 const args = process.argv.slice(2);
 const generator = new ReadmeGenerator();
 
-if (args.length === 1 && fs.existsSync(args[0])) {
+if (args.length === 1 && fs.existsSync(args[0]!)) {
   // Generate README for specific workflow
   try {
-    generator.generateReadmeForWorkflow(args[0]);
+    generator.generateReadmeForWorkflow(args[0]!);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`Error: ${errorMessage}`);
     process.exit(1);
   }
 } else {

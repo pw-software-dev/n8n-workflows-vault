@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const Ajv = require('ajv');
-const addFormats = require('ajv-formats');
+import * as fs from 'fs';
+import * as path from 'path';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+import { N8nWorkflow, WorkflowMetadata, ValidationResult } from '../types/workflow';
 
 class WorkflowValidator {
+  private ajv: Ajv;
+  private workflowSchema: object | null = null;
+  private metadataSchema: object | null = null;
+
   constructor() {
     this.ajv = new Ajv({ allErrors: true, strict: false });
     addFormats(this.ajv);
@@ -13,15 +18,13 @@ class WorkflowValidator {
     // Load schemas if they exist
     this.workflowSchema = this.loadSchema('./schemas/workflow.schema.json');
     this.metadataSchema = this.loadSchema('./schemas/metadata.schema.json');
-    
-    this.errors = [];
-    this.warnings = [];
   }
 
-  loadSchema(schemaPath) {
+  private loadSchema(schemaPath: string): object | null {
     try {
       if (fs.existsSync(schemaPath)) {
-        return JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+        const schemaContent = fs.readFileSync(schemaPath, 'utf8');
+        return JSON.parse(schemaContent);
       }
     } catch (error) {
       console.warn(`Warning: Could not load schema ${schemaPath}`);
@@ -29,8 +32,8 @@ class WorkflowValidator {
     return null;
   }
 
-  validateWorkflowFolder(folderPath) {
-    const results = {
+  validateWorkflowFolder(folderPath: string): ValidationResult {
+    const results: ValidationResult = {
       valid: true,
       errors: [],
       warnings: []
@@ -41,7 +44,7 @@ class WorkflowValidator {
 
     // Check required files exist
     const requiredFiles = ['workflow.json', 'README.md', 'metadata.json'];
-    const missingFiles = [];
+    const missingFiles: string[] = [];
 
     for (const file of requiredFiles) {
       const filePath = path.join(folderPath, file);
@@ -59,7 +62,8 @@ class WorkflowValidator {
     const workflowPath = path.join(folderPath, 'workflow.json');
     if (fs.existsSync(workflowPath)) {
       try {
-        const workflow = JSON.parse(fs.readFileSync(workflowPath, 'utf8'));
+        const workflowContent = fs.readFileSync(workflowPath, 'utf8');
+        const workflow: N8nWorkflow = JSON.parse(workflowContent);
         
         // Basic n8n workflow structure validation
         if (!workflow.nodes || !Array.isArray(workflow.nodes)) {
@@ -78,7 +82,8 @@ class WorkflowValidator {
         }
 
       } catch (error) {
-        results.errors.push(`Invalid JSON in workflow.json: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        results.errors.push(`Invalid JSON in workflow.json: ${errorMessage}`);
         results.valid = false;
       }
     }
@@ -87,10 +92,11 @@ class WorkflowValidator {
     const metadataPath = path.join(folderPath, 'metadata.json');
     if (fs.existsSync(metadataPath)) {
       try {
-        const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+        const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+        const metadata: WorkflowMetadata = JSON.parse(metadataContent);
         
         // Required metadata fields
-        const requiredFields = ['name', 'description', 'version', 'category'];
+        const requiredFields: (keyof WorkflowMetadata)[] = ['name', 'description', 'version', 'category'];
         const missingMetaFields = requiredFields.filter(field => !metadata[field]);
         
         if (missingMetaFields.length > 0) {
@@ -110,7 +116,8 @@ class WorkflowValidator {
         }
 
       } catch (error) {
-        results.errors.push(`Invalid JSON in metadata.json: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        results.errors.push(`Invalid JSON in metadata.json: ${errorMessage}`);
         results.valid = false;
       }
     }
@@ -156,7 +163,7 @@ class WorkflowValidator {
     return results;
   }
 
-  validateAllWorkflows() {
+  validateAllWorkflows(): void {
     const workflowsDir = './workflows';
     let totalValid = 0;
     let totalInvalid = 0;
@@ -202,17 +209,18 @@ class WorkflowValidator {
     }
   }
 
-  checkConsistency() {
+  checkConsistency(): void {
     // Check for duplicate workflow names across categories
-    const workflowNames = new Map();
-    const duplicates = [];
+    const workflowNames = new Map<string, string>();
+    const duplicates: Array<{ name: string; paths: string[] }> = [];
 
-    this.scanAllWorkflows((workflowPath, metadata) => {
+    this.scanAllWorkflows((workflowPath: string, metadata: WorkflowMetadata) => {
       if (metadata.name) {
         if (workflowNames.has(metadata.name)) {
+          const existingPath = workflowNames.get(metadata.name)!;
           duplicates.push({
             name: metadata.name,
-            paths: [workflowNames.get(metadata.name), workflowPath]
+            paths: [existingPath, workflowPath]
           });
         } else {
           workflowNames.set(metadata.name, workflowPath);
@@ -224,7 +232,7 @@ class WorkflowValidator {
       console.log('❌ Duplicate workflow names found:');
       duplicates.forEach(dup => {
         console.log(`  - "${dup.name}" in:`);
-        dup.paths.forEach(path => console.log(`    ${path}`));
+        dup.paths.forEach(workflowPath => console.log(`    ${workflowPath}`));
       });
       process.exit(1);
     } else {
@@ -232,7 +240,7 @@ class WorkflowValidator {
     }
   }
 
-  scanAllWorkflows(callback) {
+  private scanAllWorkflows(callback: (workflowPath: string, metadata: WorkflowMetadata) => void): void {
     const workflowsDir = './workflows';
     const categories = fs.readdirSync(workflowsDir, { withFileTypes: true })
       .filter(dirent => dirent.isDirectory());
@@ -248,7 +256,8 @@ class WorkflowValidator {
         
         if (fs.existsSync(metadataPath)) {
           try {
-            const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+            const metadataContent = fs.readFileSync(metadataPath, 'utf8');
+            const metadata: WorkflowMetadata = JSON.parse(metadataContent);
             callback(workflowPath, metadata);
           } catch (error) {
             console.warn(`Warning: Could not parse metadata for ${workflowPath}`);
