@@ -60,6 +60,18 @@
   - Version: 2.1.0 | Complexity: High | Runtime: 30-60s
   - Enterprise-grade with comprehensive validation
 
+- **[print-do-date-tomorrow](../workflows/integrations/print-do-date-tomorrow/README.md)** - Notion task receipt printer
+  - Version: 1.0.0 | Complexity: Medium | Runtime: 30-60s
+  - Automatically prints task receipts with QR codes for tomorrow's tasks
+
+- **[screenshot-and-print](../workflows/integrations/screenshot-and-print/README.md)** - HTML screenshot and print
+  - Version: 1.0.0 | Complexity: Medium | Runtime: 30-60s
+  - Captures HTML screenshots and sends to printer via HTTP
+
+### Productivity (`/workflows/productivity/`)
+
+- _(Category ready for workflows)_
+
 ## 🏗️ Architecture Overview
 
 ### Repository Structure
@@ -73,7 +85,8 @@ n8n-workflows/
 ├── 📁 workflows/               # Workflow library
 │   ├── 📁 data-processing/
 │   ├── 📁 notifications/
-│   └── 📁 integrations/
+│   ├── 📁 integrations/
+│   └── 📁 productivity/
 ├── 📁 .github/                 # CI/CD & templates
 └── 📄 Configuration files
 ```
@@ -98,8 +111,8 @@ n8n-workflows/
 
 ### Current Status
 
-- **Total Workflows**: 3 (100% validated ✅)
-- **Documentation Coverage**: 810 lines total (avg 270/workflow)
+- **Total Workflows**: 5 (100% validated ✅)
+- **Documentation Coverage**: 1350+ lines total (avg 270/workflow)
 - **Schema Compliance**: 100% metadata validation
 - **CI/CD Health**: All pipelines passing
 
@@ -180,5 +193,5 @@ n8n-workflows/
 
 ---
 
-_Documentation index generated on: 2024-09-01_  
+_Documentation index generated on: 2025-09-02_  
 _Last updated by: Claude Code SuperClaude Framework_

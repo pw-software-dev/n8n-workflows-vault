@@ -1,0 +1,100 @@
+{
+  "name": "Backup Workflows to GitHub",
+  "description": "Automated daily backup of all n8n workflows to a GitHub repository with version control and change tracking",
+  "version": "1.0.0",
+  "category": "automation",
+  "tags": [
+    "backup",
+    "github",
+    "automation",
+    "workflow-management",
+    "version-control",
+    "scheduled"
+  ],
+  "author": "n8n-automation-team",
+  "created": "2024-12-28",
+  "updated": "2024-12-28",
+  "n8n_version": "1.71.0",
+  "requirements": {
+    "credentials": [
+      "n8nApi",
+      "githubApi"
+    ],
+    "nodes": [
+      "n8n-nodes-base.scheduleTrigger",
+      "n8n-nodes-base.n8n",
+      "n8n-nodes-base.splitInBatches",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.github",
+      "n8n-nodes-base.if"
+    ],
+    "environment_variables": [
+      "GITHUB_OWNER",
+      "GITHUB_REPO"
+    ],
+    "external_services": [
+      "GitHub API",
+      "n8n API"
+    ]
+  },
+  "triggers": [
+    "schedule"
+  ],
+  "complexity": "high",
+  "execution_time": "5-15 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low",
+    "network": "high"
+  },
+  "business_impact": "high",
+  "maintenance": {
+    "frequency": "monthly",
+    "last_reviewed": "2024-12-28",
+    "next_review": "2025-01-28",
+    "support_contact": "n8n-automation-team@company.com"
+  },
+  "testing": {
+    "test_data_required": false,
+    "test_environment": "development",
+    "validation_steps": [
+      "Verify n8n API connectivity and authentication",
+      "Test workflow retrieval with sample workflows",
+      "Validate GitHub repository access and file creation",
+      "Confirm backup file format and content integrity",
+      "Test error handling with network failures",
+      "Verify schedule trigger runs at correct intervals"
+    ],
+    "known_issues": [
+      "Large workflows (>10MB) may timeout during GitHub upload",
+      "GitHub API has rate limits of 5000 requests/hour",
+      "Workflow names with special characters may cause file path issues"
+    ]
+  },
+  "security": {
+    "data_sensitivity": "confidential",
+    "compliance_requirements": ["Data retention", "Access control"],
+    "security_review_required": true
+  },
+  "documentation_urls": [
+    "https://docs.n8n.io/integrations/builtin/core-nodes/n8n/n8n/",
+    "https://docs.n8n.io/integrations/builtin/credentials/github/",
+    "https://docs.github.com/en/rest/repos/contents"
+  ],
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2024-12-28",
+      "changes": [
+        "Initial release",
+        "Daily scheduled backup of all workflows to GitHub",
+        "Automatic file creation and updates",
+        "Comprehensive error handling and logging",
+        "Workflow name sanitization for file paths",
+        "Backup summary generation"
+      ],
+      "breaking_changes": false
+    }
+  ]
+}

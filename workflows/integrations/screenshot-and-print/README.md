@@ -1,13 +1,13 @@
-# Screenshot HTML & Print Image
+# Screenshot HTML Print Image
 
-> **Version**: 1.0.0 | **Category**: data-processing | **Author**: your-team  
+> **Version**: 1.0.0 | **Category**: automation | **Author**: your-team  
 > **Created**: 2024-08-30 | **Updated**: 2024-08-30
 
 ## Overview
 
-This workflow captures a screenshot of HTML content, retrieves a URL from Redis, and sends the image to a print service via HTTP requests.
+This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
 
-**Tags**: HTML, screenshot, print, Redis, HTTP  
+**Tags**: html, screenshot, print, http  
 **Complexity**: medium  
 **Estimated Runtime**: 30-60 seconds  
 **Compatible n8n Version**: 1.45.0
@@ -207,7 +207,7 @@ This workflow captures a screenshot of HTML content, retrieves a URL from Redis,
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-**Primary Goal**: This workflow captures a screenshot of HTML content, retrieves a URL from Redis, and sends the image to a print service via HTTP requests.
+**Primary Goal**: This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
 
 **Business Value**: Describe the business value and impact of this workflow
 

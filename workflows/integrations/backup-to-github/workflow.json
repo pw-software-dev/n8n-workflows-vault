@@ -1,0 +1,285 @@
+{
+  "name": "Backup Workflows to GitHub",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "value": "0 2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-backup-trigger",
+      "name": "Daily Backup Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "workflow",
+        "operation": "getMany",
+        "options": {
+          "includeActive": true,
+          "includeInactive": true
+        }
+      },
+      "id": "get-all-workflows",
+      "name": "Get All Workflows",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "credentials": {
+        "n8nApi": {
+          "id": "n8n-api-credentials",
+          "name": "n8n API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "split-workflows",
+      "name": "Split Workflows",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "resource": "workflow",
+        "operation": "get",
+        "workflowId": "={{ $json.id }}"
+      },
+      "id": "get-workflow-details",
+      "name": "Get Workflow Details",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "credentials": {
+        "n8nApi": {
+          "id": "n8n-api-credentials",
+          "name": "n8n API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare workflow data for GitHub backup\nconst workflowData = $input.first().json;\n\n// Create a clean workflow object without system-specific data\nconst cleanWorkflow = {\n  name: workflowData.name,\n  nodes: workflowData.nodes,\n  connections: workflowData.connections,\n  active: workflowData.active || false,\n  settings: workflowData.settings || {},\n  tags: workflowData.tags || [],\n  triggerCount: workflowData.triggerCount || 0,\n  versionId: workflowData.versionId\n};\n\n// If there's pinData, include it\nif (workflowData.pinData && Object.keys(workflowData.pinData).length > 0) {\n  cleanWorkflow.pinData = workflowData.pinData;\n}\n\n// Create file path using workflow name (sanitized for filesystem)\nconst sanitizedName = workflowData.name\n  .toLowerCase()\n  .replace(/[^a-z0-9-\\s]/g, '')\n  .replace(/\\s+/g, '-')\n  .replace(/-+/g, '-')\n  .trim();\n\nconst filePath = `workflows/${sanitizedName}.json`;\n\nreturn {\n  json: {\n    id: workflowData.id,\n    name: workflowData.name,\n    filePath: filePath,\n    content: JSON.stringify(cleanWorkflow, null, 2),\n    commitMessage: `Backup workflow: ${workflowData.name}`,\n    lastModified: workflowData.updatedAt || new Date().toISOString()\n  }\n};"
+      },
+      "id": "prepare-workflow-data",
+      "name": "Prepare Workflow Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "owner": "={{ $env.GITHUB_OWNER || 'your-github-username' }}",
+        "repository": "={{ $env.GITHUB_REPO || 'n8n-workflow-backups' }}",
+        "operation": "file:create",
+        "filePath": "={{ $json.filePath }}",
+        "fileContent": "={{ $json.content }}",
+        "commitMessage": "={{ $json.commitMessage }}",
+        "additionalParameters": {
+          "author": {
+            "name": "n8n Backup Bot",
+            "email": "backup@n8n.local"
+          }
+        },
+        "options": {
+          "createIfMissing": true
+        }
+      },
+      "id": "backup-to-github",
+      "name": "Backup to GitHub",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "credentials": {
+        "githubApi": {
+          "id": "github-api-credentials",
+          "name": "GitHub API"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "owner": "={{ $env.GITHUB_OWNER || 'your-github-username' }}",
+        "repository": "={{ $env.GITHUB_REPO || 'n8n-workflow-backups' }}",
+        "operation": "file:update",
+        "filePath": "={{ $json.filePath }}",
+        "fileContent": "={{ $json.content }}",
+        "commitMessage": "={{ $json.commitMessage }}",
+        "sha": "={{ $json.sha }}",
+        "additionalParameters": {
+          "author": {
+            "name": "n8n Backup Bot",
+            "email": "backup@n8n.local"
+          }
+        }
+      },
+      "id": "update-github-file",
+      "name": "Update GitHub File",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1340, 480],
+      "credentials": {
+        "githubApi": {
+          "id": "github-api-credentials",
+          "name": "GitHub API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create backup summary\nconst processedWorkflows = $input.all().length;\nconst successfulBackups = $input.all().filter(item => !item.json.error).length;\nconst failedBackups = processedWorkflows - successfulBackups;\n\nconst summary = {\n  timestamp: new Date().toISOString(),\n  totalWorkflows: processedWorkflows,\n  successfulBackups: successfulBackups,\n  failedBackups: failedBackups,\n  status: failedBackups === 0 ? 'success' : 'partial_success'\n};\n\nconsole.log('Backup Summary:', JSON.stringify(summary, null, 2));\n\nreturn { json: summary };"
+      },
+      "id": "create-backup-summary",
+      "name": "Create Backup Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "error-exists",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-backup-success",
+      "name": "Check Backup Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 400]
+    }
+  ],
+  "connections": {
+    "Daily Backup Schedule": {
+      "main": [
+        [
+          {
+            "node": "Get All Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Workflows": {
+      "main": [
+        [
+          {
+            "node": "Split Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Workflows": {
+      "main": [
+        [
+          {
+            "node": "Get Workflow Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Workflow Details": {
+      "main": [
+        [
+          {
+            "node": "Prepare Workflow Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Workflow Data": {
+      "main": [
+        [
+          {
+            "node": "Backup to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backup to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Check Backup Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update GitHub File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update GitHub File": {
+      "main": [
+        [
+          {
+            "node": "Check Backup Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Backup Success": {
+      "main": [
+        [
+          {
+            "node": "Create Backup Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": ""
+  },
+  "id": "",
+  "tags": ["backup", "automation", "github", "workflow-management"]
+}

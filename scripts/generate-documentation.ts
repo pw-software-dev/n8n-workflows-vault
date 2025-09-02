@@ -8,8 +8,6 @@ import { exec } from "child_process";
 import { promisify } from "util";
 require("dotenv").config();
 
-console.log(process.env);
-
 const execAsync = promisify(exec);
 
 interface ProcessingSummary {
@@ -17,9 +15,10 @@ interface ProcessingSummary {
   failed: number;
   total: number;
   readmesGenerated: number;
+  validationPassed: boolean;
 }
 
-class MetadataGenerator {
+class DocumentationGenerator {
   private readonly metadataSchema = `{
   "name": "Your Workflow Name",
   "description": "Brief description of what this workflow does",
@@ -50,25 +49,31 @@ class MetadataGenerator {
 Given the workflow.json content, fill in the metadata.json template with accurate values based on the workflow analysis:
 
 INSTRUCTIONS:
-1. Extract the workflow name from the "name" field in the workflow.json
-2. Analyze the nodes array to understand what the workflow does and write a descriptive summary
+1. Extract workflow name from "name" field - MUST only contain letters, numbers, spaces, hyphens, underscores (no symbols like &, +, etc.)
+2. Write descriptive summary (10-500 characters)
 3. Keep version as "1.0.0" unless workflow name indicates otherwise (e.g., "v2")
-4. Categorize appropriately (productivity, integration, notification, data-processing, etc.)
-5. Generate relevant tags based on functionality and services used
+4. Category MUST be kebab-case lowercase (e.g., "data-processing", "integrations", "notifications", "productivity", "automation")
+5. Tags MUST be lowercase kebab-case only (e.g., "html", "redis", "webhook" NOT "HTML", "Redis", "Webhook")
 6. Keep author as "your-team"
-7. Keep the created/updated dates as provided in template
+7. Keep dates as "2024-08-30"
 8. Keep n8n_version as "1.45.0"
-9. For requirements:
-	- credentials: Extract from nodes that have "credentials" property
-	- nodes: List unique node types (e.g., "n8n-nodes-base.webhook", "n8n-nodes-base.notion")
-	- environment_variables: Leave empty unless obvious from workflow
-10. For triggers: Identify trigger types (webhook, cron, manual, etc.)
-11. Assess complexity based on number of nodes and logic complexity (simple/medium/complex)
-12. Estimate execution time based on operations (15-30s, 30-60s, 1-2min, etc.)
-13. For resources, assess:
-    - memory: low/medium/high based on data processing
-    - cpu: low/medium/high based on computational complexity
-    - storage: minimal/low/medium/high based on file operations
+9. Requirements:
+  - credentials: Extract credential names from nodes with "credentials" property
+  - nodes: List full node types (e.g., "n8n-nodes-base.webhook", "n8n-nodes-base.notion")
+  - environment_variables: Leave empty array unless obvious
+10. Triggers: webhook, cron, manual, etc.
+11. Complexity: simple/medium/complex (based on node count and logic)
+12. Execution time: "15-30 seconds", "30-60 seconds", "1-2 minutes", etc.
+13. Resources:
+    - memory: low/medium/high
+    - cpu: low/medium/high  
+    - storage: minimal/low/medium/high
+
+CRITICAL VALIDATION RULES:
+- Name: Only A-Z, a-z, 0-9, spaces, hyphens, underscores
+- Category: lowercase kebab-case only
+- Tags: lowercase kebab-case only (no uppercase letters)
+- All strings must follow exact patterns above
 
 CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code blocks, backticks, or any other formatting. Do not include any explanation text before or after the JSON. Your entire response should be valid JSON that can be parsed directly.`;
 
@@ -95,6 +100,84 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
     });
 
     return text.trim();
+  }
+
+  private validateAndFixMetadata(metadata: any): any {
+    // Fix name - remove special characters not allowed by schema
+    if (metadata.name) {
+      metadata.name = metadata.name.replace(/[^A-Za-z0-9\s\-_]/g, "").trim();
+    }
+
+    // Fix category - convert to lowercase kebab-case
+    if (metadata.category) {
+      metadata.category = metadata.category
+        .toLowerCase()
+        .replace(/[^a-z0-9\-]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+
+    // Fix tags - convert to lowercase kebab-case
+    if (metadata.tags && Array.isArray(metadata.tags)) {
+      metadata.tags = metadata.tags.map((tag: string) =>
+        tag
+          .toLowerCase()
+          .replace(/[^a-z0-9\-]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, ""),
+      );
+    }
+
+    // Fix triggers - ensure lowercase
+    if (metadata.triggers && Array.isArray(metadata.triggers)) {
+      metadata.triggers = metadata.triggers.map((trigger: string) =>
+        trigger.toLowerCase(),
+      );
+    }
+
+    // Fix complexity - ensure valid values
+    if (metadata.complexity) {
+      const validComplexity = ["simple", "medium", "complex"];
+      if (!validComplexity.includes(metadata.complexity.toLowerCase())) {
+        metadata.complexity = "medium"; // Default fallback
+      } else {
+        metadata.complexity = metadata.complexity.toLowerCase();
+      }
+    }
+
+    // Fix resource levels - ensure valid values
+    if (metadata.resources) {
+      const validLevels = ["minimal", "low", "medium", "high"];
+
+      if (
+        metadata.resources.memory &&
+        !validLevels.includes(metadata.resources.memory.toLowerCase())
+      ) {
+        metadata.resources.memory = "low";
+      } else if (metadata.resources.memory) {
+        metadata.resources.memory = metadata.resources.memory.toLowerCase();
+      }
+
+      if (
+        metadata.resources.cpu &&
+        !validLevels.includes(metadata.resources.cpu.toLowerCase())
+      ) {
+        metadata.resources.cpu = "medium";
+      } else if (metadata.resources.cpu) {
+        metadata.resources.cpu = metadata.resources.cpu.toLowerCase();
+      }
+
+      if (
+        metadata.resources.storage &&
+        !validLevels.includes(metadata.resources.storage.toLowerCase())
+      ) {
+        metadata.resources.storage = "minimal";
+      } else if (metadata.resources.storage) {
+        metadata.resources.storage = metadata.resources.storage.toLowerCase();
+      }
+    }
+
+    return metadata;
   }
 
   private async processWorkflow(workflowPath: string): Promise<boolean> {
@@ -154,6 +237,9 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
         throw new Error(`Generated metadata is not valid JSON: ${parseError}`);
       }
 
+      // Post-process and validate the metadata
+      metadataJson = this.validateAndFixMetadata(metadataJson);
+
       // Write metadata.json
       fs.writeFileSync(
         metadataJsonPath,
@@ -209,9 +295,7 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
       process.exit(1);
     }
 
-    console.log(
-      "🤖 Generating metadata.json files for workflows missing them...\n",
-    );
+    console.log("📚 Generating complete documentation for workflows...\n");
 
     const categories = fs
       .readdirSync(workflowsDir, { withFileTypes: true })
@@ -260,18 +344,52 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
       console.log(); // Empty line between categories
     }
 
+    // Run final validation on all workflows
+    console.log(`\n🔍 Running final validation on all workflows...`);
+    let validationPassed = false;
+
+    try {
+      const { stdout, stderr } = await execAsync("pnpm validate-all-workflows");
+
+      if (stderr) {
+        console.log(`⚠️  Validation warnings: ${stderr}`);
+      }
+
+      // Check if validation passed by looking for success indicators
+      if (stdout.includes("Invalid workflows: 0")) {
+        console.log(`✅ All workflows passed validation`);
+        validationPassed = true;
+      } else {
+        console.log(`❌ Some workflows failed validation`);
+        console.log(stdout);
+      }
+    } catch (error) {
+      console.log(`❌ Validation failed with error`);
+      validationPassed = false;
+    }
+
     const summary: ProcessingSummary = {
       generated,
       failed,
       total: generated + failed,
       readmesGenerated,
+      validationPassed,
     };
 
-    console.log(`📊 Processing Summary:`);
+    console.log(`\n📊 Documentation Generation Summary:`);
     console.log(`  Metadata Generated: ${summary.generated}`);
     console.log(`  Failed: ${summary.failed}`);
     console.log(`  READMEs Generated: ${summary.readmesGenerated}`);
     console.log(`  Total Processed: ${summary.total}`);
+    console.log(
+      `  Final Validation: ${validationPassed ? "✅ Passed" : "❌ Failed"}`,
+    );
+
+    if (!validationPassed && summary.generated > 0) {
+      console.log(
+        `\n⚠️  Warning: Some generated documentation may have validation issues`,
+      );
+    }
 
     return summary;
   }
@@ -282,14 +400,42 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
       process.exit(1);
     }
 
-    console.log(`🤖 Processing workflow: ${path.basename(workflowPath)}\n`);
+    console.log(
+      `📚 Processing workflow documentation: ${path.basename(workflowPath)}\n`,
+    );
 
     const success = await this.processWorkflow(workflowPath);
 
     if (success) {
       console.log(`\n📝 Generating README...`);
       await this.generateReadme(workflowPath);
-      console.log(`\n✅ Successfully processed ${path.basename(workflowPath)}`);
+
+      // Validate the specific workflow
+      console.log(`\n🔍 Validating workflow...`);
+      try {
+        const { stdout, stderr } = await execAsync(
+          `pnpm validate-all-workflows`,
+        );
+
+        if (stderr) {
+          console.log(`⚠️  Validation warnings: ${stderr}`);
+        }
+
+        if (stdout.includes("Invalid workflows: 0")) {
+          console.log(`✅ Workflow validation passed`);
+        } else {
+          console.log(`❌ Workflow validation failed`);
+          console.log(stdout);
+        }
+      } catch (error) {
+        console.log(`❌ Validation failed with error: ${error}`);
+      }
+
+      console.log(
+        `\n✅ Successfully processed documentation for ${path.basename(
+          workflowPath,
+        )}`,
+      );
     } else {
       console.log(`\n❌ Failed to process ${path.basename(workflowPath)}`);
       process.exit(1);
@@ -299,7 +445,7 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
 
 // CLI handling
 const args = process.argv.slice(2);
-const generator = new MetadataGenerator();
+const generator = new DocumentationGenerator();
 
 async function main(): Promise<void> {
   // Check for OpenAI API key

@@ -9,7 +9,7 @@
     "check-metadata-consistency": "ts-node scripts/validate-workflow.ts --check-consistency",
     "validate-readme-completeness": "ts-node scripts/validate-workflow.ts --check-readme",
     "generate-readme": "ts-node scripts/generate-readme.ts",
-    "generate-metadata": "ts-node scripts/generate-metadata.ts",
+    "generate-documentation": "ts-node scripts/generate-documentation.ts",
     "migrate-workflow": "ts-node scripts/migrate-workflow.ts",
     "test": "npm run validate-all-workflows",
     "type-check": "tsc --noEmit"

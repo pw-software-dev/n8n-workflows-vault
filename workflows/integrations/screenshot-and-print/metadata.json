@@ -1,14 +1,13 @@
 {
-  "name": "Screenshot HTML & Print Image",
-  "description": "This workflow captures a screenshot of HTML content, retrieves a URL from Redis, and sends the image to a print service via HTTP requests.",
-  "version": "1.2.0",
-  "category": "data-processing",
+  "name": "Screenshot HTML Print Image",
+  "description": "This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.",
+  "version": "1.0.0",
+  "category": "automation",
   "tags": [
-    "HTML",
+    "html",
     "screenshot",
     "print",
-    "Redis",
-    "HTTP"
+    "http"
   ],
   "author": "your-team",
   "created": "2024-08-30",

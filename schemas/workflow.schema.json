@@ -125,7 +125,7 @@
           "description": "Node type identifier"
         },
         "typeVersion": {
-          "type": "integer",
+          "type": "number",
           "minimum": 1,
           "description": "Version of the node type definition"
         },

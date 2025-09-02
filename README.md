@@ -7,9 +7,9 @@
 
 ## 📊 Current Statistics
 
-- **Total Workflows**: 3
-- **Categories**: 3 (data-processing, notifications, integrations)
-- **Last Updated**: 2024-08-30
+- **Total Workflows**: 5
+- **Categories**: 4 (data-processing, notifications, integrations, productivity)
+- **Last Updated**: 2025-09-02
 - **Repository Health**: ✅ All workflows validated
 
 ## 🏗️ Repository Structure
@@ -43,11 +43,20 @@ n8n-workflows/
     │       ├── workflow.json
     │       ├── metadata.json
     │       └── README.md
-    └── integrations/                 # System integration workflows
-        └── crm-sync/
-            ├── workflow.json
-            ├── metadata.json
-            └── README.md
+    ├── integrations/                 # System integration workflows
+    │   ├── crm-sync/
+    │   │   ├── workflow.json
+    │   │   ├── metadata.json
+    │   │   └── README.md
+    │   ├── print-do-date-tomorrow/
+    │   │   ├── workflow.json
+    │   │   ├── metadata.json
+    │   │   └── README.md
+    │   └── screenshot-and-print/
+    │       ├── workflow.json
+    │       ├── metadata.json
+    │       └── README.md
+    └── productivity/                  # Productivity and automation workflows
 ```
 
 ## 🚀 Quick Start
@@ -159,6 +168,14 @@ Alert and notification systems for monitoring and communication.
 System integration workflows for connecting different services.
 
 - **crm-sync** - Bidirectional CRM data synchronization
+- **print-do-date-tomorrow** - Automatically prints task receipts for Notion tasks scheduled for tomorrow
+- **screenshot-and-print** - Captures screenshots of HTML content and sends to printer
+
+### 📈 Productivity
+
+Automation workflows for productivity and task management.
+
+_(Category ready for workflows)_
 
 ## 🛠️ Available Scripts
 
@@ -374,4 +391,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-_Last updated: 2024-08-30 | Repository maintained by Integration Team_
+_Last updated: 2025-09-02 | Repository maintained by Integration Team_
