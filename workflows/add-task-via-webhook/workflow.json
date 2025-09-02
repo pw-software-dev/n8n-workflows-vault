@@ -1,0 +1,359 @@
+{
+  "name": "Add Task via Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tasks",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        32
+      ],
+      "id": "61120461-9572-4b79-80af-4a0d99f7212a",
+      "name": "Webhook",
+      "webhookId": "71834db2-e8b4-4b85-9313-3e2ee27a1abc",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "GEZLsBSlxL8jlIx9",
+          "name": "Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "850ef7fb-c7c1-4781-b3f9-b38942be0f26",
+              "leftValue": "={{ $json.body.title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "87c65eef-204e-454a-8cbf-f2d74e089b79",
+              "leftValue": "={{ $json.body.description }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        32
+      ],
+      "id": "22c39df3-71be-4ec7-99dd-6466c07b0bb2",
+      "name": "Validate Body"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.portkey.ai/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.body.title }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        -64
+      ],
+      "id": "ac1c8377-d006-4869-9ccd-741185345c5b",
+      "name": "Create Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "wnmvd8Tpttvq0jKD",
+          "mode": "list",
+          "cachedResultName": "Process Tasks"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "description": "={{ $('Webhook').item.json.body.description }}",
+            "title": "={{ $('Webhook').item.json.body.title }}",
+            "transcript": "EMPTY TRANSCRIPT",
+            "priority": "={{ $('Webhook').item.json.body.priority }}",
+            "project": "={{ $('Webhook').item.json.body.project }}",
+            "dueDate": "={{ $('Webhook').item.json.body.dueDate }}",
+            "status": "={{ $('Webhook').item.json.body.status}}",
+            "parent": "={{ $('Webhook').item.json.body.parent }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "project",
+              "displayName": "project",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "dueDate",
+              "displayName": "dueDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "parent",
+              "displayName": "parent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        -64
+      ],
+      "id": "5eb601a7-4b25-47be-9cac-80ec40b92ef8",
+      "name": "Process Task"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        896,
+        -64
+      ],
+      "id": "23602964-bbe2-4ad2-b7ca-beb0c16a24f4",
+      "name": "Respond Success"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": false,\n  \"error\": \"Body validation failed\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        128
+      ],
+      "id": "ffcff260-1d85-491d-8d77-6db773d6323c",
+      "name": "Respond Failure"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Body": {
+      "main": [
+        [
+          {
+            "node": "Create Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Process Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond Success": {
+      "main": [
+        []
+      ]
+    },
+    "Process Task": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "c04e7bcf-e0eb-44f8-9128-294c7b481e0f",
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-vy8rb-u45542.vm.elestio.app",
+            "x-real-ip": "145.224.73.255",
+            "x-forwarded-for": "145.224.73.255",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "122",
+            "content-type": "application/json",
+            "x-api-key": "xuKqaq-sincyd-nejda6",
+            "accept": "*/*",
+            "accept-language": "*",
+            "sec-fetch-mode": "cors",
+            "user-agent": "node",
+            "accept-encoding": "br, gzip, deflate"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "title": "Test with Parent",
+            "description": "Description",
+            "status": "Triage",
+            "parent": "223d0eff-6a00-8124-a7b6-c7df8f31ee9d"
+          },
+          "webhookUrl": "https://n8n-vy8rb-u45542.vm.elestio.app/webhook/tasks",
+          "executionMode": "production"
+        }
+      }
+    ]
+  }
+}
