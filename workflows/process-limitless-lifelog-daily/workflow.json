@@ -1,0 +1,408 @@
+{
+  "name": "Process Limitless Lifelog Daily",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "lifelogs",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "start_time",
+              "condition": "gte",
+              "keyValue": "={{\n  $now.toUTC().startOf('day').minus(1, 'day')\n}}"
+            },
+            {
+              "keyName": "end_time",
+              "condition": "lte",
+              "keyValue": "={{\n  $now.toUTC().endOf('day').minus(1, 'day')\n}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -368
+      ],
+      "id": "b826781d-2370-4bcb-82bc-a0cac6b09de3",
+      "name": "Get Yesterdays Lifelogs",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nlet text = \"\"\nfor (const item of $input.all()) {\n  for (const log of item.json.data.lifelogs) {\n      text += log.markdown\n  }\n}\n\nreturn {\n  json: {text}\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        112
+      ],
+      "id": "1b2989c9-7972-416d-abb7-5341b833cd7b",
+      "name": "Format Log",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Here is a chronological log of my day. These are things that I spoke into a wearable microphone. These texts contain my thoughts in any way (reflections, ideas, key moments, anything worth caputring)\n\nPlease analyze the day as a whole. Your task is to write an informative, nuanced, and meaningful summary of the day, written in no bullet points and quite informal with a bit of fun and also brutally honest if you find unhealthy patterns.\n\nFocus on:\n- Main themes and patterns across the day\n- Emotional tone and personal growth or challenges\n- Notable events, habits, or turning points\n- Overall trajectory or mood of the day\n- Personal and business highlights\n- Key moments\n\nBegin with a creative or insightful headline that reflects the essence of the day.\n\nYour response is directed towards the author of the content that's why you use \"You\" a lot.\n\nOUTPUT FORMAT:\n{\n  \"title\": \"The title of the summary\",\n  \"text\": \"The summary itself without the title\"\n}\n\nAdd meaningful new lines into the `text` property by adding `\\n\\n`\n\nTHE OUTPUT CANT NEVER BE LONGER THAN 3000 CHARACTERS!",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.text }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1104,
+        112
+      ],
+      "id": "9936054b-b04c-408f-880a-fa0a36789735",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "760a739c-1252-4bd0-a9df-d466b7c0b5a9",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "f922efde-4eae-4162-b15b-6d0aeb5d178a",
+      "name": "Empty?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -96
+      ],
+      "id": "3b8dd68b-d67c-4d66-8713-f7ed4acdfd7a",
+      "name": "End Workflow"
+    },
+    {
+      "parameters": {
+        "tableId": "lifelogs_daily_summaries",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.message.content.title }}"
+            },
+            {
+              "fieldId": "text",
+              "fieldValue": "={{ $json.message.content.text }}"
+            },
+            {
+              "fieldId": "date",
+              "fieldValue": "={{ $('Every day at 6 (UTC)').first().json.timestamp.toDateTime().minus(1, 'day').format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        112
+      ],
+      "id": "1177f21d-a89a-423a-a289-43b2a8e90bd0",
+      "name": "Create Summary Row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "4978196",
+        "text": "=Howdy! 🤠\n\nHere's your Lifelog report for {{ $('Every day at 6 (UTC)').first().json.timestamp.toDateTime().minus(1, 'day').format('EEEE, d. MMMM y') }}:\n\n{{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1696,
+        112
+      ],
+      "id": "70514ccb-eb25-4095-9c46-f34805901f60",
+      "name": "Message Summary",
+      "webhookId": "77d70b19-5083-4195-9bfb-62b8b5a1bcad",
+      "credentials": {
+        "telegramApi": {
+          "id": "7SDBDDe3rcdZpYc8",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 2
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0ed116d9-3f06-4322-b29d-b0fc89052ff5",
+      "name": "Every day at 6 (UTC)"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.limitlessAPIUrl }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "includeHeadings",
+              "value": "false"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "timezone",
+              "value": "Europe/Berlin"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "sk-6b348912-3aed-4e74-b43e-ed9b00cca878"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "cursor",
+                    "value": "={{ $response.body[\"meta\"][\"lifelogs\"][\"nextCursor\"] }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ $response.body[\"meta\"][\"lifelogs\"][\"nextCursor\"] === null || $response.body[\"meta\"][\"lifelogs\"][\"count\"] === 0 }}",
+              "requestInterval": 1000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "57ff91a4-f39a-4614-9471-9cbd2de273cc",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6d1fe3e-7314-4966-87b4-6f471b2f891e",
+              "name": "limitlessAPIUrl",
+              "value": "=https://api.limitless.ai/v1/lifelogs?start={{ $now.toUTC().minus(1, 'day').startOf('day') }}&end={{ $now.toUTC().minus(1, 'day').endOf('day') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "be188d0d-add4-42ca-9bec-c85271731b67",
+      "name": "Set Limitless API URL"
+    }
+  ],
+  "connections": {
+    "Get Yesterdays Lifelogs": {
+      "main": [
+        []
+      ]
+    },
+    "Format Log": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Create Summary Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empty?": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Summary Row": {
+      "main": [
+        [
+          {
+            "node": "Message Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every day at 6 (UTC)": {
+      "main": [
+        [
+          {
+            "node": "Set Limitless API URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Limitless API URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Empty?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-06-11T22:05:42.427Z",
+      "updatedAt": "2025-06-11T22:05:42.427Z",
+      "id": "Ow9LECRWGFsIKbfI",
+      "name": "main"
+    },
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "1b85ba88-a874-4973-ac89-3a1d96c948ba"
+}
