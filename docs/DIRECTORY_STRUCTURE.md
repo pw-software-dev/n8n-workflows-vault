@@ -22,9 +22,12 @@ n8n-workflows/                          # Root directory
 ├── 📁 templates/                       # Standardized templates
 │   └── workflow-readme.md              # README template (269 lines)
 ├── 📁 workflows/                       # Workflow library
-│   ├── 📁 data-processing/             # Data transformation category
-│   ├── 📁 notifications/               # Alert & notification category
-│   └── 📁 integrations/                # System integration category
+│   ├── 📁 backup-to-github/            # Daily workflow backup to GitHub
+│   ├── 📁 crm-sync/                    # CRM data synchronization
+│   ├── 📁 csv-transformer/             # CSV to JSON transformation
+│   ├── 📁 print-do-date-tomorrow/      # Task receipt printing
+│   ├── 📁 screenshot-and-print/        # HTML screenshot and printing
+│   └── 📁 slack-alerts/                # Intelligent Slack notifications
 ├── 📁 .github/                         # GitHub configuration
 │   ├── 📁 workflows/                   # CI/CD automation
 │   │   ├── validate-workflows.yml      # Automated validation
@@ -43,7 +46,7 @@ n8n-workflows/                          # Root directory
 Each workflow follows a standardized directory structure:
 
 ```
-workflows/{category}/{workflow-name}/
+workflows/{workflow-name}/
 ├── workflow.json                       # n8n workflow export (required)
 ├── metadata.json                       # Structured workflow metadata (required)
 └── README.md                          # Technical documentation (required)
@@ -51,34 +54,32 @@ workflows/{category}/{workflow-name}/
 
 ### Current Workflow Structure
 
-#### Data Processing Category
-
 ```
-workflows/data-processing/
-└── csv-transformer/
-    ├── workflow.json                   # CSV transformation workflow
-    ├── metadata.json                   # Version 1.2.0 metadata
-    └── README.md                       # 269 lines documentation
-```
-
-#### Notifications Category
-
-```
-workflows/notifications/
+workflows/
+├── backup-to-github/
+│   ├── workflow.json                   # GitHub backup workflow
+│   ├── metadata.json                   # Version 1.0.0 metadata
+│   └── README.md                       # Technical documentation
+├── crm-sync/
+│   ├── workflow.json                   # CRM synchronization workflow
+│   ├── metadata.json                   # Version 2.1.0 metadata
+│   └── README.md                       # Technical documentation
+├── csv-transformer/
+│   ├── workflow.json                   # CSV transformation workflow
+│   ├── metadata.json                   # Version 1.2.0 metadata
+│   └── README.md                       # Technical documentation
+├── print-do-date-tomorrow/
+│   ├── workflow.json                   # Task receipt printing workflow
+│   ├── metadata.json                   # Version 1.0.0 metadata
+│   └── README.md                       # Technical documentation
+├── screenshot-and-print/
+│   ├── workflow.json                   # HTML screenshot workflow
+│   ├── metadata.json                   # Version 1.0.0 metadata
+│   └── README.md                       # Technical documentation
 └── slack-alerts/
     ├── workflow.json                   # Slack alerting workflow
     ├── metadata.json                   # Version 1.1.0 metadata
-    └── README.md                       # 270 lines documentation
-```
-
-#### Integrations Category
-
-```
-workflows/integrations/
-└── crm-sync/
-    ├── workflow.json                   # CRM synchronization workflow
-    ├── metadata.json                   # Version 2.1.0 metadata
-    └── README.md                       # 271 lines documentation
+    └── README.md                       # Technical documentation
 ```
 
 ## File Type Breakdown
@@ -117,20 +118,14 @@ workflows/integrations/
 
 ## Directory Naming Conventions
 
-### Categories (Kebab-Case)
-
-- `data-processing` - Data transformation workflows
-- `notifications` - Alert and notification systems
-- `integrations` - System integration workflows
-- `automation` - General automation tasks
-- `reporting` - Report generation workflows
-- `monitoring` - System monitoring workflows
-
 ### Workflows (Kebab-Case)
 
+- `backup-to-github` - Descriptive, action-oriented
 - `csv-transformer` - Descriptive, action-oriented
 - `slack-alerts` - Service and function combined
 - `crm-sync` - Abbreviated but clear
+- `print-do-date-tomorrow` - Descriptive task name
+- `screenshot-and-print` - Combined action description
 
 ### Files (Standard Extensions)
 
@@ -143,8 +138,8 @@ workflows/integrations/
 
 ### Development Workflow
 
-1. **Browse by category**: `/workflows/{category}/`
-2. **Select workflow**: `/workflows/{category}/{workflow-name}/`
+1. **Browse workflows**: `/workflows/`
+2. **Select workflow**: `/workflows/{workflow-name}/`
 3. **Review documentation**: `README.md` first
 4. **Check metadata**: `metadata.json` for requirements
 5. **Import workflow**: `workflow.json` into n8n

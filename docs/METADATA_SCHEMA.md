@@ -13,24 +13,17 @@ The metadata schema defines the structure and validation rules for workflow meta
 ## Required Fields
 
 ### Core Identification
-| Field | Type | Constraints | Description |
-|-------|------|-------------|-------------|
-| `name` | string | 3-100 chars, `^[A-Za-z0-9\s\-_]+$` | Human-readable workflow name |
-| `description` | string | 10-500 chars | Brief description of workflow purpose |
-| `version` | string | `^\d+\.\d+\.\d+$` | Semantic version (e.g., 1.2.3) |
-| `category` | string | 3-50 chars, `^[a-z0-9\-]+$` | Workflow category (kebab-case) |
 
-### Valid Categories
-- `data-processing` - Data transformation workflows
-- `notifications` - Alert and notification systems  
-- `integrations` - System integration workflows
-- `automation` - General automation tasks
-- `reporting` - Report generation workflows
-- `monitoring` - System monitoring workflows
+| Field         | Type   | Constraints                        | Description                           |
+| ------------- | ------ | ---------------------------------- | ------------------------------------- |
+| `name`        | string | 3-100 chars, `^[A-Za-z0-9\s\-_]+$` | Human-readable workflow name          |
+| `description` | string | 10-500 chars                       | Brief description of workflow purpose |
+| `version`     | string | `^\d+\.\d+\.\d+$`                  | Semantic version (e.g., 1.2.3)        |
 
 ## Optional Metadata Fields
 
 ### Author & Versioning
+
 ```json
 {
   "tags": ["csv", "transformation", "data"],
@@ -42,6 +35,7 @@ The metadata schema defines the structure and validation rules for workflow meta
 ```
 
 ### Requirements & Dependencies
+
 ```json
 {
   "requirements": {
@@ -54,6 +48,7 @@ The metadata schema defines the structure and validation rules for workflow meta
 ```
 
 ### Operational Characteristics
+
 ```json
 {
   "triggers": ["webhook", "schedule"],
@@ -61,7 +56,7 @@ The metadata schema defines the structure and validation rules for workflow meta
   "execution_time": "5-15 seconds",
   "resources": {
     "memory": "low",
-    "cpu": "medium", 
+    "cpu": "medium",
     "storage": "minimal",
     "network": "medium"
   },
@@ -70,6 +65,7 @@ The metadata schema defines the structure and validation rules for workflow meta
 ```
 
 ### Maintenance & Support
+
 ```json
 {
   "maintenance": {
@@ -82,6 +78,7 @@ The metadata schema defines the structure and validation rules for workflow meta
 ```
 
 ### Testing Configuration
+
 ```json
 {
   "testing": {
@@ -91,14 +88,13 @@ The metadata schema defines the structure and validation rules for workflow meta
       "Send POST request with sample CSV data",
       "Verify JSON response structure"
     ],
-    "known_issues": [
-      "Large CSV files (>10MB) may cause timeout"
-    ]
+    "known_issues": ["Large CSV files (>10MB) may cause timeout"]
   }
 }
 ```
 
 ### Security & Compliance
+
 ```json
 {
   "security": {
@@ -112,12 +108,14 @@ The metadata schema defines the structure and validation rules for workflow meta
 ## Enumerated Values
 
 ### Complexity Levels
+
 - `low` - Simple, single-step operations
 - `medium` - Multi-step with some logic
 - `high` - Complex logic, multiple integrations
 - `very-high` - Enterprise-level complexity
 
 ### Resource Usage Levels
+
 - `minimal` - Very low resource usage
 - `low` - Light resource usage
 - `medium` - Moderate resource usage
@@ -125,6 +123,7 @@ The metadata schema defines the structure and validation rules for workflow meta
 - `very-high` - Maximum resource usage
 
 ### Trigger Types
+
 - `webhook` - HTTP webhook trigger
 - `schedule` - Time-based trigger
 - `manual` - Manual execution
@@ -138,18 +137,21 @@ The metadata schema defines the structure and validation rules for workflow meta
 - `api` - API-based triggers
 
 ### Business Impact Levels
+
 - `low` - Minor impact if fails
 - `medium` - Moderate business impact
 - `high` - Significant business impact
 - `critical` - Critical business process
 
 ### Data Sensitivity Levels
+
 - `public` - Publicly available data
 - `internal` - Internal company data
 - `confidential` - Sensitive business data
 - `restricted` - Highly sensitive data
 
 ### Compliance Requirements
+
 - `GDPR` - General Data Protection Regulation
 - `HIPAA` - Health Insurance Portability and Accountability Act
 - `SOX` - Sarbanes-Oxley Act
@@ -160,16 +162,14 @@ The metadata schema defines the structure and validation rules for workflow meta
 ## Advanced Features
 
 ### Changelog Structure
+
 ```json
 {
   "changelog": [
     {
       "version": "1.2.0",
-      "date": "2024-08-20", 
-      "changes": [
-        "Added data validation step",
-        "Improved error handling"
-      ],
+      "date": "2024-08-20",
+      "changes": ["Added data validation step", "Improved error handling"],
       "breaking_changes": false
     }
   ]
@@ -177,6 +177,7 @@ The metadata schema defines the structure and validation rules for workflow meta
 ```
 
 ### Documentation URLs
+
 ```json
 {
   "documentation_urls": [
@@ -189,40 +190,44 @@ The metadata schema defines the structure and validation rules for workflow meta
 ## Validation Rules
 
 ### String Patterns
+
 - **Name**: Alphanumeric with spaces, hyphens, underscores
-- **Category**: Lowercase kebab-case only
+
 - **Version**: Semantic versioning (major.minor.patch)
 - **Environment Variables**: UPPERCASE_SNAKE_CASE
 - **Tags**: Lowercase with hyphens only
 
 ### Array Constraints
+
 - **Tags**: Maximum 10 unique items, 2-30 chars each
 - **Credentials**: Unique items, 2-50 chars each
 - **Nodes**: Unique items, 2-50 chars each
 - **Environment Variables**: Unique UPPERCASE items
 
 ### Date Formats
+
 All dates must follow ISO 8601 format: `YYYY-MM-DD`
 
 ## Usage Examples
 
 ### Minimal Valid Metadata
+
 ```json
 {
   "name": "Simple Data Processor",
   "description": "Processes incoming data and validates format",
-  "version": "1.0.0",
-  "category": "data-processing"
+  "version": "1.0.0"
 }
 ```
 
 ### Complete Enterprise Metadata
+
 ```json
 {
   "name": "Enterprise CRM Synchronization",
   "description": "Bidirectional synchronization between CRM systems with conflict resolution",
   "version": "2.1.0",
-  "category": "integrations",
+
   "tags": ["crm", "sync", "enterprise", "bidirectional"],
   "author": "integration-team",
   "created": "2024-01-01",
@@ -269,9 +274,7 @@ All dates must follow ISO 8601 format: `YYYY-MM-DD`
     "compliance_requirements": ["GDPR", "SOC2"],
     "security_review_required": true
   },
-  "documentation_urls": [
-    "https://docs.company.com/integrations/crm-sync"
-  ],
+  "documentation_urls": ["https://docs.company.com/integrations/crm-sync"],
   "changelog": [
     {
       "version": "2.1.0",
@@ -294,20 +297,23 @@ The metadata schema is enforced by `/scripts/validate-workflow.js`:
 ```javascript
 // Schema validation using AJV
 if (this.metadataSchema && !this.ajv.validate(this.metadataSchema, metadata)) {
-  results.errors.push(`Metadata schema validation failed: ${this.ajv.errorsText()}`);
+  results.errors.push(
+    `Metadata schema validation failed: ${this.ajv.errorsText()}`,
+  );
   results.valid = false;
 }
 ```
 
 ### Common Validation Errors
-1. **Missing required fields** - name, description, version, category
+
+1. **Missing required fields** - name, description, version
 2. **Invalid version format** - must be semantic versioning
-3. **Category format** - must be lowercase kebab-case
-4. **Tag constraints** - maximum 10 unique items
-5. **Date format** - must be YYYY-MM-DD
-6. **Environment variable format** - must be UPPERCASE_SNAKE_CASE
+
+3. **Tag constraints** - maximum 10 unique items
+4. **Date format** - must be YYYY-MM-DD
+5. **Environment variable format** - must be UPPERCASE_SNAKE_CASE
 
 ---
 
-*Schema reference generated on: 2024-09-01*  
-*For the latest schema definition, see [schemas/metadata.schema.json](../schemas/metadata.schema.json)*
+_Schema reference generated on: 2024-09-01_  
+_For the latest schema definition, see [schemas/metadata.schema.json](../schemas/metadata.schema.json)_

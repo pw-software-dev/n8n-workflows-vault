@@ -2,7 +2,7 @@
   "name": "CRM Data Sync",
   "description": "Automated bidirectional synchronization between external CRM system and internal database with data transformation and error handling",
   "version": "2.1.0",
-  "category": "integrations",
+
   "tags": ["crm", "sync", "integration", "database", "automation", "scheduled"],
   "author": "integration-team",
   "created": "2024-03-10",

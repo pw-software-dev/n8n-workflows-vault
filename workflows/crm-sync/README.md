@@ -1,6 +1,6 @@
 # CRM Data Sync
 
-> **Version**: 2.1.0 | **Category**: integrations | **Author**: integration-team  
+> **Version**: 2.1.0 | **Author**: integration-team  
 > **Created**: 2024-03-10 | **Updated**: 2024-08-25
 
 ## Overview
@@ -17,7 +17,8 @@ Automated bidirectional synchronization between external CRM system and internal
 ### Input Requirements
 
 - **Trigger Type**: **n8n-nodes-base.schedule Trigger**
-- **Input Data Structure**: 
+- **Input Data Structure**:
+
   ```json
   {
     "example": "Define the expected input data structure here",
@@ -25,6 +26,7 @@ Automated bidirectional synchronization between external CRM system and internal
     "field2": "number"
   }
   ```
+
 - **Required Credentials**: See [Dependencies](#dependencies) section
 - **Environment Variables**: See [Dependencies](#dependencies) section
 
@@ -147,7 +149,7 @@ Automated bidirectional synchronization between external CRM system and internal
 #### Access Control
 - **Required Permissions**: List required permissions for credentials
 - **Principle of Least Privilege**: Ensure minimal required permissions
-- **Credential Management**: ✅ Uses n8n credential expressions ({{ $credentials.slack_integration }}), never hardcode secrets
+- **Credential Management**: Use n8n credential management, never hardcode secrets
 
 ### Deployment
 

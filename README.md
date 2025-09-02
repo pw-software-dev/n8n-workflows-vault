@@ -7,9 +7,8 @@
 
 ## 📊 Current Statistics
 
-- **Total Workflows**: 5
-- **Categories**: 4 (data-processing, notifications, integrations, productivity)
-- **Last Updated**: 2025-09-02
+- **Total Workflows**: 6
+- **Last Updated**: 2024-12-28
 - **Repository Health**: ✅ All workflows validated
 
 ## 🏗️ Repository Structure
@@ -33,30 +32,30 @@ n8n-workflows/
 ├── templates/
 │   └── workflow-readme.md            # Standardized README template
 └── workflows/
-    ├── data-processing/              # Data transformation workflows
-    │   └── csv-transformer/
-    │       ├── workflow.json         # n8n workflow definition
-    │       ├── metadata.json         # Workflow metadata
-    │       └── README.md             # Technical specification
-    ├── notifications/                # Alert and notification workflows
-    │   └── slack-alerts/
-    │       ├── workflow.json
-    │       ├── metadata.json
-    │       └── README.md
-    ├── integrations/                 # System integration workflows
-    │   ├── crm-sync/
-    │   │   ├── workflow.json
-    │   │   ├── metadata.json
-    │   │   └── README.md
-    │   ├── print-do-date-tomorrow/
-    │   │   ├── workflow.json
-    │   │   ├── metadata.json
-    │   │   └── README.md
-    │   └── screenshot-and-print/
-    │       ├── workflow.json
-    │       ├── metadata.json
-    │       └── README.md
-    └── productivity/                  # Productivity and automation workflows
+    ├── backup-to-github/             # Daily workflow backup to GitHub
+    │   ├── workflow.json             # n8n workflow definition
+    │   ├── metadata.json             # Workflow metadata
+    │   └── README.md                 # Technical specification
+    ├── crm-sync/                     # CRM data synchronization
+    │   ├── workflow.json
+    │   ├── metadata.json
+    │   └── README.md
+    ├── csv-transformer/              # CSV to JSON transformation
+    │   ├── workflow.json
+    │   ├── metadata.json
+    │   └── README.md
+    ├── print-do-date-tomorrow/       # Task receipt printing
+    │   ├── workflow.json
+    │   ├── metadata.json
+    │   └── README.md
+    ├── screenshot-and-print/         # HTML screenshot and printing
+    │   ├── workflow.json
+    │   ├── metadata.json
+    │   └── README.md
+    └── slack-alerts/                 # Intelligent Slack notifications
+        ├── workflow.json
+        ├── metadata.json
+        └── README.md
 ```
 
 ## 🚀 Quick Start
@@ -86,11 +85,11 @@ pnpm generate-readme
 
 ### Adding Your First Workflow
 
-1. **Choose or create a category**
+1. **Create a workflow directory**
 
    ```bash
-   mkdir -p workflows/your-category/your-workflow-name
-   cd workflows/your-category/your-workflow-name
+   mkdir -p workflows/your-workflow-name
+   cd workflows/your-workflow-name
    ```
 
 2. **Export workflow from n8n**
@@ -107,7 +106,7 @@ pnpm generate-readme
      "name": "Your Workflow Name",
      "description": "Brief description of what this workflow does",
      "version": "1.0.0",
-     "category": "your-category",
+
      "tags": ["tag1", "tag2"],
      "author": "your-team",
      "created": "2024-08-30",
@@ -134,7 +133,7 @@ pnpm generate-readme
 
    ```bash
    # Auto-generate README from template
-   pnpm generate-readme workflows/your-category/your-workflow-name
+   pnpm generate-readme workflows/your-workflow-name
    ```
 
 5. **Validate and commit**
@@ -149,33 +148,14 @@ pnpm generate-readme
    git push
    ```
 
-## 📋 Categories
+## 📋 Available Workflows
 
-### 🔄 Data Processing
-
-Workflows focused on data transformation, validation, and processing.
-
-- **csv-transformer** - Transforms CSV data to structured JSON format
-
-### 🔔 Notifications
-
-Alert and notification systems for monitoring and communication.
-
-- **slack-alerts** - Intelligent Slack alerting with severity-based routing
-
-### 🔗 Integrations
-
-System integration workflows for connecting different services.
-
-- **crm-sync** - Bidirectional CRM data synchronization
+- **backup-to-github** - Automated daily backup of all n8n workflows to GitHub repository
+- **crm-sync** - Bidirectional CRM data synchronization with transformation and error handling
+- **csv-transformer** - Transforms CSV data to structured JSON format with validation
 - **print-do-date-tomorrow** - Automatically prints task receipts for Notion tasks scheduled for tomorrow
 - **screenshot-and-print** - Captures screenshots of HTML content and sends to printer
-
-### 📈 Productivity
-
-Automation workflows for productivity and task management.
-
-_(Category ready for workflows)_
+- **slack-alerts** - Intelligent Slack alerting with severity-based routing
 
 ## 🛠️ Available Scripts
 
@@ -267,7 +247,7 @@ Comprehensive metadata enables:
 
 ```bash
 # Migrate specific workflow to version 2.0.0
-pnpm migrate-workflow workflows/category/workflow-name --target 2.0.0
+pnpm migrate-workflow workflows/workflow-name --target 2.0.0
 
 # Migrate all workflows to latest version
 pnpm migrate-workflow
@@ -279,11 +259,11 @@ pnpm migrate-workflow --list-versions
 ### Batch Operations
 
 ```bash
-# Validate specific category
-pnpm validate-all-workflows -- --category data-processing
+# Validate all workflows
+pnpm validate-all-workflows
 
 # Generate READMEs for specific workflow
-pnpm generate-readme workflows/notifications/slack-alerts
+pnpm generate-readme workflows/slack-alerts
 
 # Check consistency across all workflows
 pnpm check-metadata-consistency

@@ -13,12 +13,14 @@ The documentation generation system provides automated creation of comprehensive
 Automated metadata creation using OpenAI GPT-4 for workflow analysis.
 
 **Features:**
+
 - AI-powered workflow analysis
 - Automatic metadata extraction from workflow.json
 - Schema validation and correction
 - Batch processing for multiple workflows
 
 **Process Flow:**
+
 1. Read workflow.json file
 2. Analyze with GPT-4 to extract metadata
 3. Validate and fix metadata against schema
@@ -31,6 +33,7 @@ Automated metadata creation using OpenAI GPT-4 for workflow analysis.
 Template-based README generation with structured documentation sections.
 
 **Generated Sections:**
+
 - Overview and purpose
 - Technical specifications
 - Input/Output schemas
@@ -43,6 +46,7 @@ Template-based README generation with structured documentation sections.
 Comprehensive validation ensuring documentation quality and consistency.
 
 **Validation Checks:**
+
 - Schema compliance (metadata & workflow)
 - Documentation completeness
 - Security scanning (no hardcoded secrets)
@@ -99,7 +103,6 @@ Located at `/schemas/metadata.schema.json`, defines required fields:
 - **name**: Workflow display name
 - **description**: Brief description (10-500 chars)
 - **version**: Semantic version
-- **category**: Workflow category (kebab-case)
 - **tags**: Lowercase kebab-case tags
 - **requirements**: Credentials, nodes, environment variables
 - **complexity**: simple/medium/complex
@@ -143,7 +146,7 @@ Optimized prompt for accurate metadata extraction:
 Automatic correction of AI-generated metadata:
 
 - Name sanitization (remove special characters)
-- Category normalization (kebab-case)
+- Tag normalization (kebab-case)
 - Tag standardization (lowercase)
 - Resource level validation
 - Complexity verification
@@ -153,11 +156,13 @@ Automatic correction of AI-generated metadata:
 ### Validation Pipeline
 
 1. **Pre-Generation Checks**
+
    - Workflow.json existence
    - Metadata.json duplication prevention
    - Schema availability
 
 2. **Generation Validation**
+
    - JSON parsing verification
    - Schema compliance
    - Field format validation
@@ -203,12 +208,12 @@ Automatic correction of AI-generated metadata:
 
 ### Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Metadata generation fails | Invalid workflow.json | Validate JSON syntax |
-| AI response parsing error | Unexpected format | Check API response format |
-| Validation failures | Schema violations | Review validation errors |
-| README generation incomplete | Missing metadata | Ensure metadata.json exists |
+| Issue                        | Cause                 | Solution                    |
+| ---------------------------- | --------------------- | --------------------------- |
+| Metadata generation fails    | Invalid workflow.json | Validate JSON syntax        |
+| AI response parsing error    | Unexpected format     | Check API response format   |
+| Validation failures          | Schema violations     | Review validation errors    |
+| README generation incomplete | Missing metadata      | Ensure metadata.json exists |
 
 ### Debug Mode
 

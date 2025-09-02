@@ -1,22 +1,22 @@
-# Screenshot HTML Print Image
+# Backup Workflows to GitHub
 
-> **Version**: 1.0.0 | **Category**: automation | **Author**: your-team  
-> **Created**: 2024-08-30 | **Updated**: 2024-08-30
+> **Version**: 1.0.0 | **Author**: n8n-automation-team  
+> **Created**: 2024-12-28 | **Updated**: 2024-12-28
 
 ## Overview
 
-This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+Automated daily backup of all n8n workflows to a GitHub repository with version control and change tracking
 
-**Tags**: html, screenshot, print, http  
-**Complexity**: medium  
-**Estimated Runtime**: 30-60 seconds  
-**Compatible n8n Version**: 1.45.0
+**Tags**: backup, github, automation, workflow-management, version-control, scheduled  
+**Complexity**: high  
+**Estimated Runtime**: 5-15 minutes  
+**Compatible n8n Version**: 1.71.0
 
 ## Technical Specification
 
 ### Input Requirements
 
-- **Trigger Type**: **n8n-nodes-base.execute Workflow Trigger**
+- **Trigger Type**: **n8n-nodes-base.schedule Trigger**
 - **Input Data Structure**:
 
   ```json
@@ -32,12 +32,14 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Processing Logic
 
-1. **Get ngrok URL** (n8n-nodes-base.redis)
-2. **PRINT 🖨️** (n8n-nodes-base.http Request)
-3. **Get Test File** (n8n-nodes-base.http Request)
-4. **Screenshot HTML** (n8n-nodes-base.http Request)
-5. **Screenshot API Error** (n8n-nodes-base.stop And Error)
-6. **Print API Error** (n8n-nodes-base.stop And Error)
+1. **Get All Workflows** (n8n-nodes-base.n8n)
+2. **Split Workflows** (n8n-nodes-base.split In Batches)
+3. **Get Workflow Details** (n8n-nodes-base.n8n)
+4. **Prepare Workflow Data** (n8n-nodes-base.code)
+5. **Backup to GitHub** (n8n-nodes-base.github)
+6. **Update GitHub File** (n8n-nodes-base.github)
+7. **Create Backup Summary** (n8n-nodes-base.code)
+8. **Check Backup Success** (n8n-nodes-base.if)
 
 ### Output Specification
 
@@ -61,8 +63,9 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Dependencies
 
-**Credentials**: Redis account, HTMLToImage
-**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError
+**Credentials**: n8nApi, githubApi
+**Nodes**: n8n-nodes-base.scheduleTrigger, n8n-nodes-base.n8n, n8n-nodes-base.splitInBatches, n8n-nodes-base.code, n8n-nodes-base.github, n8n-nodes-base.if
+**Environment Variables**: GITHUB_OWNER, GITHUB_REPO
 
 ### Configuration
 
@@ -81,7 +84,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Performance Characteristics
 
-- **Expected Runtime**: 30-60 seconds
+- **Expected Runtime**: 5-15 minutes
 - **Resource Usage**: 
   - Memory: Low/Medium/High
   - CPU: Low/Medium/High
@@ -134,7 +137,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 #### Monitoring
 - **Key Metrics**:
   - Execution success rate: > 95%
-  - Average execution time: < 30-60 seconds
+  - Average execution time: < 5-15 minutes
   - Error rate: < 5%
 - **Alerts**: Set up monitoring alerts for failures or performance degradation
 - **Logs**: Check n8n execution logs for detailed error information
@@ -154,7 +157,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Deployment
 
 #### Prerequisites
-1. n8n version 1.45.0 or higher
+1. n8n version 1.71.0 or higher
 2. Required node types installed (see Dependencies)
 3. Credentials configured with appropriate permissions
 4. Environment variables set (if applicable)
@@ -196,7 +199,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 | Data format errors | Node failures with parsing errors | Validate input data structure |
 
 #### Support Contacts
-- **Primary**: your-team
+- **Primary**: n8n-automation-team
 - **Secondary**: n8n Administrator
 - **Escalation**: Technical Team Lead
 
@@ -207,7 +210,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-**Primary Goal**: This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+**Primary Goal**: Automated daily backup of all n8n workflows to a GitHub repository with version control and change tracking
 
 **Business Value**: Describe the business value and impact of this workflow
 
@@ -263,7 +266,7 @@ This section provides structured information for AI/foundation models to underst
 ## Changelog
 
 ### Version 1.0.0
-- **Date**: 2024-08-30
+- **Date**: 2024-12-28
 - **Changes**: Current version changes
 - **Breaking Changes**: None/List any breaking changes
 
@@ -271,4 +274,4 @@ This section provides structured information for AI/foundation models to underst
 
 ---
 
-*This documentation was generated from workflow metadata. Last updated: 2024-08-30*
+*This documentation was generated from workflow metadata. Last updated: 2024-12-28*

@@ -1,22 +1,22 @@
-# {Workflow Name}
+# CSV Data Transformer
 
-> **Version**: {Version} | **Author**: {Author}  
-> **Created**: {Created} | **Updated**: {Updated}
+> **Version**: 1.2.0 | **Author**: data-team  
+> **Created**: 2024-01-15 | **Updated**: 2024-08-20
 
 ## Overview
 
-{Description}
+Transforms CSV files into structured JSON format with validation and error handling
 
-**Tags**: {Tags}  
-**Complexity**: {Complexity}  
-**Estimated Runtime**: {Execution Time}  
-**Compatible n8n Version**: {N8N Version}
+**Tags**: csv, transformation, data, json, validation  
+**Complexity**: medium  
+**Estimated Runtime**: 5-15 seconds  
+**Compatible n8n Version**: 1.45.0
 
 ## Technical Specification
 
 ### Input Requirements
 
-- **Trigger Type**: {Trigger Type}
+- **Trigger Type**: Manual trigger
 - **Input Data Structure**:
 
   ```json
@@ -32,7 +32,11 @@
 
 ### Processing Logic
 
-{Processing Steps}
+1. **Webhook** (n8n-nodes-base.webhook)
+2. **Transform CSV** (n8n-nodes-base.code)
+3. **Check Data** (n8n-nodes-base.if)
+4. **Success Response** (n8n-nodes-base.respond To Webhook)
+5. **Error Response** (n8n-nodes-base.respond To Webhook)
 
 ### Output Specification
 
@@ -56,30 +60,27 @@
 
 ### Dependencies
 
-{Dependencies}
+**Nodes**: Webhook, Code, If, Respond to Webhook
 
 ### Configuration
 
 #### Webhook Settings
-
 - **Webhook URL**: `https://your-n8n-instance.com/webhook/workflow-id`
 - **HTTP Method**: POST/GET/PUT/DELETE
 - **Authentication**: Required/Optional
 
 #### Schedule Settings
-
 - **Cron Expression**: `0 9 * * 1-5` (example: weekdays at 9 AM)
 - **Timezone**: UTC/Local
 
 #### Timeout Settings
-
 - **Execution Timeout**: 5 minutes (default)
 - **Individual Node Timeout**: 30 seconds (default)
 
 ### Performance Characteristics
 
-- **Expected Runtime**: {Execution Time}
-- **Resource Usage**:
+- **Expected Runtime**: 5-15 seconds
+- **Resource Usage**: 
   - Memory: Low/Medium/High
   - CPU: Low/Medium/High
   - Network: Low/Medium/High
@@ -89,15 +90,12 @@
 ### Error Handling
 
 #### Common Error Scenarios
-
 1. **Authentication Failure**
-
    - Cause: Invalid or expired credentials
    - Resolution: Update credentials in n8n
    - Recovery: Automatic retry with exponential backoff
 
 2. **Data Validation Error**
-
    - Cause: Invalid input data format
    - Resolution: Verify input data structure
    - Recovery: Manual intervention required
@@ -108,7 +106,6 @@
    - Recovery: Automatic retry up to 3 times
 
 #### Error Notifications
-
 - **Slack Channel**: #workflow-alerts (if applicable)
 - **Email**: workflow-admin@company.com (if applicable)
 - **n8n Error Workflow**: Link to error handling workflow (if applicable)
@@ -116,7 +113,6 @@
 ### Testing
 
 #### Test Data
-
 ```json
 {
   "test_input": {
@@ -128,17 +124,15 @@
 ```
 
 #### Validation Steps
-
 1. **Input Validation**: Verify workflow accepts test data without errors
 2. **Processing Validation**: Confirm all nodes execute successfully
 3. **Output Validation**: Check output matches expected format
 4. **Error Handling**: Test with invalid data to verify error responses
 
 #### Monitoring
-
 - **Key Metrics**:
   - Execution success rate: > 95%
-  - Average execution time: < {Execution Time}
+  - Average execution time: < 5-15 seconds
   - Error rate: < 5%
 - **Alerts**: Set up monitoring alerts for failures or performance degradation
 - **Logs**: Check n8n execution logs for detailed error information
@@ -146,13 +140,11 @@
 ### Security Considerations
 
 #### Data Handling
-
 - **Sensitive Data**: List any sensitive data processed (PII, credentials, etc.)
 - **Data Retention**: Specify data retention policies
 - **Encryption**: Data encryption requirements (in transit/at rest)
 
 #### Access Control
-
 - **Required Permissions**: List required permissions for credentials
 - **Principle of Least Privilege**: Ensure minimal required permissions
 - **Credential Management**: Use n8n credential management, never hardcode secrets
@@ -160,14 +152,12 @@
 ### Deployment
 
 #### Prerequisites
-
-1. n8n version {N8N Version} or higher
+1. n8n version 1.45.0 or higher
 2. Required node types installed (see Dependencies)
 3. Credentials configured with appropriate permissions
 4. Environment variables set (if applicable)
 
 #### Installation Steps
-
 1. Import `workflow.json` into n8n
 2. Configure required credentials
 3. Set environment variables (if applicable)
@@ -175,7 +165,6 @@
 5. Activate workflow
 
 #### Rollback Plan
-
 1. Deactivate current workflow version
 2. Import previous stable version
 3. Verify functionality with test data
@@ -184,13 +173,11 @@
 ### Maintenance
 
 #### Regular Tasks
-
 - **Weekly**: Review execution logs for errors or performance issues
 - **Monthly**: Validate credentials are still valid and have necessary permissions
 - **Quarterly**: Review and update test data and validation procedures
 
 #### Version Updates
-
 - **n8n Compatibility**: Test workflow with new n8n versions before upgrading
 - **Node Updates**: Monitor for updates to used node types
 - **API Changes**: Monitor external APIs for breaking changes
@@ -199,16 +186,15 @@
 
 #### Common Issues
 
-| Issue                   | Symptoms                          | Solution                                         |
-| ----------------------- | --------------------------------- | ------------------------------------------------ |
-| Workflow not triggering | No executions shown               | Check trigger configuration and webhook URL      |
-| Authentication errors   | 401/403 HTTP errors               | Refresh credentials and verify permissions       |
-| Timeout errors          | Executions stopping mid-way       | Increase timeout settings or optimize processing |
-| Data format errors      | Node failures with parsing errors | Validate input data structure                    |
+| Issue | Symptoms | Solution |
+|-------|----------|----------|
+| Workflow not triggering | No executions shown | Check trigger configuration and webhook URL |
+| Authentication errors | 401/403 HTTP errors | Refresh credentials and verify permissions |
+| Timeout errors | Executions stopping mid-way | Increase timeout settings or optimize processing |
+| Data format errors | Node failures with parsing errors | Validate input data structure |
 
 #### Support Contacts
-
-- **Primary**: {Author}
+- **Primary**: data-team
 - **Secondary**: n8n Administrator
 - **Escalation**: Technical Team Lead
 
@@ -219,19 +205,16 @@
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-
-**Primary Goal**: {Description}
+**Primary Goal**: Transforms CSV files into structured JSON format with validation and error handling
 
 **Business Value**: Describe the business value and impact of this workflow
 
-**Use Cases**:
-
+**Use Cases**: 
 - Primary use case description
 - Secondary use case description
 - Edge case considerations
 
 ### Input Schema
-
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -251,27 +234,23 @@ This section provides structured information for AI/foundation models to underst
 ```
 
 ### Business Rules
-
 1. **Rule 1**: Description of important business rule
 2. **Rule 2**: Description of another business rule
 3. **Validation Rules**: Data validation requirements
 
 ### Error Scenarios
-
 - **Input Validation Failures**: Invalid data format or missing required fields
 - **External Service Failures**: API timeouts or service unavailable
 - **Authentication Issues**: Invalid credentials or insufficient permissions
 - **Resource Constraints**: Memory or processing limits exceeded
 
 ### Success Criteria
-
 - **Functional**: Workflow completes without errors and produces expected output
 - **Performance**: Execution time within acceptable limits
 - **Quality**: Output data meets quality standards and business requirements
 - **Reliability**: Consistent execution with minimal failures
 
 ### Integration Points
-
 - **Upstream Systems**: Systems that provide input data
 - **Downstream Systems**: Systems that consume workflow output
 - **External APIs**: Third-party services integrated
@@ -281,9 +260,8 @@ This section provides structured information for AI/foundation models to underst
 
 ## Changelog
 
-### Version {Version}
-
-- **Date**: {Updated}
+### Version 1.2.0
+- **Date**: 2024-08-20
 - **Changes**: Current version changes
 - **Breaking Changes**: None/List any breaking changes
 
@@ -291,4 +269,4 @@ This section provides structured information for AI/foundation models to underst
 
 ---
 
-_This documentation was generated from workflow metadata. Last updated: {Updated}_
+*This documentation was generated from workflow metadata. Last updated: 2024-08-20*

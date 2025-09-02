@@ -1,13 +1,13 @@
-# Print Do Date Tomorrow
+# Screenshot HTML Print Image
 
-> **Version**: 1.0.0 | **Category**: productivity | **Author**: pw-software  
+> **Version**: 1.0.0 | **Author**: your-team  
 > **Created**: 2024-08-30 | **Updated**: 2024-08-30
 
 ## Overview
 
-Automatically prints task receipts for Notion tasks scheduled for tomorrow. Creates printable HTML receipts with QR codes for task completion, retrieves parent initiative information, and marks tasks as printed to avoid duplicates.
+This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
 
-**Tags**: notion, printing, tasks, scheduling, automation, qr-code, receipts  
+**Tags**: html, screenshot, print, http  
 **Complexity**: medium  
 **Estimated Runtime**: 30-60 seconds  
 **Compatible n8n Version**: 1.45.0
@@ -16,7 +16,7 @@ Automatically prints task receipts for Notion tasks scheduled for tomorrow. Crea
 
 ### Input Requirements
 
-- **Trigger Type**: Manual trigger
+- **Trigger Type**: **n8n-nodes-base.execute Workflow Trigger**
 - **Input Data Structure**:
 
   ```json
@@ -32,14 +32,12 @@ Automatically prints task receipts for Notion tasks scheduled for tomorrow. Crea
 
 ### Processing Logic
 
-1. **Generate HTML** (n8n-nodes-base.html)
-2. **Get All Tasks Do Tomorrow** (n8n-nodes-base.notion)
-3. **Get Parent** (n8n-nodes-base.notion)
-4. **Set Original Task** (n8n-nodes-base.set)
-5. **Webhook** (n8n-nodes-base.webhook)
-6. **Set Printed** (n8n-nodes-base.notion)
-7. **Screenshot & Print** (n8n-nodes-base.execute Workflow)
-8. **Has Initiative?** (n8n-nodes-base.if)
+1. **Get ngrok URL** (n8n-nodes-base.redis)
+2. **PRINT 🖨️** (n8n-nodes-base.http Request)
+3. **Get Test File** (n8n-nodes-base.http Request)
+4. **Screenshot HTML** (n8n-nodes-base.http Request)
+5. **Screenshot API Error** (n8n-nodes-base.stop And Error)
+6. **Print API Error** (n8n-nodes-base.stop And Error)
 
 ### Output Specification
 
@@ -63,8 +61,8 @@ Automatically prints task receipts for Notion tasks scheduled for tomorrow. Crea
 
 ### Dependencies
 
-**Credentials**: notionApi
-**Nodes**: n8n-nodes-base.webhook, n8n-nodes-base.notion, n8n-nodes-base.set, n8n-nodes-base.if, n8n-nodes-base.html, n8n-nodes-base.executeWorkflow
+**Credentials**: Redis account, HTMLToImage
+**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError
 
 ### Configuration
 
@@ -198,7 +196,7 @@ Automatically prints task receipts for Notion tasks scheduled for tomorrow. Crea
 | Data format errors | Node failures with parsing errors | Validate input data structure |
 
 #### Support Contacts
-- **Primary**: pw-software
+- **Primary**: your-team
 - **Secondary**: n8n Administrator
 - **Escalation**: Technical Team Lead
 
@@ -209,7 +207,7 @@ Automatically prints task receipts for Notion tasks scheduled for tomorrow. Crea
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-**Primary Goal**: Automatically prints task receipts for Notion tasks scheduled for tomorrow. Creates printable HTML receipts with QR codes for task completion, retrieves parent initiative information, and marks tasks as printed to avoid duplicates.
+**Primary Goal**: This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
 
 **Business Value**: Describe the business value and impact of this workflow
 

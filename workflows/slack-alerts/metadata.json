@@ -2,7 +2,7 @@
   "name": "Slack Alert System",
   "description": "Intelligent alert system that routes notifications to appropriate Slack channels based on severity level",
   "version": "1.1.0",
-  "category": "notifications",
+
   "tags": ["slack", "alerts", "notifications", "monitoring", "severity"],
   "author": "devops-team",
   "created": "2024-02-01",

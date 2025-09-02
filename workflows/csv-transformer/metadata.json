@@ -2,7 +2,7 @@
   "name": "CSV Data Transformer",
   "description": "Transforms CSV files into structured JSON format with validation and error handling",
   "version": "1.2.0",
-  "category": "data-processing",
+
   "tags": ["csv", "transformation", "data", "json", "validation"],
   "author": "data-team",
   "created": "2024-01-15",

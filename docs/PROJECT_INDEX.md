@@ -57,10 +57,12 @@
 ### Integrations (`/workflows/integrations/`)
 
 - **[crm-sync](../workflows/integrations/crm-sync/README.md)** - Bidirectional CRM synchronization
+
   - Version: 2.1.0 | Complexity: High | Runtime: 30-60s
   - Enterprise-grade with comprehensive validation
 
 - **[print-do-date-tomorrow](../workflows/integrations/print-do-date-tomorrow/README.md)** - Notion task receipt printer
+
   - Version: 1.0.0 | Complexity: Medium | Runtime: 30-60s
   - Automatically prints task receipts with QR codes for tomorrow's tasks
 
@@ -69,8 +71,6 @@
   - Captures HTML screenshots and sends to printer via HTTP
 
 ### Productivity (`/workflows/productivity/`)
-
-- _(Category ready for workflows)_
 
 ## 🏗️ Architecture Overview
 
@@ -127,7 +127,7 @@ n8n-workflows/
 
 ### Finding Documentation
 
-1. **By Category**: Browse `/workflows/{category}/` directories
+1. **By Name**: Browse `/workflows/` directory
 2. **By Function**: Use [Component Architecture](./COMPONENT_ARCHITECTURE.md)
 3. **By Schema**: Reference [Metadata Schema](./METADATA_SCHEMA.md)
 4. **By API**: Check [Validation API](./VALIDATION_API.md)
@@ -150,7 +150,7 @@ n8n-workflows/
 
 ### For Workflow Development
 
-1. Choose appropriate category directory
+1. Choose descriptive workflow name
 2. Follow [Metadata Schema](./METADATA_SCHEMA.md) → Required fields
 3. Use validation scripts → `pnpm validate-all-workflows`
 4. Generate documentation → `pnpm generate-readme`

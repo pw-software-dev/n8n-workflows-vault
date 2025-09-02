@@ -2,7 +2,7 @@
   "name": "Backup Workflows to GitHub",
   "description": "Automated daily backup of all n8n workflows to a GitHub repository with version control and change tracking",
   "version": "1.0.0",
-  "category": "automation",
+
   "tags": [
     "backup",
     "github",

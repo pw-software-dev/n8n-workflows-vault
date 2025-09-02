@@ -1,23 +1,24 @@
-# Slack Alert System
+# Print Do Date Tomorrow
 
-> **Version**: 1.1.0 | **Category**: notifications | **Author**: devops-team  
-> **Created**: 2024-02-01 | **Updated**: 2024-08-15
+> **Version**: 1.0.0 | **Author**: pw-software  
+> **Created**: 2024-08-30 | **Updated**: 2024-08-30
 
 ## Overview
 
-Intelligent alert system that routes notifications to appropriate Slack channels based on severity level
+Automatically prints task receipts for Notion tasks scheduled for tomorrow. Creates printable HTML receipts with QR codes for task completion, retrieves parent initiative information, and marks tasks as printed to avoid duplicates.
 
-**Tags**: slack, alerts, notifications, monitoring, severity  
-**Complexity**: low  
-**Estimated Runtime**: 2-5 seconds  
-**Compatible n8n Version**: 1.43.0
+**Tags**: notion, printing, tasks, scheduling, automation, qr-code, receipts  
+**Complexity**: medium  
+**Estimated Runtime**: 30-60 seconds  
+**Compatible n8n Version**: 1.45.0
 
 ## Technical Specification
 
 ### Input Requirements
 
 - **Trigger Type**: Manual trigger
-- **Input Data Structure**: 
+- **Input Data Structure**:
+
   ```json
   {
     "example": "Define the expected input data structure here",
@@ -25,16 +26,20 @@ Intelligent alert system that routes notifications to appropriate Slack channels
     "field2": "number"
   }
   ```
+
 - **Required Credentials**: See [Dependencies](#dependencies) section
 - **Environment Variables**: See [Dependencies](#dependencies) section
 
 ### Processing Logic
 
-1. **Alert Webhook** (n8n-nodes-base.webhook)
-2. **Check Severity** (n8n-nodes-base.if)
-3. **Critical Alert** (n8n-nodes-base.slack)
-4. **General Alert** (n8n-nodes-base.slack)
-5. **Success Response** (n8n-nodes-base.respond To Webhook)
+1. **Generate HTML** (n8n-nodes-base.html)
+2. **Get All Tasks Do Tomorrow** (n8n-nodes-base.notion)
+3. **Get Parent** (n8n-nodes-base.notion)
+4. **Set Original Task** (n8n-nodes-base.set)
+5. **Webhook** (n8n-nodes-base.webhook)
+6. **Set Printed** (n8n-nodes-base.notion)
+7. **Screenshot & Print** (n8n-nodes-base.execute Workflow)
+8. **Has Initiative?** (n8n-nodes-base.if)
 
 ### Output Specification
 
@@ -58,8 +63,8 @@ Intelligent alert system that routes notifications to appropriate Slack channels
 
 ### Dependencies
 
-**Credentials**: slackApi
-**Nodes**: Webhook, If, Slack, Respond to Webhook
+**Credentials**: notionApi
+**Nodes**: n8n-nodes-base.webhook, n8n-nodes-base.notion, n8n-nodes-base.set, n8n-nodes-base.if, n8n-nodes-base.html, n8n-nodes-base.executeWorkflow
 
 ### Configuration
 
@@ -78,7 +83,7 @@ Intelligent alert system that routes notifications to appropriate Slack channels
 
 ### Performance Characteristics
 
-- **Expected Runtime**: 2-5 seconds
+- **Expected Runtime**: 30-60 seconds
 - **Resource Usage**: 
   - Memory: Low/Medium/High
   - CPU: Low/Medium/High
@@ -131,7 +136,7 @@ Intelligent alert system that routes notifications to appropriate Slack channels
 #### Monitoring
 - **Key Metrics**:
   - Execution success rate: > 95%
-  - Average execution time: < 2-5 seconds
+  - Average execution time: < 30-60 seconds
   - Error rate: < 5%
 - **Alerts**: Set up monitoring alerts for failures or performance degradation
 - **Logs**: Check n8n execution logs for detailed error information
@@ -146,12 +151,12 @@ Intelligent alert system that routes notifications to appropriate Slack channels
 #### Access Control
 - **Required Permissions**: List required permissions for credentials
 - **Principle of Least Privilege**: Ensure minimal required permissions
-- **Credential Management**: ✅ Uses n8n credential expressions ({{ $credentials.slack_integration }}), never hardcode secrets
+- **Credential Management**: Use n8n credential management, never hardcode secrets
 
 ### Deployment
 
 #### Prerequisites
-1. n8n version 1.43.0 or higher
+1. n8n version 1.45.0 or higher
 2. Required node types installed (see Dependencies)
 3. Credentials configured with appropriate permissions
 4. Environment variables set (if applicable)
@@ -193,7 +198,7 @@ Intelligent alert system that routes notifications to appropriate Slack channels
 | Data format errors | Node failures with parsing errors | Validate input data structure |
 
 #### Support Contacts
-- **Primary**: devops-team
+- **Primary**: pw-software
 - **Secondary**: n8n Administrator
 - **Escalation**: Technical Team Lead
 
@@ -204,7 +209,7 @@ Intelligent alert system that routes notifications to appropriate Slack channels
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-**Primary Goal**: Intelligent alert system that routes notifications to appropriate Slack channels based on severity level
+**Primary Goal**: Automatically prints task receipts for Notion tasks scheduled for tomorrow. Creates printable HTML receipts with QR codes for task completion, retrieves parent initiative information, and marks tasks as printed to avoid duplicates.
 
 **Business Value**: Describe the business value and impact of this workflow
 
@@ -259,8 +264,8 @@ This section provides structured information for AI/foundation models to underst
 
 ## Changelog
 
-### Version 1.1.0
-- **Date**: 2024-08-15
+### Version 1.0.0
+- **Date**: 2024-08-30
 - **Changes**: Current version changes
 - **Breaking Changes**: None/List any breaking changes
 
@@ -268,4 +273,4 @@ This section provides structured information for AI/foundation models to underst
 
 ---
 
-*This documentation was generated from workflow metadata. Last updated: 2024-08-15*
+*This documentation was generated from workflow metadata. Last updated: 2024-08-30*

@@ -23,7 +23,6 @@ class DocumentationGenerator {
   "name": "Your Workflow Name",
   "description": "Brief description of what this workflow does",
   "version": "1.0.0",
-  "category": "your-category",
   "tags": ["tag1", "tag2"],
   "author": "your-team",
   "created": "2024-08-30",
@@ -52,7 +51,6 @@ INSTRUCTIONS:
 1. Extract workflow name from "name" field - MUST only contain letters, numbers, spaces, hyphens, underscores (no symbols like &, +, etc.)
 2. Write descriptive summary (10-500 characters)
 3. Keep version as "1.0.0" unless workflow name indicates otherwise (e.g., "v2")
-4. Category MUST be kebab-case lowercase (e.g., "data-processing", "integrations", "notifications", "productivity", "automation")
 5. Tags MUST be lowercase kebab-case only (e.g., "html", "redis", "webhook" NOT "HTML", "Redis", "Webhook")
 6. Keep author as "your-team"
 7. Keep dates as "2024-08-30"
@@ -71,7 +69,6 @@ INSTRUCTIONS:
 
 CRITICAL VALIDATION RULES:
 - Name: Only A-Z, a-z, 0-9, spaces, hyphens, underscores
-- Category: lowercase kebab-case only
 - Tags: lowercase kebab-case only (no uppercase letters)
 - All strings must follow exact patterns above
 
@@ -106,15 +103,6 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
     // Fix name - remove special characters not allowed by schema
     if (metadata.name) {
       metadata.name = metadata.name.replace(/[^A-Za-z0-9\s\-_]/g, "").trim();
-    }
-
-    // Fix category - convert to lowercase kebab-case
-    if (metadata.category) {
-      metadata.category = metadata.category
-        .toLowerCase()
-        .replace(/[^a-z0-9\-]/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "");
     }
 
     // Fix tags - convert to lowercase kebab-case
@@ -297,7 +285,7 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
 
     console.log("📚 Generating complete documentation for workflows...\n");
 
-    const categories = fs
+    const workflows = fs
       .readdirSync(workflowsDir, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name);
@@ -306,42 +294,30 @@ CRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code block
     let failed = 0;
     let readmesGenerated = 0;
 
-    for (const category of categories) {
-      const categoryPath = path.join(workflowsDir, category);
-      console.log(`📁 Category: ${category}`);
+    for (const workflow of workflows) {
+      const workflowPath = path.join(workflowsDir, workflow);
 
-      const workflows = fs
-        .readdirSync(categoryPath, { withFileTypes: true })
-        .filter((dirent) => dirent.isDirectory())
-        .map((dirent) => dirent.name);
+      const success = await this.processWorkflow(workflowPath);
 
-      for (const workflow of workflows) {
-        const workflowPath = path.join(categoryPath, workflow);
+      if (success) {
+        generated++;
 
-        const success = await this.processWorkflow(workflowPath);
+        // Generate README after successful metadata generation
+        console.log(`  📝 Generating README...`);
+        const readmeSuccess = await this.generateReadme(workflowPath);
 
-        if (success) {
-          generated++;
-
-          // Generate README after successful metadata generation
-          console.log(`  📝 Generating README...`);
-          const readmeSuccess = await this.generateReadme(workflowPath);
-
-          if (readmeSuccess) {
-            readmesGenerated++;
-          }
-        } else {
-          // Check if it failed due to missing metadata vs already exists
-          const metadataExists = fs.existsSync(
-            path.join(workflowPath, "metadata.json"),
-          );
-          if (!metadataExists) {
-            failed++;
-          }
+        if (readmeSuccess) {
+          readmesGenerated++;
+        }
+      } else {
+        // Check if it failed due to missing metadata vs already exists
+        const metadataExists = fs.existsSync(
+          path.join(workflowPath, "metadata.json"),
+        );
+        if (!metadataExists) {
+          failed++;
         }
       }
-
-      console.log(); // Empty line between categories
     }
 
     // Run final validation on all workflows

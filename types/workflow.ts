@@ -45,21 +45,20 @@ export interface WorkflowRequirements {
 }
 
 export interface ResourceUsage {
-  memory: 'minimal' | 'low' | 'medium' | 'high' | 'very-high';
-  cpu: 'minimal' | 'low' | 'medium' | 'high' | 'very-high';
-  storage: 'minimal' | 'low' | 'medium' | 'high' | 'very-high';
+  memory: "minimal" | "low" | "medium" | "high" | "very-high";
+  cpu: "minimal" | "low" | "medium" | "high" | "very-high";
+  storage: "minimal" | "low" | "medium" | "high" | "very-high";
 }
 
 export interface WorkflowMetadata {
   name: string;
   description: string;
   version: string;
-  category: string;
   author?: string;
   created?: string;
   updated?: string;
   tags?: string[];
-  complexity?: 'simple' | 'medium' | 'complex';
+  complexity?: "simple" | "medium" | "complex";
   execution_time?: string;
   n8n_version?: string;
   requirements?: WorkflowRequirements;

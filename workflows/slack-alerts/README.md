@@ -1,23 +1,24 @@
-# CSV Data Transformer
+# Slack Alert System
 
-> **Version**: 1.2.0 | **Category**: data-processing | **Author**: data-team  
-> **Created**: 2024-01-15 | **Updated**: 2024-08-20
+> **Version**: 1.1.0 | **Author**: devops-team  
+> **Created**: 2024-02-01 | **Updated**: 2024-08-15
 
 ## Overview
 
-Transforms CSV files into structured JSON format with validation and error handling
+Intelligent alert system that routes notifications to appropriate Slack channels based on severity level
 
-**Tags**: csv, transformation, data, json, validation  
-**Complexity**: medium  
-**Estimated Runtime**: 5-15 seconds  
-**Compatible n8n Version**: 1.45.0
+**Tags**: slack, alerts, notifications, monitoring, severity  
+**Complexity**: low  
+**Estimated Runtime**: 2-5 seconds  
+**Compatible n8n Version**: 1.43.0
 
 ## Technical Specification
 
 ### Input Requirements
 
 - **Trigger Type**: Manual trigger
-- **Input Data Structure**: 
+- **Input Data Structure**:
+
   ```json
   {
     "example": "Define the expected input data structure here",
@@ -25,16 +26,17 @@ Transforms CSV files into structured JSON format with validation and error handl
     "field2": "number"
   }
   ```
+
 - **Required Credentials**: See [Dependencies](#dependencies) section
 - **Environment Variables**: See [Dependencies](#dependencies) section
 
 ### Processing Logic
 
-1. **Webhook** (n8n-nodes-base.webhook)
-2. **Transform CSV** (n8n-nodes-base.code)
-3. **Check Data** (n8n-nodes-base.if)
-4. **Success Response** (n8n-nodes-base.respond To Webhook)
-5. **Error Response** (n8n-nodes-base.respond To Webhook)
+1. **Alert Webhook** (n8n-nodes-base.webhook)
+2. **Check Severity** (n8n-nodes-base.if)
+3. **Critical Alert** (n8n-nodes-base.slack)
+4. **General Alert** (n8n-nodes-base.slack)
+5. **Success Response** (n8n-nodes-base.respond To Webhook)
 
 ### Output Specification
 
@@ -58,7 +60,8 @@ Transforms CSV files into structured JSON format with validation and error handl
 
 ### Dependencies
 
-**Nodes**: Webhook, Code, If, Respond to Webhook
+**Credentials**: slackApi
+**Nodes**: Webhook, If, Slack, Respond to Webhook
 
 ### Configuration
 
@@ -77,7 +80,7 @@ Transforms CSV files into structured JSON format with validation and error handl
 
 ### Performance Characteristics
 
-- **Expected Runtime**: 5-15 seconds
+- **Expected Runtime**: 2-5 seconds
 - **Resource Usage**: 
   - Memory: Low/Medium/High
   - CPU: Low/Medium/High
@@ -130,7 +133,7 @@ Transforms CSV files into structured JSON format with validation and error handl
 #### Monitoring
 - **Key Metrics**:
   - Execution success rate: > 95%
-  - Average execution time: < 5-15 seconds
+  - Average execution time: < 2-5 seconds
   - Error rate: < 5%
 - **Alerts**: Set up monitoring alerts for failures or performance degradation
 - **Logs**: Check n8n execution logs for detailed error information
@@ -150,7 +153,7 @@ Transforms CSV files into structured JSON format with validation and error handl
 ### Deployment
 
 #### Prerequisites
-1. n8n version 1.45.0 or higher
+1. n8n version 1.43.0 or higher
 2. Required node types installed (see Dependencies)
 3. Credentials configured with appropriate permissions
 4. Environment variables set (if applicable)
@@ -192,7 +195,7 @@ Transforms CSV files into structured JSON format with validation and error handl
 | Data format errors | Node failures with parsing errors | Validate input data structure |
 
 #### Support Contacts
-- **Primary**: data-team
+- **Primary**: devops-team
 - **Secondary**: n8n Administrator
 - **Escalation**: Technical Team Lead
 
@@ -203,7 +206,7 @@ Transforms CSV files into structured JSON format with validation and error handl
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-**Primary Goal**: Transforms CSV files into structured JSON format with validation and error handling
+**Primary Goal**: Intelligent alert system that routes notifications to appropriate Slack channels based on severity level
 
 **Business Value**: Describe the business value and impact of this workflow
 
@@ -258,8 +261,8 @@ This section provides structured information for AI/foundation models to underst
 
 ## Changelog
 
-### Version 1.2.0
-- **Date**: 2024-08-20
+### Version 1.1.0
+- **Date**: 2024-08-15
 - **Changes**: Current version changes
 - **Breaking Changes**: None/List any breaking changes
 
@@ -267,4 +270,4 @@ This section provides structured information for AI/foundation models to underst
 
 ---
 
-*This documentation was generated from workflow metadata. Last updated: 2024-08-20*
+*This documentation was generated from workflow metadata. Last updated: 2024-08-15*

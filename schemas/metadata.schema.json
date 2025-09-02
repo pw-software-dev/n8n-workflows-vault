@@ -4,7 +4,7 @@
   "title": "n8n Workflow Metadata Schema",
   "description": "JSON schema for validating n8n workflow metadata files",
   "type": "object",
-  "required": ["name", "description", "version", "category"],
+  "required": ["name", "description", "version"],
   "properties": {
     "name": {
       "type": "string",
@@ -24,21 +24,7 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
       "description": "Semantic version (e.g., 1.2.3)"
     },
-    "category": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 50,
-      "pattern": "^[a-z0-9\\-]+$",
-      "description": "Workflow category (kebab-case)",
-      "examples": [
-        "data-processing",
-        "notifications",
-        "integrations",
-        "automation",
-        "reporting",
-        "monitoring"
-      ]
-    },
+
     "tags": {
       "type": "array",
       "uniqueItems": true,

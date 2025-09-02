@@ -102,7 +102,7 @@ validateAllWorkflows() → void
 **Process**:
 
 1. Scans `/workflows` directory for categories
-2. Iterates through each category directory
+2. Iterates through each workflow directory
 3. Validates each workflow folder
 4. Aggregates results and displays summary
 5. Exits with code 1 if any workflow fails
@@ -112,7 +112,7 @@ validateAllWorkflows() → void
 ```
 🔍 Validating all workflows...
 
-Category: data-processing
+
 
 Validating workflow: csv-transformer
   ✅ Valid
@@ -177,7 +177,7 @@ if (!workflow.connections) {
 ### Metadata Validation
 
 ```javascript
-const requiredFields = ["name", "description", "version", "category"];
+const requiredFields = ["name", "description", "version"];
 const missingFields = requiredFields.filter((field) => !metadata[field]);
 ```
 
@@ -186,7 +186,6 @@ const missingFields = requiredFields.filter((field) => !metadata[field]);
 - `name` - Workflow name
 - `description` - Purpose description
 - `version` - Semantic version
-- `category` - Workflow category
 
 **Version Validation**:
 
@@ -340,11 +339,11 @@ Load additional schemas in constructor:
 this.customSchema = this.loadSchema("./schemas/custom.schema.json");
 ```
 
-### Category-Specific Validation
+### Tag-Specific Validation
 
 ```javascript
-// Add category-specific rules
-if (metadata.category === "data-processing") {
+// Add tag-specific rules
+if (metadata.tags?.includes("data-processing")) {
   // Data processing specific validation
   if (!metadata.requirements?.nodes?.includes("Code")) {
     results.warnings.push("Data processing workflows typically use Code nodes");
