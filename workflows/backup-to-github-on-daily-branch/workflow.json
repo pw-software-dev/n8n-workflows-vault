@@ -15,7 +15,7 @@
       "typeVersion": 1.2,
       "position": [
         -1392,
-        432
+        480
       ]
     },
     {
@@ -31,7 +31,7 @@
       "typeVersion": 1,
       "position": [
         176,
-        240
+        288
       ],
       "credentials": {
         "n8nApi": {
@@ -56,7 +56,7 @@
       "typeVersion": 1,
       "position": [
         400,
-        240
+        288
       ],
       "credentials": {
         "n8nApi": {
@@ -76,7 +76,7 @@
       "typeVersion": 2,
       "position": [
         848,
-        240
+        288
       ]
     },
     {
@@ -109,7 +109,7 @@
       "typeVersion": 1,
       "position": [
         1296,
-        320
+        360
       ],
       "webhookId": "c13a4233-8b59-4126-a435-4e3808bee1a3",
       "credentials": {
@@ -117,7 +117,8 @@
           "id": "hNFWKactzuCtJJaM",
           "name": "GitHub account"
         }
-      }
+      },
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -196,7 +197,7 @@
       "typeVersion": 1.1,
       "position": [
         1072,
-        240
+        288
       ],
       "id": "b5e1b2d2-2af9-44c0-aedc-34016808eeb1",
       "name": "Create a file",
@@ -228,7 +229,7 @@
       "typeVersion": 3.4,
       "position": [
         -944,
-        432
+        480
       ],
       "id": "7ef91464-0f84-4fd6-9cd2-961bcf415c29",
       "name": "Set Parameters"
@@ -244,7 +245,7 @@
       "typeVersion": 4.2,
       "position": [
         -720,
-        432
+        480
       ],
       "id": "a66683e1-fedb-416b-b9e8-e9994133034e",
       "name": "Get Backup Branch of Today",
@@ -285,7 +286,7 @@
       "typeVersion": 2.2,
       "position": [
         -496,
-        512
+        600
       ],
       "id": "9cc5d270-896f-436f-b3df-1968354f1f84",
       "name": "Branch Not Found?"
@@ -315,7 +316,7 @@
       "typeVersion": 4.2,
       "position": [
         -48,
-        368
+        408
       ],
       "id": "2834303c-8e77-45b5-ae7e-0939b0e1193b",
       "name": "Create Backup Branch of Today",
@@ -338,7 +339,7 @@
       "typeVersion": 4.2,
       "position": [
         -272,
-        432
+        528
       ],
       "id": "37acbf2f-7792-416a-b55c-05fbc78e1d4d",
       "name": "Get Latest SHA",
@@ -349,17 +350,6 @@
         }
       },
       "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        176,
-        528
-      ],
-      "id": "af1ee23e-4924-4b81-8545-cac305bf4a8a",
-      "name": "No Operation, do nothing"
     },
     {
       "parameters": {},
@@ -384,7 +374,7 @@
       "typeVersion": 1,
       "position": [
         -1168,
-        432
+        480
       ],
       "id": "66864f26-ac36-4f34-82d8-b4cef4f5e692",
       "name": "Get Timestamp Last Fetched",
@@ -425,10 +415,58 @@
       "typeVersion": 2,
       "position": [
         624,
-        240
+        288
       ],
       "id": "78d8af79-d31d-4c42-af70-78f3d47f4424",
       "name": "Filter for Edited Workflow or Newly Added Tags"
+    },
+    {
+      "parameters": {
+        "chatId": "4978196",
+        "text": "={{ $json.error }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        528
+      ],
+      "id": "d52a93d7-036c-45f5-9a5f-232d25840328",
+      "name": "Telegram",
+      "webhookId": "956d837a-ddf1-4481-9085-98b92ef84bb1",
+      "credentials": {
+        "telegramApi": {
+          "id": "7SDBDDe3rcdZpYc8",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e10ad23a-3c9e-4522-b6a7-a072a3ec71ad",
+              "name": "error",
+              "value": "={{ $json.error || \"Workflow failed and I dont know why\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        600
+      ],
+      "id": "18989c70-ecb0-48ba-aff2-ad38c170900b",
+      "name": "Set Error"
     }
   ],
   "connections": {
@@ -481,6 +519,13 @@
         [
           {
             "node": "Check Backup Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram",
             "type": "main",
             "index": 0
           }
@@ -545,7 +590,7 @@
         ],
         [
           {
-            "node": "No Operation, do nothing",
+            "node": "Set Error",
             "type": "main",
             "index": 0
           }
@@ -563,7 +608,7 @@
         ],
         [
           {
-            "node": "No Operation, do nothing",
+            "node": "Set Error",
             "type": "main",
             "index": 0
           }
@@ -581,7 +626,7 @@
         ],
         [
           {
-            "node": "No Operation, do nothing",
+            "node": "Set Error",
             "type": "main",
             "index": 0
           }
@@ -638,6 +683,17 @@
           }
         ]
       ]
+    },
+    "Set Error": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -653,5 +709,5 @@
     }
   ],
   "triggerCount": 0,
-  "versionId": "512d9619-e72b-4020-b197-a14c41a623fc"
+  "versionId": "071c5feb-fe30-4e82-8fd7-64209ae071ce"
 }
