@@ -1,0 +1,106 @@
+{
+  "name": "Write ngrok URL to Redis",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "atlas/methods/set-ngrok-url",
+        "authentication": "headerAuth",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "555356ff-2a70-4ab2-9223-8ad1eaaa8b44",
+      "name": "Webhook",
+      "webhookId": "8cb3418d-d464-4972-a708-bd96ba80f084",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8Jhii7t8phQxxmPW",
+          "name": "Global Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "piNgrokUrl",
+        "value": "={{ $json.body.url }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "23de774c-8935-44aa-b51b-e8732d684d96",
+      "name": "Set Raspberry PI ngrok URL",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Raspberry PI ngrok URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "0279d067-0d26-48db-a2e4-3f6f898b894b",
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-vy8rb-u45542.vm.elestio.app",
+            "x-real-ip": "95.90.186.146",
+            "x-forwarded-for": "95.90.186.146",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "46",
+            "accept-encoding": "identity",
+            "user-agent": "Python-urllib/3.11",
+            "content-type": "application/json",
+            "x-pws-apikey": "dizga4-sutWah-modhyp"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "url": "https://997c4b2e67b3.ngrok-free.app"
+          },
+          "webhookUrl": "https://n8n-vy8rb-u45542.vm.elestio.app/webhook/atlas/methods/set-ngrok-url",
+          "executionMode": "production"
+        }
+      }
+    ]
+  }
+}
