@@ -1,0 +1,47 @@
+{
+  "name": "Process Questions",
+  "description": "This workflow processes questions by enhancing them with strategic framing and preparation strategies. It uses various nodes to analyze and transform basic inquiries into well-researched, strategically-framed questions.",
+  "version": "1.0.0",
+  "tags": [
+    "workflow",
+    "question-processing",
+    "enhancement"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Perplexity account",
+      "SerpAPI account",
+      "OpenAi account",
+      "Supabase account",
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "n8n-nodes-base.if",
+      "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "n8n-nodes-base.perplexityTool",
+      "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "n8n-nodes-base.httpRequest",
+      "@n8n/n8n-nodes-langchain.agent",
+      "n8n-nodes-base.notion"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "manual"
+  ],
+  "complexity": "high",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low"
+  }
+}

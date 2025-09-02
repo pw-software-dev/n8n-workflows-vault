@@ -1,0 +1,35 @@
+{
+  "name": "Write ngrok URL to Redis",
+  "description": "This workflow captures an ngrok URL via a webhook and stores it in a Redis database.",
+  "version": "1.0.0",
+  "tags": [
+    "webhook",
+    "redis",
+    "ngrok"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Global Header Auth",
+      "Redis account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.webhook",
+      "n8n-nodes-base.redis"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "medium",
+  "execution_time": "15-30 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "low",
+    "storage": "minimal"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Backup to GitHub on Daily Branch",
+  "description": "This workflow automates the daily backup of workflows to a GitHub repository, creating a new branch for each day.",
+  "version": "1.0.0",
+  "tags": [
+    "backup",
+    "github",
+    "daily"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "n8n account",
+      "GitHub account",
+      "Redis account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.scheduleTrigger",
+      "n8n-nodes-base.n8n",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.github",
+      "n8n-nodes-base.if",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.redis"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "schedule"
+  ],
+  "complexity": "medium",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low"
+  }
+}

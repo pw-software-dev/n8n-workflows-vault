@@ -24,7 +24,7 @@ class DocumentationGenerator {
   "description": "Brief description of what this workflow does",
   "version": "1.0.0",
   "tags": ["tag1", "tag2"],
-  "author": "your-team",
+  "author": "pw-software",
   "created": "2024-08-30",
   "updated": "2024-08-30",
   "n8n_version": "1.45.0",
@@ -52,15 +52,15 @@ INSTRUCTIONS:
 2. Write descriptive summary (10-500 characters)
 3. Keep version as "1.0.0" unless workflow name indicates otherwise (e.g., "v2")
 5. Tags MUST be lowercase kebab-case only (e.g., "html", "redis", "webhook" NOT "HTML", "Redis", "Webhook")
-6. Keep author as "your-team"
+6. Keep author as "pw-software"
 7. Keep dates as "2024-08-30"
 8. Keep n8n_version as "1.45.0"
 9. Requirements:
   - credentials: Extract credential names from nodes with "credentials" property
   - nodes: List full node types (e.g., "n8n-nodes-base.webhook", "n8n-nodes-base.notion")
   - environment_variables: Leave empty array unless obvious
-10. Triggers: webhook, cron, manual, etc.
-11. Complexity: simple/medium/complex (based on node count and logic)
+10. Triggers: "webhook", "schedule", "manual", "email", "file-system", "database", "queue", "form", "chat", "sms", "api"
+11. Complexity: "low", "medium", "high", "very-high" (based on node count and logic)
 12. Execution time: "15-30 seconds", "30-60 seconds", "1-2 minutes", etc.
 13. Resources:
     - memory: low/medium/high

@@ -1,0 +1,329 @@
+{
+  "name": "Mark Task Completed",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tasks/complete",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -144
+      ],
+      "id": "04cfa4d1-56d5-457f-b3db-4c8bdc7bc90e",
+      "name": "Webhook",
+      "webhookId": "faa2ecad-32aa-4852-904a-3f293773b7df"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "atlas_num_tasks_done",
+        "key": "atlas_num_tasks_done",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -144
+      ],
+      "id": "4eca5da8-a929-498e-b5aa-839bfb4202bf",
+      "name": "Get Num Tasks Done",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "atlas_num_tasks_done",
+        "value": "={{ String($json.numDoneNew) }}",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -144
+      ],
+      "id": "6a9e1f96-fca7-46fd-aab7-c2ef39dd49f8",
+      "name": "Set Num Tasks Done",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4b623e1-f1e8-4f12-a0d3-241ce1c6c662",
+              "name": "atlas_num_tasks_done",
+              "value": "={{ $json.atlas_num_tasks_done || 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "b5fc9e42-be6f-41a7-881a-62432d7103dc",
+              "name": "taskId",
+              "value": "={{ $('Webhook').item.json.query.taskId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -144
+      ],
+      "id": "b726bf8d-70e3-48b2-8096-a1f7d3e37989",
+      "name": "Set Input"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -368
+      ],
+      "id": "384d8782-56ae-470f-999a-8e762f7f3360",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "atlas_num_tasks_done",
+        "value": "=30",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -368
+      ],
+      "id": "6e15546e-aa75-42e4-8626-d88610634fb9",
+      "name": "Reset Num Tasks Done",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const numDoneOld = $('Get Num Tasks Done').first().json.atlas_num_tasks_done;\n\nif (!numDoneOld) {\n  return {\n    json: {\n      numDoneNew: 1\n    }\n  };\n}\n\nreturn {\n  json: {\n    numDoneNew: Number(numDoneOld) + 1\n  }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -144
+      ],
+      "id": "b27a3ae0-aa72-4635-9351-d0963b8d3128",
+      "name": "Calc New Num Tasks Done"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.taskId }}",
+          "mode": "id"
+        },
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|status",
+              "statusValue": "Done"
+            },
+            {
+              "key": "Do Date|date",
+              "includeTime": false,
+              "date": "="
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -144
+      ],
+      "id": "7332cf58-1328-4dfd-98d6-3a5526c3f57b",
+      "name": "Set Task Done",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "Thx, HDGDL.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1328,
+        -144
+      ],
+      "id": "522f35a1-6458-4e99-9c72-0c2cdae1720d",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Num Tasks Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Num Tasks Done": {
+      "main": [
+        [
+          {
+            "node": "Set Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Input": {
+      "main": [
+        [
+          {
+            "node": "Set Task Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Num Tasks Done": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Reset Num Tasks Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calc New Num Tasks Done": {
+      "main": [
+        [
+          {
+            "node": "Set Num Tasks Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Task Done": {
+      "main": [
+        [
+          {
+            "node": "Calc New Num Tasks Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-06-11T22:05:42.427Z",
+      "updatedAt": "2025-06-11T22:05:42.427Z",
+      "id": "Ow9LECRWGFsIKbfI",
+      "name": "main"
+    },
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "8e055538-9b9e-491d-a5b9-f819bb49bb63",
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-vy8rb-u45542.vm.elestio.app",
+            "x-real-ip": "145.224.73.255",
+            "x-forwarded-for": "145.224.73.255",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "user-agent": "curl/7.88.1",
+            "accept": "*/*"
+          },
+          "params": {},
+          "query": {
+            "taskId": "25ad0eff-6a00-8010-9eee-f1cda075961b"
+          },
+          "body": {},
+          "webhookUrl": "https://n8n-vy8rb-u45542.vm.elestio.app/webhook/tasks/complete",
+          "executionMode": "production"
+        }
+      }
+    ]
+  }
+}

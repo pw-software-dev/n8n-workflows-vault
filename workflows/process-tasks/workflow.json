@@ -1,0 +1,772 @@
+{
+  "name": "Process Tasks",
+  "nodes": [
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1920,
+        1184
+      ],
+      "id": "3f7ec26a-2c56-4b16-b9dc-cc2f4c7e290d",
+      "name": "Set Response"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "transcript"
+            },
+            {
+              "name": "description"
+            },
+            {
+              "name": "title"
+            },
+            {
+              "name": "priority"
+            },
+            {
+              "name": "project"
+            },
+            {
+              "name": "dueDate"
+            },
+            {
+              "name": "status"
+            },
+            {
+              "name": "parent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2592,
+        1184
+      ],
+      "id": "0e080ea1-2eb3-44d8-bb1f-2be60652bdc8",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://xnbxczlaowxhgriihyjs.supabase.co/rest/v1/rpc/ingest_item",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_content",
+              "value": "={{ $('When Executed by Another Workflow').item.json.description }}"
+            },
+            {
+              "name": "p_type",
+              "value": "task"
+            },
+            {
+              "name": "p_source_type",
+              "value": "voice"
+            },
+            {
+              "name": "p_transcript",
+              "value": "={{ $('When Executed by Another Workflow').item.json.transcript }}"
+            },
+            {
+              "name": "p_embedding",
+              "value": "={{ $json.data[0].embedding }}"
+            },
+            {
+              "name": "p_embedding_model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "p_task_title",
+              "value": "={{ $('When Executed by Another Workflow').item.json.title }}"
+            },
+            {
+              "name": "p_task_description",
+              "value": "={{ $('When Executed by Another Workflow').item.json.description }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2144,
+        1184
+      ],
+      "id": "263a03b2-e8f9-4209-864d-b6371a090325",
+      "name": "RPC Ingest Task",
+      "executeOnce": false,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f42bc7bc-0027-498f-8775-1144f23dd3bb",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": "observation",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1696,
+        1184
+      ],
+      "id": "51a6717c-c3c2-44c1-a113-0a728ae77c87",
+      "name": "Is Success?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8216d532-4d28-45ef-81b7-79df30e3b51d",
+              "leftValue": "={{ $json.similar_items_count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1472,
+        1104
+      ],
+      "id": "63485974-5231-499c-a14e-574950351b90",
+      "name": "Is New Item?"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When Executed by Another Workflow').item.json.description }}",
+        "options": {
+          "systemMessage": "={{ $json.data }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1024,
+        848
+      ],
+      "id": "7102e8d6-58ca-4b16-942f-a7df34f3e92f",
+      "name": "Enhance Task"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -960,
+        1072
+      ],
+      "id": "463f072c-a16e-483d-9b17-ce0fea7a97ca",
+      "name": "4.1-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gQdJ7WRz4E2pfY5s",
+          "mode": "list",
+          "cachedResultName": "Fetch Prompt from Github"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt": "enhance_task"
+          },
+          "matchingColumns": [
+            "prompt"
+          ],
+          "schema": [
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1248,
+        960
+      ],
+      "id": "9344f4ba-1820-41f9-8223-71be2eecaff2",
+      "name": "Fetch Enhance Task Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Workflow: Agent Markdown → Notion Database Page\n\n// ===========================================\n// 1. AGENT NODE (your existing setup)\n// ===========================================\n// Agent outputs markdown in this format:\n// ## Description\n// Update Frontend Caching to Support Invalidation\n// ## Complexity: Level 3 - Complex Task\n// ### Context Requirements\n// etc...\n\n// ===========================================\n// 2. CODE NODE: Convert Markdown to Notion Blocks\n// ===========================================\n\n// This goes in a Code node after your Agent node\nfunction markdownToNotionBlocks(markdown) {\n  const blocks = [];\n  const lines = markdown.split('\\n').filter(line => line.trim() !== '');\n  \n  for (let i = 0; i < lines.length; i++) {\n    const line = lines[i].trim();\n    \n    if (!line) continue;\n    \n    // Handle ## headings (heading_2)\n    if (line.startsWith('## ')) {\n      blocks.push({\n        object: 'block',\n        type: 'heading_2',\n        heading_2: {\n          rich_text: [\n            {\n              type: 'text',\n              text: { content: line.substring(3) }\n            }\n          ]\n        }\n      });\n    }\n    \n    // Handle ### headings (heading_3)\n    else if (line.startsWith('### ')) {\n      blocks.push({\n        object: 'block',\n        type: 'heading_3',\n        heading_3: {\n          rich_text: [\n            {\n              type: 'text',\n              text: { content: line.substring(4) }\n            }\n          ]\n        }\n      });\n    }\n    \n    // Handle numbered lists (1. 2. 3. etc.)\n    else if (/^\\d+\\.\\s/.test(line)) {\n      const content = line.replace(/^\\d+\\.\\s/, '');\n      const richText = parseInlineFormatting(content);\n      \n      blocks.push({\n        object: 'block',\n        type: 'numbered_list_item',\n        numbered_list_item: {\n          rich_text: richText\n        }\n      });\n    }\n    \n    // Handle bullet points\n    else if (line.startsWith('- ')) {\n      const content = line.substring(2);\n      const richText = parseInlineFormatting(content);\n      \n      blocks.push({\n        object: 'block',\n        type: 'bulleted_list_item',\n        bulleted_list_item: {\n          rich_text: richText\n        }\n      });\n    }\n    \n    // Handle bold standalone text (like **Critical Information Needed:**)\n    else if (line.startsWith('**') && line.endsWith('**')) {\n      const content = line.substring(2, line.length - 2);\n      blocks.push({\n        object: 'block',\n        type: 'paragraph',\n        paragraph: {\n          rich_text: [\n            {\n              type: 'text',\n              text: { content },\n              annotations: { bold: true }\n            }\n          ]\n        }\n      });\n    }\n    \n    // Handle regular paragraphs\n    else {\n      const richText = parseInlineFormatting(line);\n      blocks.push({\n        object: 'block',\n        type: 'paragraph',\n        paragraph: {\n          rich_text: richText\n        }\n      });\n    }\n  }\n  \n  return blocks;\n}\n\nfunction parseInlineFormatting(text) {\n  const richText = [];\n  let currentIndex = 0;\n  \n  // Handle **bold** text\n  const boldRegex = /\\*\\*(.*?)\\*\\*/g;\n  let match;\n  \n  while ((match = boldRegex.exec(text)) !== null) {\n    // Add text before bold\n    if (match.index > currentIndex) {\n      const beforeText = text.substring(currentIndex, match.index);\n      if (beforeText) {\n        richText.push({\n          type: 'text',\n          text: { content: beforeText }\n        });\n      }\n    }\n    \n    // Add bold text\n    richText.push({\n      type: 'text',\n      text: { content: match[1] },\n      annotations: { bold: true }\n    });\n    \n    currentIndex = match.index + match[0].length;\n  }\n  \n  // Add remaining text\n  if (currentIndex < text.length) {\n    const remainingText = text.substring(currentIndex);\n    if (remainingText) {\n      richText.push({\n        type: 'text',\n        text: { content: remainingText }\n      });\n    }\n  }\n  \n  // If no formatting found, return original text\n  if (richText.length === 0) {\n    richText.push({\n      type: 'text',\n      text: { content: text }\n    });\n  }\n  \n  return richText;\n}\n\nfunction extractTaskTitle(markdown) {\n  const lines = markdown.split('\\n');\n  // Look for the first line after \"## Description\"\n  let foundDescription = false;\n  for (const line of lines) {\n    if (line.trim() === '## Description') {\n      foundDescription = true;\n      continue;\n    }\n    if (foundDescription && line.trim()) {\n      return line.trim();\n    }\n  }\n  return 'Untitled Task';\n}\n\nfunction extractComplexityLevel(markdown) {\n  const match = markdown.match(/## Complexity: Level (\\d+)/);\n  return match ? parseInt(match[1]) : 0;\n}\n\n// Main execution in Code node\nfunction cleanAgentOutput(rawOutput) {\n  // Handle markdown wrapped in code blocks with escaped newlines\n  let cleaned = rawOutput;\n  \n  // Remove markdown code block wrapper if present\n  if (cleaned.startsWith('```markdown\\\\n')) {\n    cleaned = cleaned.substring(12); // Remove '```markdown\\n'\n  }\n  if (cleaned.endsWith('```')) {\n    cleaned = cleaned.substring(0, cleaned.length - 3); // Remove trailing '```'\n  }\n  \n  // Replace escaped newlines with actual newlines\n  cleaned = cleaned.replace(/\\\\n/g, '\\n');\n  \n  return cleaned;\n}\n\nconst rawAgentOutput = $input.first().json.output; // Adjust path based on your Agent node output\nconst cleanedMarkdown = cleanAgentOutput(rawAgentOutput);\nconst taskTitle = extractTaskTitle(cleanedMarkdown);\nconst complexityLevel = extractComplexityLevel(cleanedMarkdown);\nconst notionBlocks = markdownToNotionBlocks(cleanedMarkdown).filter((_, index) => index > 0);\n\nreturn [{\n  json: {\n    taskTitle: taskTitle,\n    complexityLevel: complexityLevel,\n    notionBlocks: notionBlocks,\n    originalMarkdown: cleanedMarkdown,\n    rawOutput: rawAgentOutput\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        960
+      ],
+      "id": "b6cdda0a-7840-4cd0-a6e0-4d2c42fa61eb",
+      "name": "Format Markdown to Notion Blocks"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/pages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"parent\": {\n    \"type\": \"database_id\", \n    \"database_id\": \"218d0eff6a00805b9935d4913bb02ff4\"\n  },\n  \"properties\": {{ JSON.stringify($json.properties) }},\n  \"children\": [{{ $('Format Markdown to Notion Blocks').item.json.notionBlocks.map(item => JSON.stringify(item)) }}]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        960
+      ],
+      "id": "be7b76e9-1b5f-4922-a216-48d228f1962c",
+      "name": "Create Database Page",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "tasks",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "item_id",
+              "condition": "eq",
+              "keyValue": "={{ $('RPC Ingest Task').item.json.item_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "notion_page_id",
+              "fieldValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        960
+      ],
+      "id": "14fbfc63-1ca3-43bf-a981-aec24fc5a6eb",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.notion_page_id }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        1200
+      ],
+      "id": "041d4ca1-79c0-487f-a903-048a42477612",
+      "name": "Get a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "tasks",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "item_id",
+              "keyValue": "={{ $json.similar_items[0].id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1248,
+        1248
+      ],
+      "id": "a95b51b8-c4fa-4ccf-a2df-541e406d7b50",
+      "name": "Get Original Task",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e5a78d4c-cc23-4d0f-aa34-e0b3f2ab2d6f",
+              "leftValue": "={{ $json.notion_page_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -960,
+        1248
+      ],
+      "id": "b736ec05-caed-478d-bef5-1eb44723ddc3",
+      "name": "Has Notion Page ID?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/comments",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"parent\": {\n    \"page_id\": \"{{ $json.id.replaceAll('-', '') }}\"\n  },\n  \"rich_text\": [\n    {\n      \"text\": {\n        \"content\": \"Task was mentioned: \\\"{{ $('When Executed by Another Workflow').item.json.transcript === \"EMPTY TRANSCRIPT\" ? $('When Executed by Another Workflow').item.json.description : $('When Executed by Another Workflow').item.json.transcript }}\\\"\"\n      }\n    }\n  ],\n  \"display_name\": {\n    \"type\": \"integration\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -448,
+        1200
+      ],
+      "id": "e6284ed8-9f6d-40d8-994a-7f7757f8455c",
+      "name": "Create Comment",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        1424
+      ],
+      "id": "dbe468eb-120f-49cc-8ce6-e0f740580ee8",
+      "name": "End Workflow"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst properties = {\n  \"Task name\": {\n    \"title\": [\n      {\n        \"text\": {\n          \"content\": $('When Executed by Another Workflow').item.json.title\n        }\n      }\n    ]\n  },\n  \"External ID\": {\n    \"rich_text\": [{\n      \"text\": {\n        \"content\": $('RPC Ingest Task').item.json.item_id\n      }\n    }]\n  },\n  \"Description\": {\n    \"rich_text\": [{\n      \"text\": {\n        \"content\": $('When Executed by Another Workflow').item.json.description\n      }\n    }]\n  },\n  \"Date Created\": {\n    \"date\": {\n      \"start\": $now.toFormat(\"yyyy-MM-dd\")\n    }\n  },\n};\n\nif ($('When Executed by Another Workflow').item.json.status) {\n  properties[\"Status\"] = {\n    \"status\": {\n      \"name\": $('When Executed by Another Workflow').item.json.status\n    }\n  }\n}\n\nif ($('When Executed by Another Workflow').item.json.priority) {\n  properties[\"Priority\"] = {\n    \"select\": {\n      \"name\": $('When Executed by Another Workflow').item.json.priority\n    }\n  }\n}\n\nif ($('When Executed by Another Workflow').item.json.project) {\n  properties[\"Project\"] = {\n    \"relation\": [{\n      \"id\": $('When Executed by Another Workflow').item.json.project\n    }]\n  }\n}\n\nif ($('When Executed by Another Workflow').item.json.dueDate) {\n  properties[\"Due date\"] = {\n    \"date\": {\n      \"start\": $('When Executed by Another Workflow').item.json.dueDate\n    }\n  }\n}\n\nif ($('When Executed by Another Workflow').item.json.parent) {\n  properties[\"Parent task\"] = {\n    \"relation\": [ { \"id\": $('When Executed by Another Workflow').item.json.parent } ]\n  }\n}\n\nreturn {json: {\n  properties\n}}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        960
+      ],
+      "id": "951d5b4c-b9ec-4966-9ccb-e876cb31c750",
+      "name": "Set Properties"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.portkey.ai/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2368,
+        1184
+      ],
+      "id": "c4be8d62-9b5d-4630-911f-ef7e6d7f09b2",
+      "name": "Create Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Set Response": {
+      "main": [
+        [
+          {
+            "node": "Is Success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Create Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RPC Ingest Task": {
+      "main": [
+        [
+          {
+            "node": "Set Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Success?": {
+      "main": [
+        [
+          {
+            "node": "Is New Item?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Item?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Enhance Task Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Original Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Task": {
+      "main": [
+        [
+          {
+            "node": "Format Markdown to Notion Blocks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Enhance Task",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Enhance Task Prompt": {
+      "main": [
+        [
+          {
+            "node": "Enhance Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Markdown to Notion Blocks": {
+      "main": [
+        [
+          {
+            "node": "Set Properties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Database Page": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Original Task": {
+      "main": [
+        [
+          {
+            "node": "Has Notion Page ID?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Notion Page ID?": {
+      "main": [
+        [
+          {
+            "node": "Get a database page",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a database page": {
+      "main": [
+        [
+          {
+            "node": "Create Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Properties": {
+      "main": [
+        [
+          {
+            "node": "Create Database Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Embeddings": {
+      "main": [
+        [
+          {
+            "node": "RPC Ingest Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "649f0fae-e69f-400a-9cc3-2e4349da73ca",
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "transcript": "EMPTY TRANSCRIPT",
+          "description": "I want a Button that can promote (move) an Idea to an Initiative. I want to use this when I decided to work on an Idea.",
+          "title": "Add Promote to Initiative in Ideas",
+          "project": "223d0eff-6a00-80fd-b9e7-c03c0e6617e5",
+          "status": "Accepted",
+          "parent": "24cd0eff-6a00-81f3-8058-e1dfe1700881"
+        }
+      }
+    ]
+  }
+}

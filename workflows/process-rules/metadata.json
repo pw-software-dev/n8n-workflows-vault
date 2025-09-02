@@ -1,0 +1,47 @@
+{
+  "name": "Process Rules",
+  "description": "This workflow processes spoken word transcripts to extract and categorize explicit rules using AI and stores them in a database.",
+  "version": "1.0.0",
+  "tags": [
+    "ai",
+    "rules",
+    "transcription",
+    "database"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "OpenAi account",
+      "Supabase account",
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "@n8n/n8n-nodes-langchain.agent",
+      "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "n8n-nodes-base.splitOut",
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.if",
+      "n8n-nodes-base.merge",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.supabase",
+      "n8n-nodes-base.notion"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "manual"
+  ],
+  "complexity": "medium",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low"
+  }
+}

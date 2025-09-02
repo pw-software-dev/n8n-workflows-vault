@@ -1,0 +1,47 @@
+{
+  "name": "Process Observations",
+  "description": "This workflow processes observations by ingesting data into a database, enhancing it with AI models, and storing the results in Notion.",
+  "version": "1.0.0",
+  "tags": [
+    "observations",
+    "ai",
+    "notion",
+    "supabase"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "supabaseApi",
+      "notionApi",
+      "openAiApi",
+      "serpApi"
+    ],
+    "nodes": [
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.if",
+      "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "n8n-nodes-base.perplexityTool",
+      "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "@n8n/n8n-nodes-langchain.agent"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "manual"
+  ],
+  "complexity": "high",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low"
+  }
+}

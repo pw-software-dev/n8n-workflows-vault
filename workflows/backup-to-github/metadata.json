@@ -74,7 +74,7 @@
   },
   "security": {
     "data_sensitivity": "confidential",
-    "compliance_requirements": ["Data retention", "Access control"],
+    "compliance_requirements": ["GDPR"],
     "security_review_required": true
   },
   "documentation_urls": [

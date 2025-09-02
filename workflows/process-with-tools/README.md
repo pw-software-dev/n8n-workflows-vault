@@ -1,15 +1,15 @@
-# Screenshot HTML Print Image
+# Process with Tools
 
-> **Version**: 1.0.0 | **Author**: your-team  
+> **Version**: 1.0.0 | **Author**: pw-software  
 > **Created**: 2024-08-30 | **Updated**: 2024-08-30
 
 ## Overview
 
-This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+This workflow processes tasks, ideas, observations, and questions using various tools and sends a summary via Telegram.
 
-**Tags**: html, screenshot, print, http  
+**Tags**: backup  
 **Complexity**: medium  
-**Estimated Runtime**: 30-60 seconds  
+**Estimated Runtime**: 1-2 minutes  
 **Compatible n8n Version**: 1.45.0
 
 ## Technical Specification
@@ -32,12 +32,16 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Processing Logic
 
-1. **Get ngrok URL** (n8n-nodes-base.redis)
-2. **PRINT 🖨️** (n8n-nodes-base.http Request)
-3. **Get Test File** (n8n-nodes-base.http Request)
-4. **Screenshot HTML** (n8n-nodes-base.http Request)
-5. **Screenshot API Error** (n8n-nodes-base.stop And Error)
-6. **Print API Error** (n8n-nodes-base.stop And Error)
+1. **Anthropic Chat Model** (@n8n/n8n-nodes-langchain.lm Chat Anthropic)
+2. **Structured Output Parser** (@n8n/n8n-nodes-langchain.output Parser Structured)
+3. **process_tasks** (@n8n/n8n-nodes-langchain.tool Workflow)
+4. **Fetch Extract Items with Tools Prompt** (n8n-nodes-base.execute Workflow)
+5. **process_ideas** (@n8n/n8n-nodes-langchain.tool Workflow)
+6. **Extract Items & Delegate** (@n8n/n8n-nodes-langchain.agent)
+7. **Extract Markdown** (n8n-nodes-base.code)
+8. **send_tg_summary** (n8n-nodes-base.telegram Tool)
+9. **process_observations** (@n8n/n8n-nodes-langchain.tool Workflow)
+10. **process_questions** (@n8n/n8n-nodes-langchain.tool Workflow)
 
 ### Output Specification
 
@@ -61,28 +65,31 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Dependencies
 
-**Credentials**: Redis account, HTMLToImage
-**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError
+**Credentials**: Anthropic account, Telegram account
+**Nodes**: @n8n/n8n-nodes-langchain.lmChatAnthropic, @n8n/n8n-nodes-langchain.outputParserStructured, @n8n/n8n-nodes-langchain.toolWorkflow, n8n-nodes-base.executeWorkflow, @n8n/n8n-nodes-langchain.agent, n8n-nodes-base.code, n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.telegramTool
 
 ### Configuration
 
 #### Webhook Settings
+
 - **Webhook URL**: `https://your-n8n-instance.com/webhook/workflow-id`
 - **HTTP Method**: POST/GET/PUT/DELETE
 - **Authentication**: Required/Optional
 
 #### Schedule Settings
+
 - **Cron Expression**: `0 9 * * 1-5` (example: weekdays at 9 AM)
 - **Timezone**: UTC/Local
 
 #### Timeout Settings
+
 - **Execution Timeout**: 5 minutes (default)
 - **Individual Node Timeout**: 30 seconds (default)
 
 ### Performance Characteristics
 
-- **Expected Runtime**: 30-60 seconds
-- **Resource Usage**: 
+- **Expected Runtime**: 1-2 minutes
+- **Resource Usage**:
   - Memory: Low/Medium/High
   - CPU: Low/Medium/High
   - Network: Low/Medium/High
@@ -92,12 +99,15 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Error Handling
 
 #### Common Error Scenarios
+
 1. **Authentication Failure**
+
    - Cause: Invalid or expired credentials
    - Resolution: Update credentials in n8n
    - Recovery: Automatic retry with exponential backoff
 
 2. **Data Validation Error**
+
    - Cause: Invalid input data format
    - Resolution: Verify input data structure
    - Recovery: Manual intervention required
@@ -108,6 +118,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
    - Recovery: Automatic retry up to 3 times
 
 #### Error Notifications
+
 - **Slack Channel**: #workflow-alerts (if applicable)
 - **Email**: workflow-admin@company.com (if applicable)
 - **n8n Error Workflow**: Link to error handling workflow (if applicable)
@@ -115,6 +126,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Testing
 
 #### Test Data
+
 ```json
 {
   "test_input": {
@@ -126,15 +138,17 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ```
 
 #### Validation Steps
+
 1. **Input Validation**: Verify workflow accepts test data without errors
 2. **Processing Validation**: Confirm all nodes execute successfully
 3. **Output Validation**: Check output matches expected format
 4. **Error Handling**: Test with invalid data to verify error responses
 
 #### Monitoring
+
 - **Key Metrics**:
   - Execution success rate: > 95%
-  - Average execution time: < 30-60 seconds
+  - Average execution time: < 1-2 minutes
   - Error rate: < 5%
 - **Alerts**: Set up monitoring alerts for failures or performance degradation
 - **Logs**: Check n8n execution logs for detailed error information
@@ -142,11 +156,13 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Security Considerations
 
 #### Data Handling
+
 - **Sensitive Data**: List any sensitive data processed (PII, credentials, etc.)
 - **Data Retention**: Specify data retention policies
 - **Encryption**: Data encryption requirements (in transit/at rest)
 
 #### Access Control
+
 - **Required Permissions**: List required permissions for credentials
 - **Principle of Least Privilege**: Ensure minimal required permissions
 - **Credential Management**: Use n8n credential management, never hardcode secrets
@@ -154,12 +170,14 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Deployment
 
 #### Prerequisites
+
 1. n8n version 1.45.0 or higher
 2. Required node types installed (see Dependencies)
 3. Credentials configured with appropriate permissions
 4. Environment variables set (if applicable)
 
 #### Installation Steps
+
 1. Import `workflow.json` into n8n
 2. Configure required credentials
 3. Set environment variables (if applicable)
@@ -167,6 +185,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 5. Activate workflow
 
 #### Rollback Plan
+
 1. Deactivate current workflow version
 2. Import previous stable version
 3. Verify functionality with test data
@@ -175,11 +194,13 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Maintenance
 
 #### Regular Tasks
+
 - **Weekly**: Review execution logs for errors or performance issues
 - **Monthly**: Validate credentials are still valid and have necessary permissions
 - **Quarterly**: Review and update test data and validation procedures
 
 #### Version Updates
+
 - **n8n Compatibility**: Test workflow with new n8n versions before upgrading
 - **Node Updates**: Monitor for updates to used node types
 - **API Changes**: Monitor external APIs for breaking changes
@@ -188,15 +209,16 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 #### Common Issues
 
-| Issue | Symptoms | Solution |
-|-------|----------|----------|
-| Workflow not triggering | No executions shown | Check trigger configuration and webhook URL |
-| Authentication errors | 401/403 HTTP errors | Refresh credentials and verify permissions |
-| Timeout errors | Executions stopping mid-way | Increase timeout settings or optimize processing |
-| Data format errors | Node failures with parsing errors | Validate input data structure |
+| Issue                   | Symptoms                          | Solution                                         |
+| ----------------------- | --------------------------------- | ------------------------------------------------ |
+| Workflow not triggering | No executions shown               | Check trigger configuration and webhook URL      |
+| Authentication errors   | 401/403 HTTP errors               | Refresh credentials and verify permissions       |
+| Timeout errors          | Executions stopping mid-way       | Increase timeout settings or optimize processing |
+| Data format errors      | Node failures with parsing errors | Validate input data structure                    |
 
 #### Support Contacts
-- **Primary**: your-team
+
+- **Primary**: pw-software
 - **Secondary**: n8n Administrator
 - **Escalation**: Technical Team Lead
 
@@ -207,16 +229,19 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 This section provides structured information for AI/foundation models to understand and work with this workflow.
 
 ### Intent
-**Primary Goal**: This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+
+**Primary Goal**: This workflow processes tasks, ideas, observations, and questions using various tools and sends a summary via Telegram.
 
 **Business Value**: Describe the business value and impact of this workflow
 
-**Use Cases**: 
+**Use Cases**:
+
 - Primary use case description
 - Secondary use case description
 - Edge case considerations
 
 ### Input Schema
+
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -236,23 +261,27 @@ This section provides structured information for AI/foundation models to underst
 ```
 
 ### Business Rules
+
 1. **Rule 1**: Description of important business rule
 2. **Rule 2**: Description of another business rule
 3. **Validation Rules**: Data validation requirements
 
 ### Error Scenarios
+
 - **Input Validation Failures**: Invalid data format or missing required fields
 - **External Service Failures**: API timeouts or service unavailable
 - **Authentication Issues**: Invalid credentials or insufficient permissions
 - **Resource Constraints**: Memory or processing limits exceeded
 
 ### Success Criteria
+
 - **Functional**: Workflow completes without errors and produces expected output
 - **Performance**: Execution time within acceptable limits
 - **Quality**: Output data meets quality standards and business requirements
 - **Reliability**: Consistent execution with minimal failures
 
 ### Integration Points
+
 - **Upstream Systems**: Systems that provide input data
 - **Downstream Systems**: Systems that consume workflow output
 - **External APIs**: Third-party services integrated
@@ -263,6 +292,7 @@ This section provides structured information for AI/foundation models to underst
 ## Changelog
 
 ### Version 1.0.0
+
 - **Date**: 2024-08-30
 - **Changes**: Current version changes
 - **Breaking Changes**: None/List any breaking changes
@@ -271,4 +301,4 @@ This section provides structured information for AI/foundation models to underst
 
 ---
 
-*This documentation was generated from workflow metadata. Last updated: 2024-08-30*
+_This documentation was generated from workflow metadata. Last updated: 2024-08-30_

@@ -1,0 +1,218 @@
+{
+  "name": "Create Task in Initiative",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "atlas/methods/create-related-task",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        448
+      ],
+      "id": "ddd93e24-1905-41ef-990d-20eca75e9724",
+      "name": "Webhook",
+      "webhookId": "c7719595-e066-4e1d-b17d-603786047cd1"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "257d0eff-6a00-807a-9f3f-fedbcf41af55",
+          "mode": "list",
+          "cachedResultName": "Tasks v2",
+          "cachedResultUrl": "https://www.notion.so/257d0eff6a00807a9f3ffedbcf41af55"
+        },
+        "title": "Just a Test",
+        "simple": false,
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Task Name|title",
+              "title": "={{ $('Set Fields').item.json.name }}"
+            },
+            {
+              "key": "Status|status",
+              "statusValue": "Not started"
+            },
+            {
+              "key": "Project|relation",
+              "relationValue": [
+                "={{ $json.projectId }}"
+              ]
+            },
+            {
+              "key": "Initiative|relation",
+              "relationValue": [
+                "={{ $json.initiativeId }}"
+              ]
+            },
+            {
+              "key": "Estimate|number",
+              "numberValue": "={{ $json.estimate }}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_2",
+              "textContent": "Description"
+            },
+            {
+              "textContent": "={{ $('Set Fields').item.json.description }}"
+            }
+          ]
+        },
+        "options": {
+          "iconType": "file",
+          "icon": "https://www.notion.so/icons/checkmark_gray.svg"
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        256,
+        448
+      ],
+      "id": "4d22d003-e5fc-4f5c-ab4a-b57fa9d32f6e",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3767f04-3fc2-47ae-a272-9f392181a75c",
+              "name": "description",
+              "value": "={{ $json.body.description }}",
+              "type": "string"
+            },
+            {
+              "id": "4d0ba43c-0a27-4d5e-8028-e58701abb011",
+              "name": "initiativeId",
+              "value": "={{ $json.body.initiative }}",
+              "type": "string"
+            },
+            {
+              "id": "ca0ff253-5dd5-4cd7-b229-8ed99d6c1ab1",
+              "name": "projectId",
+              "value": "={{ $json.body.project }}",
+              "type": "string"
+            },
+            {
+              "id": "b776ad58-5502-4285-b7df-7cb7abfdb02c",
+              "name": "name",
+              "value": "={{ $json.body.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ed0db9a0-b333-4cb9-a3c7-a5f767e77d7f",
+              "name": "estimate",
+              "value": "={{ $json.body.estimate }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        448
+      ],
+      "id": "6f35811f-defc-498c-95cd-3a3f5c18d6b5",
+      "name": "Set Fields"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a database page": {
+      "main": [
+        []
+      ]
+    },
+    "Set Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "56fded48-aaa4-47f9-86a6-566f9c6bd22e",
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-vy8rb-u45542.vm.elestio.app",
+            "x-real-ip": "145.224.75.139",
+            "x-forwarded-for": "145.224.75.139",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "188",
+            "content-type": "application/json",
+            "accept": "*/*",
+            "accept-language": "*",
+            "sec-fetch-mode": "cors",
+            "user-agent": "node",
+            "accept-encoding": "br, gzip, deflate"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "name": "With Estimate",
+            "description": "This task should have an estima",
+            "estimate": "1",
+            "initiative": "25ad0eff-6a00-8006-ba78-f67a4ffc4eec",
+            "project": "223d0eff-6a00-80fd-b9e7-c03c0e6617e5"
+          },
+          "webhookUrl": "https://n8n-vy8rb-u45542.vm.elestio.app/webhook/atlas/methods/create-related-task",
+          "executionMode": "production"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "Print Notion Task",
+  "description": "This workflow retrieves a task from Notion, generates an HTML receipt, and prints it with a QR code for task completion.",
+  "version": "1.0.0",
+  "tags": [
+    "notion",
+    "webhook",
+    "html",
+    "qr-code",
+    "task"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.webhook",
+      "n8n-nodes-base.html",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.executeWorkflow",
+      "n8n-nodes-base.if"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "medium",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

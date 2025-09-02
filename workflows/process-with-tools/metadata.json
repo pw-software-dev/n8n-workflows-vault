@@ -1,0 +1,39 @@
+{
+  "name": "Process with Tools",
+  "description": "This workflow processes tasks, ideas, observations, and questions using various tools and sends a summary via Telegram.",
+  "version": "1.0.0",
+  "tags": [
+    "backup"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Anthropic account",
+      "Telegram account"
+    ],
+    "nodes": [
+      "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "n8n-nodes-base.executeWorkflow",
+      "@n8n/n8n-nodes-langchain.agent",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "n8n-nodes-base.telegramTool"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "manual"
+  ],
+  "complexity": "medium",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

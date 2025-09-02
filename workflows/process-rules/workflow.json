@@ -1,0 +1,664 @@
+{
+  "name": "Process Rules",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "rules",
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1536,
+        -688
+      ],
+      "id": "f546d705-65d1-42fa-bbe6-f8c164703f5b",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an AI assistant specialized in extracting and categorizing rules from spoken word transcripts. Your task is to identify and extract RULES from markdown text that represents transcribed speech.\n\nAlways write in the me perspective as if I speak it.\n\n## CRITICAL INSTRUCTION:\nOnly extract rules when the speaker EXPLICITLY mentions creating, establishing, or stating a rule. Do NOT extract rules from:\n- Technical testing or debugging statements\n- Procedural descriptions of what you're doing\n- Instructions to systems or workflows\n- Status updates or progress reports\n- Casual conversation or commentary\n- General observations or opinions\n\n## Definition of \"Rules\" - EXPLICIT MENTIONS ONLY:\nA rule must be explicitly presented as:\n- \"This should be a rule...\" / \"Let's make this a rule...\"\n- \"We need a rule that...\" / \"I'm creating a rule...\"\n- \"The rule should be...\" / \"Here's a new rule...\"\n- \"Let's establish that...\" / \"We should always...\"\n- \"From now on...\" / \"Going forward, we must...\"\n- A clear policy or guideline statement\n- An explicit standard or requirement\n- A stated constraint or boundary\n- A direct mandate or regulation\n\n## Explicit Indicators to Look For:\n- Phrases like: \"This should be a rule\", \"Let's make it a rule\", \"We need a rule\", \"I'm establishing\", \"The policy should be\", \"We must always\", \"Never again should we\", \"From now on\", \"Going forward\"\n- Clear policy statements or guidelines\n- Explicit standard-setting language\n- Direct mandates or requirements\n- Constraint or boundary definitions\n\n## What is NOT a rule:\n- Testing procedures or technical operations\n- Describing current actions (\"I'm doing X\")\n- Giving instructions to systems\n- Status updates or progress reports\n- Observations without policy implications\n- Suggestions without rule-making language\n- Routine workflow descriptions\n- Personal preferences without universal application\n\n## STRICT EXTRACTION RULE:\nIf the speaker is not explicitly creating, establishing, or stating a rule, then extract NOTHING. When in doubt, DO NOT EXTRACT.\n\n## Instructions:\n1. Scan for explicit rule-making indicators and policy language\n2. Only extract when the speaker is clearly establishing a rule or standard\n3. If the text is purely procedural, testing, or descriptive, return empty results\n4. Err on the side of NOT extracting rather than over-extracting\n\n## Output Format:\nReturn a JSON object with the following structure:\n\n```json\n{\n  \"rules\": [\n    {\n      \"title\": \"a short distinctive title\",\n      \"content\": \"<extract the exact reason why this rule should be implemented. Enhance it briefly. Find additional reasons. Describe the rule but not that I want to establish it etc.>\",\n      \"original_text\": \"<the exact text from which this rule was extracted>\",\n      \"category\": \"<one of: operational, behavioral, technical, quality, safety, communication, process, governance, other>\"\n    }\n  ]\n}\n\nProcessing Guidelines:\n- If no explicit rules are mentioned, return total_rules_found: 0 and empty rules array\n- Only extract when there are clear linguistic indicators of rule establishment\n- Technical testing, workflow execution, and system instructions are NOT rules\n- When uncertain, choose NOT to extract\n\nYour task is not to creatively think about rules that could emerge from what I said. I just want you to catch it when I am talking about establishing or creating a rule.\nNow process the following markdown text and extract all rules according to these guidelines"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1536,
+        -1248
+      ],
+      "id": "0695df19-a5c4-4f9d-b328-d547eb6de0fa",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1520,
+        -1024
+      ],
+      "id": "1cd3f01c-d9e2-4560-b926-82af17df1907",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"rules\": [\n    {\n      \"title\": \"Never consume Cannabis before having all priority tasks done\",\n      \"content\": \"Cannabis consumption is prohibited until all designated priority tasks for the day are completed and verified. This ensures optimal cognitive performance and focus are maintained for critical work responsibilities. Personal activities must not compromise professional obligations and productivity standards.\",\n      \"original_text\": \"- Speaker (6/11/25 2:30 PM): You know what, I think I need to establish a clear boundary here. I'm creating a rule that I shouldn't consume cannabis before I've finished all my priority tasks for the day. Like, I need to make sure my cognitive performance stays sharp for the important stuff, right? So going forward, personal activities like that can't interfere with my professional responsibilities. I have to maintain my productivity standards first, then do whatever I want in my free time. This should be a firm rule for myself - priority tasks get completed and verified first, then I'm free to relax however I choose\",\n      \"category\": \"behavioral\"\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        -1392,
+        -1024
+      ],
+      "id": "9eb48331-4360-45d9-b43a-00af153d51cb",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.rules",
+        "options": {
+          "disableDotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        -784
+      ],
+      "id": "b28acf5c-e906-4715-b47d-aa015d39091f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        -704
+      ],
+      "id": "ee39a220-64c9-45cd-b88b-f2db25539935",
+      "name": "Create Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        -576
+      ],
+      "id": "1ef7c5f8-26f1-43ee-b61b-bba43d973f62",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "663268bb-f2c8-4b6a-8ef3-914fd34d571f",
+              "leftValue": "={{ Boolean($json.body[0]) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        -784
+      ],
+      "id": "bc303319-402d-40cc-926c-8d5df9649000",
+      "name": "If Match Exists"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -448,
+        -784
+      ],
+      "id": "dc1a0558-6077-4296-9584-336d6ca604d2",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bbf5966b-b9ff-439c-be80-4cfc05a8d3b9",
+              "name": "newItemId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        -688
+      ],
+      "id": "720a6036-f00f-4490-876d-9c26812cdd78",
+      "name": "Set Item Id"
+    },
+    {
+      "parameters": {
+        "tableId": "rules",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.title }}"
+            },
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.content }}"
+            },
+            {
+              "fieldId": "original_text",
+              "fieldValue": "={{ $json.original_text }}"
+            },
+            {
+              "fieldId": "category",
+              "fieldValue": "={{ $json.category }}"
+            },
+            {
+              "fieldId": "embedding",
+              "fieldValue": "={{ $json.data[0].embedding }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -688
+      ],
+      "id": "575223f1-5662-445d-a6b2-c6ef03a9f3e0",
+      "name": "Create Row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "20fd0eff-6a00-803f-81c8-ecdfcc55c7a1",
+          "mode": "list",
+          "cachedResultName": "Rules",
+          "cachedResultUrl": "https://www.notion.so/20fd0eff6a00803f81c8ecdfcc55c7a1"
+        },
+        "title": "={{ $('Merge1').item.json.title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Name|title",
+              "title": "={{ $('Merge1').item.json.title }}"
+            },
+            {
+              "key": "No|number"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "textContent": "={{ $('Merge1').item.json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -688
+      ],
+      "id": "fbaec5c2-974d-4096-b1a9-db16810d5f22",
+      "name": "Add Page in Database",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "rules",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Set Item Id').item.json.newItemId }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "notion_page_id",
+              "fieldValue": "={{ $json.results[0].parent.page_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -688
+      ],
+      "id": "e9b962dc-d534-4b20-93c7-c4b6b3fa47aa",
+      "name": "Update Row with Page Id",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "db871186-3636-435f-aab7-8f9b198969eb",
+              "leftValue": "={{ $json.rules }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1328,
+        -688
+      ],
+      "id": "8f00f255-48cc-425b-a704-4d75f157be98",
+      "name": "If Rules Not Empty"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://xnbxczlaowxhgriihyjs.supabase.co/rest/v1/rpc/match_rule",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "vec",
+              "value": "={{ $json.data[0].embedding }}"
+            },
+            {
+              "name": "min_similarity",
+              "value": "1.6"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -656,
+        -624
+      ],
+      "id": "1d7db268-07ec-4427-90be-63644e18f8f5",
+      "name": "RPC Match Rules",
+      "executeOnce": false,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -880
+      ],
+      "id": "9ff0e691-1f27-4536-98f1-46509f0464cd",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.notion.com/v1/blocks/{{ $json.id }}/children",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "notionApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"children\": [\n    {\n      \"object\": \"block\",\n      \"type\": \"toggle\",\n      \"toggle\": {\n        \"rich_text\": [\n          {\n            \"type\": \"text\",\n            \"text\": {\n              \"content\": \"Transcript\"\n            }\n          }\n        ],\n        \"children\": [\n          {\n            \"object\": \"block\",\n            \"type\": \"paragraph\",\n            \"paragraph\": {\n              \"rich_text\": [\n                {\n                  \"type\": \"text\",\n                  \"text\": {\n                    \"content\": \"{{ $('Merge1').item.json.original_text }}\"\n                  }\n                }\n              ]\n            }\n          }\n        ]\n      }\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        672,
+        -688
+      ],
+      "id": "f5c6553e-3d1e-4e80-b026-5f4f67d8a5d1",
+      "name": "Add Toggle List",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Create Embeddings",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Embeddings": {
+      "main": [
+        [
+          {
+            "node": "RPC Match Rules",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "If Match Exists": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "If Match Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Item Id": {
+      "main": [
+        [
+          {
+            "node": "Add Page in Database",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Row": {
+      "main": [
+        [
+          {
+            "node": "Set Item Id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Page in Database": {
+      "main": [
+        [
+          {
+            "node": "Add Toggle List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "If Rules Not Empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Rules Not Empty": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RPC Match Rules": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Add Toggle List": {
+      "main": [
+        [
+          {
+            "node": "Update Row with Page Id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-06-11T22:05:31.924Z",
+      "updatedAt": "2025-06-11T22:05:31.924Z",
+      "id": "0XnAXrpUJOIMfSAR",
+      "name": "sub"
+    },
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "d3d4ae9a-cf6a-4279-a143-9d349dab7c1b",
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "text": "- Unknown (6/11/25 11:19 PM): new rule.\n\n- Unknown (6/11/25 11:19 PM): I have a new rule.\n\n- Unknown (6/11/25 11:19 PM): The rule is that I am not using cannabis before every priority task for the day is done. the reason is I want to have a clear mind and I want to have done everything outside the house that requires a car.\n\n- Unknown (6/11/25 11:19 PM): And I want to have peace of mind and be ahead of my schedule before I have the peace of mind to enjoy using it. I want to be relaxed and be in no rush because I have to do important things."
+        }
+      }
+    ]
+  }
+}
