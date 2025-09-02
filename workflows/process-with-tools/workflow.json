@@ -1,0 +1,588 @@
+{
+  "name": "Process with Tools",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4"
+        },
+        "options": {
+          "thinking": true,
+          "thinkingBudget": 1024
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        224
+      ],
+      "id": "a19fd340-dfc2-4f88-bfcd-7ae16d6f1a17",
+      "name": "Anthropic Chat Model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "MKoaRNUyMRYx9KH4",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"analysis_summary\": {\n    \"total_entities_extracted\": 2,\n    \"entity_breakdown\": {\n      \"tasks\": 1,\n      \"ideas\": 1, \n      \"questions\": 0,\n      \"observations\": 1\n    },\n    \"tools_called\": [\"process_tasks\", \"process_ideas\"],\n    \"processing_status\": \"completed\"\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        224
+      ],
+      "id": "84948f7b-d4f1-4571-8de1-0f059aa40543",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to process tasks.",
+        "workflowId": {
+          "__rl": true,
+          "value": "wnmvd8Tpttvq0jKD",
+          "mode": "list",
+          "cachedResultName": "Process Tasks"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "transcript": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('transcript', ``, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', ``, 'string') }}",
+            "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "project",
+              "displayName": "project",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "dueDate",
+              "displayName": "dueDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        224
+      ],
+      "id": "851c07e1-4e3a-4d57-9269-d2ca5c88c8d8",
+      "name": "process_tasks"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "gQdJ7WRz4E2pfY5s",
+          "mode": "list",
+          "cachedResultName": "Fetch Prompt from Github"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt": "extract_items"
+          },
+          "matchingColumns": [
+            "prompt"
+          ],
+          "schema": [
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "a4adf03d-bf58-4cd7-ad23-d2089929eb90",
+      "name": "Fetch Extract Items with Tools Prompt"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to process ideas",
+        "workflowId": {
+          "__rl": true,
+          "value": "90fD1QeFUAUVRTfy",
+          "mode": "list",
+          "cachedResultName": "Process Ideas"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "transcript": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('transcript', ``, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', ``, 'string') }}",
+            "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        224
+      ],
+      "id": "9e1a1d00-900d-4156-bcc1-b6e82c0704c9",
+      "name": "process_ideas"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Extract Markdown').item.json.markdowns }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "={{ $json.data }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        0
+      ],
+      "id": "8b851a5f-fdb7-422d-9f27-d4107a8bacc6",
+      "name": "Extract Items & Delegate"
+    },
+    {
+      "parameters": {
+        "jsCode": "let markdown = \"\";\nfor (const item of $input.all()) {\n  if (!item.json?.data?.lifelogs) continue;\n\n  for (const lifelog of item.json.data.lifelogs) {\n    if (lifelog.markdown) {\n        markdown += lifelog.markdown\n    }\n  }\n}\n\nreturn {\n  json: { markdown }\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        0
+      ],
+      "id": "8cc2eb89-ade9-4b78-935b-e6440d53e716",
+      "name": "Extract Markdown",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -496,
+        0
+      ],
+      "id": "bc54d65c-5f37-4a33-af7a-5597fc6a5e57",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "chatId": "4978196",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', `The text is a written summary of what has been extracted. Gives a short summary as bullet points with emojis. You must the example below as a guidance. Use the same emojis. You can only use these emojis: 📄, →, ☑️, 💡\n\nExample:\n📄 <b>Transcript Analysis Complete</b>\n\n☑️ Extracted Tasks (1):\n→ Implement Prompt Fetching For Other Workflows\n\n💡 Extracted Ideas (2):\n→ A Swimming BBQ\n→ A Lightshow`, 'string') }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegramTool",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        224
+      ],
+      "id": "94e7e7b7-c967-48d0-8816-288842909549",
+      "name": "send_tg_summary",
+      "webhookId": "b1cf41ba-58f8-4bf9-8383-d360a5cde73d",
+      "credentials": {
+        "telegramApi": {
+          "id": "7SDBDDe3rcdZpYc8",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to process observations",
+        "workflowId": {
+          "__rl": true,
+          "value": "jvGXcJrUMpqmye0p",
+          "mode": "list",
+          "cachedResultName": "Process Observations"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "transcript": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('transcript', ``, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', ``, 'string') }}",
+            "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        224
+      ],
+      "id": "cd21ac43-307e-4c23-be9c-b239607b8686",
+      "name": "process_observations"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to process questions",
+        "workflowId": {
+          "__rl": true,
+          "value": "vPpyzj6cKrjkhJTm",
+          "mode": "list",
+          "cachedResultName": "Process Questions"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "transcript": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('transcript', ``, 'string') }}",
+            "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', ``, 'string') }}",
+            "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "transcript",
+              "displayName": "transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "description",
+              "displayName": "description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        224
+      ],
+      "id": "bd4e674f-e260-45cd-b51b-56ef95db2ac6",
+      "name": "process_questions"
+    }
+  ],
+  "connections": {
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process_tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Extract Items with Tools Prompt": {
+      "main": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process_ideas": {
+      "ai_tool": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Markdown": {
+      "main": [
+        [
+          {
+            "node": "Fetch Extract Items with Tools Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Extract Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_tg_summary": {
+      "ai_tool": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process_observations": {
+      "ai_tool": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "process_questions": {
+      "ai_tool": [
+        [
+          {
+            "node": "Extract Items & Delegate",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "cc50ebd4-fb0c-4e94-9275-b968255f52d5",
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "data": {
+            "lifelogs": [
+              {
+                "contents": [],
+                "id": "QIcPnsGYglxSsBT4MIyb",
+                "markdown": "- Unknown (8/19/25 4:14 PM): die Adresse in Malibu Beach, die Mrs. O'Donnell den ersten Detektiv gegeben hatte, lag in einer ruhigen Villengegend ein Stück Land einwärts. Es war ein Traumhaus mit einer\n\n- Unknown (8/19/25 4:14 PM): in der untergehenden Sonne blassrosa leuchteten. In den",
+                "title": "Discussion of a new case involving a house in Malibu",
+                "startTime": "2025-08-19T16:14:04+02:00",
+                "endTime": "2025-08-19T16:14:24+02:00",
+                "isStarred": false,
+                "updatedAt": "2025-08-19T16:14:43+02:00"
+              }
+            ]
+          },
+          "meta": {
+            "lifelogs": {
+              "count": 1,
+              "nextCursor": "eyJwYXJhbXMiOnsiZGlyZWN0aW9uIjoiZGVzYyIsImluY2x1ZGVNYXJrZG93biI6dHJ1ZSwiaW5jbHVkZUhlYWRpbmdzIjpmYWxzZSwiaW5jbHVkZUNvbnRlbnRzIjp0cnVlLCJsaW1pdCI6MTAsInN0YXJ0IjoiMjAyNS0wOC0xOSAxNjoxMzo1NCIsInRpbWV6b25lIjoiRXVyb3BlL0JlcmxpbiJ9LCJjdXJzb3JWYWx1ZSI6IlFJY1Buc0dZZ2x4U3NCVDRNSXliIn0="
+            }
+          }
+        }
+      }
+    ]
+  }
+}
