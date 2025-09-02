@@ -14,13 +14,15 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1296,
+        -1392,
         432
       ]
     },
     {
       "parameters": {
-        "filters": {},
+        "filters": {
+          "tags": "backup"
+        },
         "requestOptions": {}
       },
       "id": "e902aa91-f0f5-4ce6-92a4-0ff5ac3dcae5",
@@ -28,7 +30,7 @@
       "type": "n8n-nodes-base.n8n",
       "typeVersion": 1,
       "position": [
-        48,
+        176,
         240
       ],
       "credentials": {
@@ -53,7 +55,7 @@
       "type": "n8n-nodes-base.n8n",
       "typeVersion": 1,
       "position": [
-        272,
+        400,
         240
       ],
       "credentials": {
@@ -73,7 +75,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        720,
+        848,
         240
       ]
     },
@@ -106,7 +108,7 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1,
       "position": [
-        1168,
+        1296,
         320
       ],
       "webhookId": "c13a4233-8b59-4126-a435-4e3808bee1a3",
@@ -126,7 +128,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1616,
+        1744,
         144
       ]
     },
@@ -159,22 +161,9 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1392,
+        1520,
         240
       ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const backupItems = []\nfor (const item of $input.all())  {\n  const tags = item.json.tags\n  if (tags.length > 0) {\n    if (tags.some(obj => obj.name === \"backup\")) {\n      backupItems.push(item)\n    }\n  }\n}\n\nreturn backupItems"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        496,
-        240
-      ],
-      "id": "78d8af79-d31d-4c42-af70-78f3d47f4424",
-      "name": "Filter for Backup Tags"
     },
     {
       "parameters": {
@@ -206,7 +195,7 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        944,
+        1072,
         240
       ],
       "id": "b5e1b2d2-2af9-44c0-aedc-34016808eeb1",
@@ -232,12 +221,13 @@
             }
           ]
         },
+        "includeOtherFields": true,
         "options": {}
       },
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1072,
+        -944,
         432
       ],
       "id": "7ef91464-0f84-4fd6-9cd2-961bcf415c29",
@@ -253,7 +243,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -848,
+        -720,
         432
       ],
       "id": "a66683e1-fedb-416b-b9e8-e9994133034e",
@@ -294,7 +284,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -624,
+        -496,
         512
       ],
       "id": "9cc5d270-896f-436f-b3df-1968354f1f84",
@@ -324,7 +314,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -176,
+        -48,
         368
       ],
       "id": "2834303c-8e77-45b5-ae7e-0939b0e1193b",
@@ -347,7 +337,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -400,
+        -272,
         432
       ],
       "id": "37acbf2f-7792-416a-b55c-05fbc78e1d4d",
@@ -365,7 +355,7 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        48,
+        176,
         528
       ],
       "id": "af1ee23e-4924-4b81-8545-cac305bf4a8a",
@@ -376,11 +366,69 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1616,
+        1744,
         336
       ],
       "id": "18a9757d-d7de-4098-8398-573b83fcadb4",
       "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "timestamp_last_fetched",
+        "key": "atlas_timestampLastFetched",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        432
+      ],
+      "id": "66864f26-ac36-4f34-82d8-b4cef4f5e692",
+      "name": "Get Timestamp Last Fetched",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "atlas_timestampLastFetched",
+        "value": "={{ $now.toUTC().format('yyyy-MM-dd HH:mm:ss') }}",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        144
+      ],
+      "id": "6492ce5c-c0bf-4513-862f-65a32795f101",
+      "name": "Set Timestamp Last Fetched1",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the timestamp of when you last fetched the workflows\n// This should be stored somewhere (like workflow static data, environment variable, or external storage)\nconst timestampLastFetched = $('Get Timestamp Last Fetched').first().json.timestamp_last_fetched\n\nconsole.log(\"timestampLastFetched\", timestampLastFetched)\n\nconst results = [];\n\n// Process each workflow item\nfor (const item of $input.all()) {\n  const workflow = item.json;\n  \n  // Parse timestamps for comparison\n  const workflowUpdatedAt = new Date(workflow.updatedAt);\n  const lastFetchedAt = new Date(timestampLastFetched);\n\n  \n  // Check if workflow was updated since last fetch\n  const wasUpdatedSinceLastFetch = workflowUpdatedAt > lastFetchedAt;\n  \n  console.log(\n    workflowUpdatedAt,\n    lastFetchedAt,\n    wasUpdatedSinceLastFetch\n  )\n  // Check if backup tag was added since last fetch\n  let backupTagAddedSinceLastFetch = false;\n  let backupTagCreatedAt = null;\n  \n  // Find the backup tag\n  const backupTag = workflow.tags?.find(tag => tag.name === 'backup');\n  \n  if (backupTag) {\n    backupTagCreatedAt = new Date(backupTag.createdAt);\n    backupTagAddedSinceLastFetch = backupTagCreatedAt > lastFetchedAt;\n  }\n\n  if (wasUpdatedSinceLastFetch || backupTagAddedSinceLastFetch) {\n    results.push(item);\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        240
+      ],
+      "id": "78d8af79-d31d-4c42-af70-78f3d47f4424",
+      "name": "Filter for Edited Workflow or Newly Added Tags"
     }
   ],
   "connections": {
@@ -388,7 +436,7 @@
       "main": [
         [
           {
-            "node": "Set Parameters",
+            "node": "Get Timestamp Last Fetched",
             "type": "main",
             "index": 0
           }
@@ -410,7 +458,7 @@
       "main": [
         [
           {
-            "node": "Filter for Backup Tags",
+            "node": "Filter for Edited Workflow or Newly Added Tags",
             "type": "main",
             "index": 0
           }
@@ -451,17 +499,6 @@
         [
           {
             "node": "No Operation, do nothing1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Filter for Backup Tags": {
-      "main": [
-        [
-          {
-            "node": "Prepare Workflow Data",
             "type": "main",
             "index": 0
           }
@@ -568,6 +605,39 @@
           }
         ]
       ]
+    },
+    "Get Timestamp Last Fetched": {
+      "main": [
+        [
+          {
+            "node": "Set Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Backup Summary": {
+      "main": [
+        [
+          {
+            "node": "Set Timestamp Last Fetched1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter for Edited Workflow or Newly Added Tags": {
+      "main": [
+        [
+          {
+            "node": "Prepare Workflow Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
@@ -583,5 +653,5 @@
     }
   ],
   "triggerCount": 0,
-  "versionId": "41f54d6c-ef4e-47bb-95c7-1a5962f19ec0"
+  "versionId": "512d9619-e72b-4020-b197-a14c41a623fc"
 }
