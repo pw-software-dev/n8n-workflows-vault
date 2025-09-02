@@ -1,0 +1,482 @@
+{
+  "name": "Print Notion Task",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "atlas/print/notion-task",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -768,
+        -368
+      ],
+      "id": "4755c640-a18d-4d56-b3a1-a6d874f87d63",
+      "name": "Webhook",
+      "webhookId": "90128e1d-befc-4da6-bb1d-4a1e81781805"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=580, initial-scale=1, maximum-scale=1, user-scalable=no\">\n<title>Task Receipt</title>\n<script src=\"https://cdn.tailwindcss.com\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js\" integrity=\"sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<style>\n    html, body {\n        margin: 0;\n        padding: 0;\n    }\n    body {\n        width: 580px;\n        height: auto;\n        margin-left: auto;\n        margin-right: auto;\n    }\n    .receipt {\n        width: 580px;\n        height: auto;\n    }\n    .text-2xs {\n        font-size: 1.5rem; /* 24px - actually double of original xs (12px) */\n        font-weight: 700; /* Bold for better print legibility */\n        letter-spacing: 0.01em;\n    }\n    .text-base-2x {\n        font-size: 1.75rem; /* 28px - actually double of original sm (14px) */\n        font-weight: 700; /* Bold */\n    }\n    .text-2xl-2x {\n        font-size: 2.25rem; /* 36px - double of original lg */\n        font-weight: 900; /* Extra bold for the main title */\n    }\n    /* Slightly larger/bolder than headings for parent task value */\n    .text-parent-value {\n        font-size: 1.75rem; /* slightly larger than heading (1.5rem) */\n        font-weight: 800;    /* slightly heavier than heading (700) */\n    }\n    /* QR rendering improvements */\n    #qrcode canvas {\n        image-rendering: pixelated;\n    }\n    #qrcode svg {\n        width: 100%;\n        height: 100%;\n        shape-rendering: crispEdges;\n    }\n    @media print {\n        body {\n            -webkit-print-color-adjust: exact;\n            print-color-adjust: exact;\n        }\n    }\n</style>\n</head>\n<body class=\"bg-white\">\n<div class=\"receipt mx-auto font-mono text-black\">\n    <!-- Receipt Header -->\n    <div class=\"text-center border-b-4 border-dashed border-black pb-6 mb-8\">\n        <div class=\"text-2xs text-black mb-2\">TASK RECEIPT</div>\n        <div class=\"text-2xs text-black\">\n            <span class=\"ml-2\" id=\"timestamp\"></span>\n        </div>\n    </div>\n\n    <!-- Task Title -->\n    <div class=\"mb-8\">\n        <h1 class=\"text-2xl-2x font-bold text-black leading-tight break-words\">\n            {{ $('Set Original Task').item.json.name }}\n        </h1>\n    </div>\n\n\n\n    <!-- Due Date -->\n    <div class=\"mb-8\">\n        <div class=\"text-2xs text-black uppercase tracking-wide mb-2\">Due Date:</div>\n        <p class=\"text-base-2x font-semibold text-black\" id=\"due-date\">\n            {{ $('Set Original Task').item.json.property_due_date.start.toDateTime().format('ccc dd.MM.yyyy') }}\n        </p>\n    </div>\n\n    <!-- Parent Task -->\n    <div>\n        <div class=\"text-2xs text-black uppercase tracking-wide mb-2\">Parent Task:</div>\n        <div class=\"text-parent-value\">{{ $json.property_task_name || 'None' }}</div>\n    </div>\n\n         <!-- QR Code -->\n     <div class=\"text-center -mt-4\">\n         <div class=\"mx-auto w-64 h-64 border-0 flex items-center justify-center relative\">\n             <div id=\"qrcode\"></div>\n         </div>\n         <div class=\"text-2xs text-black mb-4 -mt-8\">Scan to set complete</div>\n     </div>\n\n    <!-- Footer -->\n    <div class=\"border-t-4 border-dashed border-black pt-6 text-center\"></div>\n</div>\n <script>\n     // Set current timestamp\n     document.getElementById('timestamp').textContent = moment().locale('de').format('DD.MM.YYYY HH:mm');\n     \n     // Generate QR code (SVG, error correction level M for less density)\n     (function() {\n         var container = document.getElementById(\"qrcode\");\n         container.innerHTML = \"\";\n         var text = \"https://n8n-vy8rb-u45542.vm.elestio.app/webhook/tasks/complete?taskId={{ $('Set Original Task').item.json.id }}\";\n         var qr = qrcode(0, 'M'); // 0 auto type, 'M' error correction\n         qr.addData(text);\n         qr.make();\n         // Create SVG with module size and quiet zone\n         var svgTag = qr.createSvgTag(4, 4);\n         container.innerHTML = svgTag;\n     })();\n </script>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        -272
+      ],
+      "id": "da823e28-b1f3-478c-b28c-88285df203ab",
+      "name": "Generate HTML",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.property_initiative[0] }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        -272
+      ],
+      "id": "7bc3c740-d0f2-42d8-b5f4-37b6303e4c01",
+      "name": "Get Parent",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "257d0eff-6a00-807a-9f3f-fedbcf41af55",
+          "mode": "list",
+          "cachedResultName": "Tasks v2",
+          "cachedResultUrl": "https://www.notion.so/257d0eff6a00807a9f3ffedbcf41af55"
+        },
+        "limit": 1,
+        "filterType": "json",
+        "filterJson": "={\n  \"or\": [\n    {\n      \"property\": \"Task Name\",\n      \"title\": {\n        \"equals\": \"{{ $json.body.data.properties['Task Name'].title[0].text.content }}\"\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -544,
+        -368
+      ],
+      "id": "3fed6d9b-7934-4187-abd5-5fe7041f334c",
+      "name": "Get Page by Title",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        -368
+      ],
+      "id": "d06796f7-461e-456a-bb33-9b6a25be72fc",
+      "name": "Set Original Task"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Task Receipt</title>\n<script src=\"https://cdn.tailwindcss.com\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js\" integrity=\"sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<style>\n    body {\n        width: 160mm;\n        height: auto;\n    }\n    .receipt {\n        width: 160mm;\n        height: auto;\n    }\n    .text-2xs {\n        font-size: 1.5rem; /* 24px - actually double of original xs (12px) */\n        font-weight: 700; /* Bold for better print legibility */\n        letter-spacing: 0.01em;\n    }\n    .text-base-2x {\n        font-size: 1.75rem; /* 28px - actually double of original sm (14px) */\n        font-weight: 700; /* Bold */\n    }\n    .text-2xl-2x {\n        font-size: 2.25rem; /* 36px - double of original lg */\n        font-weight: 900; /* Extra bold for the main title */\n    }\n    /* Slightly larger/bolder than headings for parent task value */\n    .text-parent-value {\n        font-size: 1.75rem; /* slightly larger than heading (1.5rem) */\n        font-weight: 800;    /* slightly heavier than heading (700) */\n    }\n    /* QR rendering improvements */\n    #qrcode canvas {\n        image-rendering: pixelated;\n    }\n    #qrcode svg {\n        width: 100%;\n        height: 100%;\n        shape-rendering: crispEdges;\n    }\n    @media print {\n        body {\n            -webkit-print-color-adjust: exact;\n            print-color-adjust: exact;\n        }\n    }\n</style>\n</head>\n<body class=\"bg-white\">\n<div class=\"receipt mx-auto font-mono text-black\">\n    <!-- Receipt Header -->\n    <div class=\"text-center border-b-4 border-dashed border-black pb-6 mb-8\">\n        <div class=\"text-2xs text-black mb-2\">TASK RECEIPT</div>\n        <div class=\"text-2xs text-black\">\n            <span class=\"ml-2\" id=\"timestamp\"></span>\n        </div>\n    </div>\n\n    <!-- Task Title -->\n    <div class=\"mb-8\">\n        <h1 class=\"text-2xl-2x font-bold text-black leading-tight break-words\">\n            {{ $('Set Original Task').item.json.name }}\n        </h1>\n    </div>\n\n\n\n    <!-- Due Date -->\n    <div class=\"mb-8\">\n        <div class=\"text-2xs text-black uppercase tracking-wide mb-2\">Due Date:</div>\n        <p class=\"text-base-2x font-semibold text-black\" id=\"due-date\">\n            {{ $now.format('ccc dd.MM.yyyy') }}\n        </p>\n    </div>\n\n         <!-- QR Code -->\n     <div class=\"text-center -mt-4\">\n         <div class=\"mx-auto w-64 h-64 border-0 flex items-center justify-center relative\">\n             <div id=\"qrcode\"></div>\n         </div>\n         <div class=\"text-2xs text-black mb-4 -mt-8\">Scan to set complete</div>\n     </div>\n\n    <!-- Footer -->\n    <div class=\"border-t-4 border-dashed border-black pt-6 text-center\"></div>\n</div>\n <script>\n     // Set current timestamp\n     document.getElementById('timestamp').textContent = moment().locale('de').format('DD.MM.YYYY HH:mm');\n     \n     // Generate QR code (SVG, error correction level M for less density)\n     (function() {\n         var container = document.getElementById(\"qrcode\");\n         container.innerHTML = \"\";\n         var text = \"https://n8n-vy8rb-u45542.vm.elestio.app/webhook/tasks/complete?taskId={{ $('Set Original Task').item.json.id }}\";\n         var qr = qrcode(0, 'M'); // 0 auto type, 'M' error correction\n         qr.addData(text);\n         qr.make();\n         // Create SVG with module size and quiet zone\n         var svgTag = qr.createSvgTag(4, 4);\n         container.innerHTML = svgTag;\n     })();\n </script>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        352,
+        -464
+      ],
+      "id": "71b5e73d-dc84-422d-b097-58be339ab89f",
+      "name": "Generate HTML1",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hsyfRcEcbd5MWqbP",
+          "mode": "list",
+          "cachedResultName": "Screenshot HTML & Print Image"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "html": "={{ $json.html }}"
+          },
+          "matchingColumns": [
+            "html"
+          ],
+          "schema": [
+            {
+              "id": "html",
+              "displayName": "html",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        -368
+      ],
+      "id": "353d7a05-7ff1-4fa1-bbcc-e6c236781bea",
+      "name": "Screenshot & Print"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9f7b9827-96ee-42c3-a1e0-3eab88858739",
+              "leftValue": "={{ $json.property_initiative }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        -368
+      ],
+      "id": "99ae90de-659e-449b-a202-b953fe9a3be6",
+      "name": "Has No Initiative"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $('Set Original Task').item.json.id }}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Printed|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -368
+      ],
+      "id": "ad56f756-594c-4d8a-8804-c1c8dc7af8a0",
+      "name": "Set Printed",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Page by Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate HTML": {
+      "main": [
+        [
+          {
+            "node": "Screenshot & Print",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Page by Title": {
+      "main": [
+        [
+          {
+            "node": "Set Original Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Parent": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Original Task": {
+      "main": [
+        [
+          {
+            "node": "Has No Initiative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate HTML1": {
+      "main": [
+        [
+          {
+            "node": "Screenshot & Print",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has No Initiative": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenshot & Print": {
+      "main": [
+        [
+          {
+            "node": "Set Printed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "f1c5e4be-f671-4907-82b2-bf375ca03826",
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-vy8rb-u45542.vm.elestio.app",
+            "x-real-ip": "44.238.170.230",
+            "x-forwarded-for": "44.238.170.230",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "1897",
+            "user-agent": "NotionAutomation",
+            "content-type": "application/json",
+            "sentry-trace": "22e571aadf734ad3afb90e463f04b6f9-ba5c73eb11d0ffc1",
+            "baggage": "sentry-environment=production,sentry-release=0.0.4339,sentry-public_key=529a6d1990e5471d874257842c4f4ad8,sentry-trace_id=22e571aadf734ad3afb90e463f04b6f9",
+            "traceparent": "00-555e00ef62803fd927e5362036180ee6-0bc0d91ed3bb3d37-00"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "source": {
+              "type": "automation",
+              "automation_id": "25ad0eff-6a00-8099-a06f-004ddbfa1a46",
+              "action_id": "25ad0eff-6a00-8036-b31e-005a4e4c4d3d",
+              "event_id": "45e16d87-386c-484a-ac8e-ae08adc8aaac",
+              "user_id": "129d872b-594c-818b-ae77-0002dc0f5c23",
+              "attempt": 1
+            },
+            "data": {
+              "object": "page",
+              "id": "25ad0eff-6a00-8028-a734-eb21ebb87c10",
+              "created_time": "2025-08-25T10:48:00.000Z",
+              "last_edited_time": "2025-08-25T10:48:00.000Z",
+              "created_by": {
+                "object": "user",
+                "id": "129d872b-594c-818b-ae77-0002dc0f5c23"
+              },
+              "last_edited_by": {
+                "object": "user",
+                "id": "129d872b-594c-818b-ae77-0002dc0f5c23"
+              },
+              "cover": null,
+              "icon": {
+                "type": "external",
+                "external": {
+                  "url": "https://www.notion.so/icons/checkmark_gray.svg"
+                }
+              },
+              "parent": {
+                "type": "database_id",
+                "database_id": "257d0eff-6a00-807a-9f3f-fedbcf41af55"
+              },
+              "archived": false,
+              "in_trash": false,
+              "properties": {
+                "Printed": {
+                  "id": "%3Emx%5C",
+                  "type": "checkbox",
+                  "checkbox": false
+                },
+                "Milestone": {
+                  "id": "Bf%7Bz",
+                  "type": "relation",
+                  "relation": [],
+                  "has_more": false
+                },
+                "Estimate": {
+                  "id": "DUov",
+                  "type": "number",
+                  "number": null
+                },
+                "Initiative": {
+                  "id": "ZbM%3E",
+                  "type": "relation",
+                  "relation": [],
+                  "has_more": false
+                },
+                "Do Date": {
+                  "id": "_~%3BU",
+                  "type": "date",
+                  "date": {
+                    "start": "2025-08-25",
+                    "end": null,
+                    "time_zone": null
+                  }
+                },
+                "Status": {
+                  "id": "mVNu",
+                  "type": "status",
+                  "status": {
+                    "id": "d0d756b3-6753-4969-bcd1-a81116f8599f",
+                    "name": "Not started",
+                    "color": "default"
+                  }
+                },
+                "External ID": {
+                  "id": "s_%5C%7D",
+                  "type": "rich_text",
+                  "rich_text": []
+                },
+                "Task Name": {
+                  "id": "title",
+                  "type": "title",
+                  "title": [
+                    {
+                      "type": "text",
+                      "text": {
+                        "content": "Send Offer to Katharina",
+                        "link": null
+                      },
+                      "annotations": {
+                        "bold": false,
+                        "italic": false,
+                        "strikethrough": false,
+                        "underline": false,
+                        "code": false,
+                        "color": "default"
+                      },
+                      "plain_text": "Send Offer to Katharina",
+                      "href": null
+                    }
+                  ]
+                },
+                "Project": {
+                  "id": "U%5C%3Aq",
+                  "type": "relation",
+                  "relation": [],
+                  "has_more": false
+                }
+              },
+              "url": "https://www.notion.so/Send-Offer-to-Katharina-25ad0eff6a008028a734eb21ebb87c10",
+              "public_url": null,
+              "request_id": "0612e206-c397-4d8d-8d63-be50f06188b7"
+            }
+          },
+          "webhookUrl": "https://n8n-vy8rb-u45542.vm.elestio.app/webhook/atlas/print/notion-task",
+          "executionMode": "production"
+        }
+      }
+    ]
+  }
+}
