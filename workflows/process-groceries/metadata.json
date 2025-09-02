@@ -1,0 +1,37 @@
+{
+  "name": "Process Groceries",
+  "description": "This workflow processes a shopping list by adding items to a Notion database and handling empty lists.",
+  "version": "1.0.0",
+  "tags": [
+    "backup"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.splitOut",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.if"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "manual"
+  ],
+  "complexity": "medium",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}
