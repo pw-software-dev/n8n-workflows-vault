@@ -1,0 +1,246 @@
+{
+  "name": "Process Groceries",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "shoppingList",
+              "type": "array"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1536,
+        -176
+      ],
+      "id": "58640943-8ef8-4a1b-9eaf-0154fd69ea02",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "resource": "block",
+        "blockId": {
+          "__rl": true,
+          "value": "20fd0eff6a00805fb318dcc4282e1262",
+          "mode": "id"
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "to_do",
+              "textContent": "={{ $json.item }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -880,
+        -80
+      ],
+      "id": "87af9bed-5f8b-4eb4-a084-f414d4986522",
+      "name": "Add Item to Groceries",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.grocery_items",
+        "options": {
+          "disableDotNotation": false,
+          "destinationFieldName": "item"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        -80
+      ],
+      "id": "c82bcd3d-54df-41a8-b7ca-1ea8e4e402f1",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    grocery_items: $(\"Split Out\").all().map(item => item.json.item)\n  }\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -656,
+        -80
+      ],
+      "id": "43df3121-93d8-4a04-91ec-ed6a40817011",
+      "name": "Response",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "381af976-f215-49a0-86c2-8d3b0eb86bf8",
+              "name": "grocerie_items",
+              "value": "={{ $json.grocerie_items }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -448,
+        -80
+      ],
+      "id": "14bd75d1-6ab5-4914-9e49-7430b24d4b8b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        -288
+      ],
+      "id": "38a5d032-c562-4047-9bc8-11fd68ece8f8",
+      "name": "End Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "77b0cfad-d977-4b4b-998f-08f0357aa1e3",
+              "leftValue": "={{ $json.shoppingList.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1328,
+        -176
+      ],
+      "id": "c6a06832-a9cd-40ea-82de-c98ea51ae3e8",
+      "name": "Is List Empty?"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Is List Empty?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Add Item to Groceries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Item to Groceries": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is List Empty?": {
+      "main": [
+        [
+          {
+            "node": "End Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "30728ad4-847f-4cef-88ac-7fcdbee42bb6",
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "shoppingList": [
+            "Eier",
+            "Humus"
+          ]
+        }
+      }
+    ]
+  }
+}
