@@ -59,8 +59,8 @@ INSTRUCTIONS:
   - credentials: Extract credential names from nodes with "credentials" property
   - nodes: List full node types (e.g., "n8n-nodes-base.webhook", "n8n-nodes-base.notion")
   - environment_variables: Leave empty array unless obvious
-10. Triggers: webhook, cron, manual, etc.
-11. Complexity: simple/medium/complex (based on node count and logic)
+10. Triggers: "webhook", "schedule", "manual", "email", "file-system", "database", "queue", "form", "chat", "sms", "api"
+11. Complexity: "low", "medium", "high", "very-high" (based on node count and logic)
 12. Execution time: "15-30 seconds", "30-60 seconds", "1-2 minutes", etc.
 13. Resources:
     - memory: low/medium/high

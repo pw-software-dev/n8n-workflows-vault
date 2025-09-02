@@ -1,0 +1,48 @@
+{
+  "name": "Process Ideas",
+  "description": "This workflow processes creative ideas by enhancing them with structured outputs, integrating with Notion, and utilizing AI tools for idea expansion and analysis.",
+  "version": "1.0.0",
+  "tags": [
+    "idea-processing",
+    "notion",
+    "ai-tools",
+    "task-management"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Perplexity account",
+      "SerpAPI account",
+      "Portkey OpenAI",
+      "Supabase account",
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "n8n-nodes-base.if",
+      "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "n8n-nodes-base.perplexityTool",
+      "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "n8n-nodes-base.httpRequest",
+      "@n8n/n8n-nodes-langchain.agent",
+      "n8n-nodes-base.notion"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "manual"
+  ],
+  "complexity": "high",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low"
+  }
+}

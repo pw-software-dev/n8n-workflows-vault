@@ -1,0 +1,39 @@
+{
+  "name": "Print Do Date Tomorrow v2",
+  "description": "This workflow retrieves tasks due tomorrow from Notion, generates an HTML receipt, and marks them as printed.",
+  "version": "1.0.0",
+  "tags": [
+    "notion",
+    "html",
+    "webhook",
+    "task-management"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.html",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.webhook",
+      "n8n-nodes-base.executeWorkflow",
+      "n8n-nodes-base.if"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "very-high",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}
