@@ -13,7 +13,7 @@
 
 ## 🏗️ Repository Structure
 
-```
+```tree
 n8n-workflows/
 ├── README.md                    # This file
 ├── package.json                 # Dependencies and scripts
