@@ -52,6 +52,7 @@ workflows/{category}/{workflow-name}/
 ### Current Workflow Structure
 
 #### Data Processing Category
+
 ```
 workflows/data-processing/
 └── csv-transformer/
@@ -61,15 +62,17 @@ workflows/data-processing/
 ```
 
 #### Notifications Category
+
 ```
 workflows/notifications/
 └── slack-alerts/
     ├── workflow.json                   # Slack alerting workflow
-    ├── metadata.json                   # Version 1.1.0 metadata  
+    ├── metadata.json                   # Version 1.1.0 metadata
     └── README.md                       # 270 lines documentation
 ```
 
 #### Integrations Category
+
 ```
 workflows/integrations/
 └── crm-sync/
@@ -82,52 +85,55 @@ workflows/integrations/
 
 ### Configuration Files
 
-| File | Purpose | Size | Location |
-|------|---------|------|----------|
-| `package.json` | Project dependencies & scripts | 847B | Root |
-| `package-lock.json` | Dependency version lock | 133KB | Root |
-| `.gitignore` | Version control exclusions | 80 lines | Root |
+| File                | Purpose                        | Size     | Location |
+| ------------------- | ------------------------------ | -------- | -------- |
+| `package.json`      | Project dependencies & scripts | 847B     | Root     |
+| `package-lock.json` | Dependency version lock        | 133KB    | Root     |
+| `.gitignore`        | Version control exclusions     | 80 lines | Root     |
 
 ### Schema Definitions
 
-| File | Purpose | Lines | Validation Rules |
-|------|---------|-------|------------------|
-| `metadata.schema.json` | Metadata structure validation | 320 | 35+ fields, complex validation |
-| `workflow.schema.json` | n8n workflow format validation | TBD | n8n structure compliance |
+| File                   | Purpose                        | Lines | Validation Rules               |
+| ---------------------- | ------------------------------ | ----- | ------------------------------ |
+| `metadata.schema.json` | Metadata structure validation  | 320   | 35+ fields, complex validation |
+| `workflow.schema.json` | n8n workflow format validation | TBD   | n8n structure compliance       |
 
 ### Automation Scripts
 
-| Script | Purpose | Lines | Dependencies |
-|--------|---------|-------|--------------|
-| `validate-workflow.js` | Schema validation engine | 273 | AJV, ajv-formats |
-| `generate-readme.js` | Documentation automation | 181 | Node.js fs, path |
-| `migrate-workflow.js` | Version migration utility | TBD | Migration logic |
+| Script                 | Purpose                   | Lines | Dependencies     |
+| ---------------------- | ------------------------- | ----- | ---------------- |
+| `validate-workflow.js` | Schema validation engine  | 273   | AJV, ajv-formats |
+| `generate-readme.js`   | Documentation automation  | 181   | Node.js fs, path |
+| `migrate-workflow.js`  | Version migration utility | TBD   | Migration logic  |
 
 ### Documentation Files
 
-| File | Type | Lines | Purpose |
-|------|------|-------|---------|
-| `README.md` | Project overview | 337 | Setup, usage, guidelines |
-| `PULL_REQUEST_TEMPLATE.md` | PR template | 143 | Contribution guidelines |
-| `workflow-readme.md` | Template | 269 | Workflow documentation standard |
-| Workflow READMEs | Documentation | ~270 each | Technical specifications |
+| File                       | Type             | Lines     | Purpose                         |
+| -------------------------- | ---------------- | --------- | ------------------------------- |
+| `README.md`                | Project overview | 337       | Setup, usage, guidelines        |
+| `PULL_REQUEST_TEMPLATE.md` | PR template      | 143       | Contribution guidelines         |
+| `workflow-readme.md`       | Template         | 269       | Workflow documentation standard |
+| Workflow READMEs           | Documentation    | ~270 each | Technical specifications        |
 
 ## Directory Naming Conventions
 
 ### Categories (Kebab-Case)
+
 - `data-processing` - Data transformation workflows
 - `notifications` - Alert and notification systems
 - `integrations` - System integration workflows
 - `automation` - General automation tasks
-- `reporting` - Report generation workflows  
+- `reporting` - Report generation workflows
 - `monitoring` - System monitoring workflows
 
 ### Workflows (Kebab-Case)
+
 - `csv-transformer` - Descriptive, action-oriented
 - `slack-alerts` - Service and function combined
 - `crm-sync` - Abbreviated but clear
 
 ### Files (Standard Extensions)
+
 - `.json` - JSON configuration and data files
 - `.js` - JavaScript automation scripts
 - `.md` - Markdown documentation files
@@ -136,32 +142,37 @@ workflows/integrations/
 ## Access Patterns
 
 ### Development Workflow
+
 1. **Browse by category**: `/workflows/{category}/`
 2. **Select workflow**: `/workflows/{category}/{workflow-name}/`
 3. **Review documentation**: `README.md` first
 4. **Check metadata**: `metadata.json` for requirements
 5. **Import workflow**: `workflow.json` into n8n
 
-### Validation Workflow  
-1. **Run validation**: `npm run validate-all-workflows`
+### Validation Workflow
+
+1. **Run validation**: `pnpm validate-all-workflows`
 2. **Check results**: Console output and exit codes
 3. **Fix issues**: Based on validation error messages
 4. **Re-validate**: Until all workflows pass
 
 ### Documentation Workflow
+
 1. **Update metadata**: Modify `metadata.json`
-2. **Generate README**: `npm run generate-readme [path]`
+2. **Generate README**: `pnpm generate-readme [path]`
 3. **Review output**: Check generated documentation
 4. **Commit changes**: Include both metadata and README
 
 ## File Size Analysis
 
 ### Size Distribution
+
 - **Small files** (<1KB): Configuration snippets, simple metadata
 - **Medium files** (1-100KB): Workflow JSON exports, detailed metadata
 - **Large files** (>100KB): package-lock.json, comprehensive documentation
 
 ### Growth Patterns
+
 - **Linear with workflows**: Each new workflow adds ~270 lines documentation
 - **Schema complexity**: Metadata schema grows with new validation requirements
 - **Documentation scaling**: Project docs grow with features and complexity
@@ -169,12 +180,14 @@ workflows/integrations/
 ## Security Considerations
 
 ### Sensitive File Locations
+
 - **Credentials**: Never stored in repository
 - **Environment variables**: Listed in metadata, values external
 - **API keys**: Referenced but not included
 - **Private configurations**: Excluded via `.gitignore`
 
 ### Access Control
+
 - **Public repository**: All documentation and schemas visible
 - **Internal references**: Links to internal systems in metadata
 - **CI/CD secrets**: Managed through GitHub Actions secrets
@@ -182,12 +195,14 @@ workflows/integrations/
 ## Maintenance Guidelines
 
 ### Regular Cleanup
+
 - **node_modules/**: Regenerated from package-lock.json
 - **Temporary files**: Excluded via .gitignore
 - **Generated docs**: Updated via automation scripts
 - **Version artifacts**: Managed through proper git practices
 
 ### Directory Health Checks
+
 1. **Required files present**: All workflows have JSON, metadata, README
 2. **Naming consistency**: Kebab-case for categories and workflows
 3. **Documentation completeness**: All required README sections
@@ -195,5 +210,5 @@ workflows/integrations/
 
 ---
 
-*Directory structure reference generated on: 2024-09-01*  
-*File counts and sizes are current as of generation time*
+_Directory structure reference generated on: 2024-09-01_  
+_File counts and sizes are current as of generation time_

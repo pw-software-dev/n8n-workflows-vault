@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+.turbo/
+
+# Generated files
+packages/database/src/generated/**/*.*
+*.generated.*
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Git
+.git/
+
+# Environment files
+.env*
+
+# Logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+schema.sql
+
+# OS files
+.DS_Store
+Thumbs.db

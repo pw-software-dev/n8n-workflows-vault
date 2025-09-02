@@ -1,0 +1,407 @@
+{
+  "name": "Print Do Date Tomorrow",
+  "nodes": [
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=580, initial-scale=1, maximum-scale=1, user-scalable=no\">\n<title>Task Receipt</title>\n<script src=\"https://cdn.tailwindcss.com\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js\" integrity=\"sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<style>\n    html, body {\n        margin: 0;\n        padding: 0;\n    }\n    body {\n        width: 580px;\n        height: auto;\n        margin-left: auto;\n        margin-right: auto;\n    }\n    .receipt {\n        width: 580px;\n        height: auto;\n    }\n    .text-2xs {\n        font-size: 1.5rem; /* 24px - actually double of original xs (12px) */\n        font-weight: 700; /* Bold for better print legibility */\n        letter-spacing: 0.01em;\n    }\n    .text-base-2x {\n        font-size: 1.75rem; /* 28px - actually double of original sm (14px) */\n        font-weight: 700; /* Bold */\n    }\n    .text-2xl-2x {\n        font-size: 2.25rem; /* 36px - double of original lg */\n        font-weight: 900; /* Extra bold for the main title */\n    }\n    /* Slightly larger/bolder than headings for parent task value */\n    .text-parent-value {\n        font-size: 1.75rem; /* slightly larger than heading (1.5rem) */\n        font-weight: 800;    /* slightly heavier than heading (700) */\n    }\n    /* QR rendering improvements */\n    #qrcode canvas {\n        image-rendering: pixelated;\n    }\n    #qrcode svg {\n        width: 100%;\n        height: 100%;\n        shape-rendering: crispEdges;\n    }\n    @media print {\n        body {\n            -webkit-print-color-adjust: exact;\n            print-color-adjust: exact;\n        }\n    }\n</style>\n</head>\n<body class=\"bg-white\">\n<div class=\"receipt mx-auto font-mono text-black\">\n    <!-- Receipt Header -->\n    <div class=\"text-center border-b-4 border-dashed border-black pb-6 mb-8\">\n        <div class=\"text-2xs text-black mb-2\">TASK RECEIPT</div>\n        <div class=\"text-2xs text-black\">\n            <span class=\"ml-2\" id=\"timestamp\"></span>\n        </div>\n    </div>\n\n    <!-- Task Title -->\n    <div class=\"mb-8\">\n        <h1 class=\"text-2xl-2x font-bold text-black leading-tight break-words\">\n            {{ $('Set Original Task').item.json.name }}\n        </h1>\n    </div>\n\n    <!-- Parent Task -->\n    <div>\n        <div class=\"text-2xs text-black uppercase tracking-wide mb-2\">Initiative:</div>\n        <div class=\"text-parent-value\">{{ $json.name }}</div>\n    </div>\n\n         <!-- QR Code -->\n     <div class=\"text-center -mt-4\">\n         <div class=\"mx-auto w-64 h-64 border-0 flex items-center justify-center relative\">\n             <div id=\"qrcode\"></div>\n         </div>\n         <div class=\"text-2xs text-black mb-4 -mt-8\">Scan to set complete</div>\n     </div>\n\n    <!-- Footer -->\n    <div class=\"border-t-4 border-dashed border-black pt-6 text-center\"></div>\n</div>\n <script>\n     // Set current timestamp\n     document.getElementById('timestamp').textContent = moment().locale('de').format('DD.MM.YYYY HH:mm');\n     \n     // Generate QR code (SVG, error correction level M for less density)\n     (function() {\n         var container = document.getElementById(\"qrcode\");\n         container.innerHTML = \"\";\n         var text = \"https://n8n-vy8rb-u45542.vm.elestio.app/webhook/tasks/complete?taskId={{ $('Set Original Task').item.json.id }}\";\n         var qr = qrcode(0, 'M'); // 0 auto type, 'M' error correction\n         qr.addData(text);\n         qr.make();\n         // Create SVG with module size and quiet zone\n         var svgTag = qr.createSvgTag(4, 4);\n         container.innerHTML = svgTag;\n     })();\n </script>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        -320
+      ],
+      "id": "e41c0d88-f0f2-4abb-a32b-4c8e3d8dd48e",
+      "name": "Generate HTML",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": {
+          "__rl": true,
+          "value": "257d0eff-6a00-807a-9f3f-fedbcf41af55",
+          "mode": "list",
+          "cachedResultName": "Tasks v2",
+          "cachedResultUrl": "https://www.notion.so/257d0eff6a00807a9f3ffedbcf41af55"
+        },
+        "filterType": "json",
+        "filterJson": "={\n  \"and\": [\n    {\n      \"property\": \"Do Date\",\n      \"date\": {\n        \"on_or_after\": \"{{$now.plus(1, 'day').format('yyyy-MM-dd')}}\"\n      }\n    },\n    {\n      \"property\": \"Do Date\",\n      \"date\": {\n        \"on_or_before\": \"{{$now.plus(1, 'day').format('yyyy-MM-dd')}}\"\n      }\n    },\n    {\n      \"property\": \"Printed\",\n      \"checkbox\": {\n        \"equals\": false\n      }\n    },\n    {\n      \"property\": \"Status\",\n      \"status\": {\n        \"equals\": \"Not Started\"\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -272
+      ],
+      "id": "854a9cc8-1191-478b-ac4f-ed0546e764a2",
+      "name": "Get All Tasks Do Tomorrow",
+      "executeOnce": true,
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "get",
+        "pageId": {
+          "__rl": true,
+          "value": "={{ $json.property_initiative[0] }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        -400
+      ],
+      "id": "00b997c8-18bb-416c-9e07-a3c1135f76fb",
+      "name": "Get Parent",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -272
+      ],
+      "id": "60c54fe4-a5d7-4d51-8e8e-c52b98d3d278",
+      "name": "Set Original Task"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a735444a-fc21-494a-b97e-22de0976b456",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -272
+      ],
+      "id": "6aa1f5c3-2a70-4fd9-9014-a8ec19b9118c",
+      "name": "Webhook",
+      "webhookId": "a735444a-fc21-494a-b97e-22de0976b456"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": {
+          "__rl": true,
+          "value": "={{$('Get All Tasks Do Tomorrow').item.json.id}}",
+          "mode": "id"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Printed|checkbox",
+              "checkboxValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        -432
+      ],
+      "id": "83ff78f6-dadc-4619-8b8c-ce0e7b724211",
+      "name": "Set Printed",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hsyfRcEcbd5MWqbP",
+          "mode": "list",
+          "cachedResultName": "Screenshot HTML & Print Image"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "html": "={{ $json.html }}"
+          },
+          "matchingColumns": [
+            "html"
+          ],
+          "schema": [
+            {
+              "id": "html",
+              "displayName": "html",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1568,
+        -320
+      ],
+      "id": "89004474-6e2a-448d-81bb-a46141af98c5",
+      "name": "Screenshot & Print",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2ae186da-09c1-4425-a012-c829139b2bfc",
+              "leftValue": "={{ $json.property_initiative }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        -272
+      ],
+      "id": "bc22a08d-7a45-4860-960c-eba53c60810a",
+      "name": "Has Initiative?"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-vy8rb-u45542.vm.elestio.app",
+            "x-real-ip": "44.227.140.35",
+            "x-forwarded-for": "44.227.140.35",
+            "x-forwarded-proto": "https",
+            "x-forwarded-port": "443",
+            "connection": "close",
+            "content-length": "1189",
+            "user-agent": "NotionAutomation",
+            "content-type": "application/json",
+            "sentry-trace": "d9e95636912e4574a59c82dc37a335d7-acd503c54858748d",
+            "baggage": "sentry-environment=production,sentry-release=0.0.4130,sentry-public_key=529a6d1990e5471d874257842c4f4ad8,sentry-trace_id=d9e95636912e4574a59c82dc37a335d7",
+            "traceparent": "00-1ea69d3f316d7e057001c0bf8ff5a79d-3c41a7e50174e25e-00"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "source": {
+              "type": "automation",
+              "automation_id": "249d0eff-6a00-801d-b4b1-004dc4b0bae2",
+              "action_id": "249d0eff-6a00-80f7-9179-005ab5c1b008",
+              "event_id": "26b81e9c-e2c0-4e54-aa8f-2ef14b07d479",
+              "user_id": "129d872b-594c-818b-ae77-0002dc0f5c23",
+              "attempt": 1
+            },
+            "data": {
+              "object": "page",
+              "id": "223d0eff-6a00-8043-ad61-ed7bba61441f",
+              "created_time": "2025-07-01T14:33:00.000Z",
+              "last_edited_time": "2025-08-08T17:20:00.000Z",
+              "created_by": {
+                "object": "user",
+                "id": "129d872b-594c-818b-ae77-0002dc0f5c23"
+              },
+              "last_edited_by": {
+                "object": "user",
+                "id": "129d872b-594c-818b-ae77-0002dc0f5c23"
+              },
+              "cover": {
+                "type": "external",
+                "external": {
+                  "url": "https://www.notion.so/images/page-cover/gradients_8.png"
+                }
+              },
+              "icon": {
+                "type": "emoji",
+                "emoji": "✅"
+              },
+              "parent": {
+                "type": "workspace",
+                "workspace": true
+              },
+              "archived": false,
+              "in_trash": false,
+              "properties": {
+                "title": {
+                  "id": "title",
+                  "type": "title",
+                  "title": [
+                    {
+                      "type": "text",
+                      "text": {
+                        "content": "Tasks",
+                        "link": null
+                      },
+                      "annotations": {
+                        "bold": false,
+                        "italic": false,
+                        "strikethrough": false,
+                        "underline": false,
+                        "code": false,
+                        "color": "default"
+                      },
+                      "plain_text": "Tasks",
+                      "href": null
+                    }
+                  ]
+                }
+              },
+              "url": "https://www.notion.so/Tasks-223d0eff6a008043ad61ed7bba61441f",
+              "public_url": null,
+              "request_id": "b46e263d-61da-4e4c-89e0-5f07ddbd8ea9"
+            }
+          },
+          "webhookUrl": "https://n8n-vy8rb-u45542.vm.elestio.app/webhook/atlas/tasks/tomorrow",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Generate HTML": {
+      "main": [
+        [
+          {
+            "node": "Screenshot & Print",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Tasks Do Tomorrow": {
+      "main": [
+        [
+          {
+            "node": "Set Original Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Original Task": {
+      "main": [
+        [
+          {
+            "node": "Has Initiative?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Parent": {
+      "main": [
+        [
+          {
+            "node": "Generate HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get All Tasks Do Tomorrow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenshot & Print": {
+      "main": [
+        [
+          {
+            "node": "Set Printed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Initiative?": {
+      "main": [
+        [
+          {
+            "node": "Get Parent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "032bfbbb-fa9d-4485-b4e0-fc2c4b25809c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "70ffef3a39db27829ada9c30eb31389fa6f2caf66a1908d9c96f681cc596021f"
+  },
+  "id": "srWPBUEM4S9Ofb9h",
+  "tags": []
+}

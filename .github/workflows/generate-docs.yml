@@ -26,10 +26,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Generate workflow READMEs
       run: |
@@ -40,7 +45,7 @@ jobs:
           find workflows -name "README.md" -delete
         fi
         
-        npm run generate-readme
+        pnpm generate-readme
 
     - name: Generate repository statistics
       run: |
@@ -108,18 +113,18 @@ jobs:
         1. Choose appropriate category or create a new one
         2. Create workflow folder with kebab-case naming
         3. Add required files: workflow.json, metadata.json, README.md
-        4. Run validation: \`npm run validate-all-workflows\`
+        4. Run validation: \`pnpm validate-all-workflows\`
         
         ### Validation
         \`\`\`bash
-        npm install
-        npm run validate-all-workflows
-        npm run check-metadata-consistency
+        pnpm install
+        pnpm validate-all-workflows
+        pnpm check-metadata-consistency
         \`\`\`
         
         ### Documentation Generation
         \`\`\`bash
-        npm run generate-readme
+        pnpm generate-readme
         \`\`\`
         
         ## Categories
@@ -200,15 +205,20 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Validate generated documentation
       run: |
         echo "🔍 Validating generated documentation..."
-        npm run validate-all-workflows
+        pnpm validate-all-workflows
         
         # Check that all workflows have README files
         missing_readmes=$(find workflows -name "workflow.json" -execdir test ! -f README.md \; -print | wc -l)

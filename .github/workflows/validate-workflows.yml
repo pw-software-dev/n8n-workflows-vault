@@ -22,24 +22,29 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Validate workflow structure
-      run: npm run validate-all-workflows
+      run: pnpm validate-all-workflows
 
     - name: Check metadata consistency
-      run: npm run check-metadata-consistency
+      run: pnpm check-metadata-consistency
 
     - name: Validate README completeness
-      run: npm run validate-readme-completeness
+      run: pnpm validate-readme-completeness
 
     - name: Test README generation
       run: |
         cp -r workflows workflows-backup
-        npm run generate-readme
+        pnpm generate-readme
         # Check if READMEs were generated successfully
         find workflows -name "README.md" -type f | wc -l
         # Restore original READMEs to avoid git changes
@@ -55,7 +60,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Run security audit
-      run: npm audit --audit-level high
+      run: pnpm audit --audit-level high
 
     - name: Check for secrets in workflows
       run: |
@@ -81,10 +86,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Check documentation completeness
       run: |
@@ -101,7 +111,7 @@ jobs:
         
         if [ $missing_readmes -gt 0 ]; then
           echo "📊 Found $missing_readmes workflows without README files"
-          echo "💡 Run 'npm run generate-readme' to auto-generate missing README files"
+          echo "💡 Run 'pnpm generate-readme' to auto-generate missing README files"
           exit 1
         else
           echo "✅ All workflows have README files"
@@ -142,10 +152,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
 
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Quality gate summary
       run: |
