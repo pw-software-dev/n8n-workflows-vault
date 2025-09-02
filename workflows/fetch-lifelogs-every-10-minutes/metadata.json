@@ -1,0 +1,40 @@
+{
+  "name": "Fetch Lifelogs Every 10 Minutes",
+  "description": "This workflow fetches lifelogs from an API every 10 minutes, processes them, and updates the last fetched timestamp.",
+  "version": "1.0.0",
+  "tags": [
+    "backup"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Redis account",
+      "Telegram account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.scheduleTrigger",
+      "n8n-nodes-base.redis",
+      "n8n-nodes-base.filter",
+      "n8n-nodes-base.executeWorkflow",
+      "n8n-nodes-base.telegram",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.splitOut"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "schedule"
+  ],
+  "complexity": "medium",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

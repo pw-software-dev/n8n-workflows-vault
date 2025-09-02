@@ -1,0 +1,42 @@
+{
+  "name": "Process Limitless Lifelog Daily",
+  "description": "This workflow processes daily lifelogs, formats them, generates summaries using OpenAI, and sends the summaries via Telegram.",
+  "version": "1.0.0",
+  "tags": [
+    "main",
+    "backup"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Supabase account",
+      "OpenAi account",
+      "Telegram account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.supabase",
+      "n8n-nodes-base.code",
+      "@n8n/n8n-nodes-langchain.openAi",
+      "n8n-nodes-base.if",
+      "n8n-nodes-base.noOp",
+      "n8n-nodes-base.telegram",
+      "n8n-nodes-base.scheduleTrigger",
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.set"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "schedule"
+  ],
+  "complexity": "medium",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "PR from Daily Branch to Main",
+  "description": "This workflow creates a daily backup pull request from a branch to the main branch in a GitHub repository.",
+  "version": "1.0.0",
+  "tags": [
+    "backup",
+    "github",
+    "automation"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "GitHub account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.scheduleTrigger",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.httpRequest"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "schedule"
+  ],
+  "complexity": "medium",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

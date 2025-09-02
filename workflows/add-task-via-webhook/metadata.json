@@ -1,0 +1,39 @@
+{
+  "name": "Add Task via Webhook",
+  "description": "This workflow adds a task via a webhook, validates the input, creates embeddings, processes the task, and responds with success or failure.",
+  "version": "1.0.0",
+  "tags": [
+    "webhook",
+    "task",
+    "validation",
+    "api"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Header Auth",
+      "OpenAi account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.webhook",
+      "n8n-nodes-base.if",
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.executeWorkflow",
+      "n8n-nodes-base.respondToWebhook"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "webhook"
+  ],
+  "complexity": "medium",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

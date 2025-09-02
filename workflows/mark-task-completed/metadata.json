@@ -1,0 +1,40 @@
+{
+  "name": "Mark Task Completed",
+  "description": "This workflow marks a task as completed by updating a Notion database and managing task counts in Redis.",
+  "version": "1.0.0",
+  "tags": [
+    "main",
+    "backup"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Redis account",
+      "Notion account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.webhook",
+      "n8n-nodes-base.redis",
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.manualTrigger",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.respondToWebhook"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "webhook",
+    "manual"
+  ],
+  "complexity": "medium",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "low",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "Process Tasks",
+  "description": "This workflow processes tasks by executing a series of actions including enhancing tasks, creating embeddings, and updating Notion database pages.",
+  "version": "1.0.0",
+  "tags": [
+    "backup"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "supabaseApi",
+      "openAiApi",
+      "notionApi"
+    ],
+    "nodes": [
+      "n8n-nodes-base.set",
+      "n8n-nodes-base.executeWorkflowTrigger",
+      "n8n-nodes-base.httpRequest",
+      "n8n-nodes-base.if",
+      "@n8n/n8n-nodes-langchain.agent",
+      "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "n8n-nodes-base.executeWorkflow",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.supabase",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.noOp"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "api"
+  ],
+  "complexity": "medium",
+  "execution_time": "1-2 minutes",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "low"
+  }
+}

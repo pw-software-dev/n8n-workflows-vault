@@ -1,0 +1,40 @@
+{
+  "name": "Process Limitless Lifelog Weekly",
+  "description": "This workflow processes weekly lifelog data, generates a summary using OpenAI, and sends it via Telegram.",
+  "version": "1.0.0",
+  "tags": [
+    "backup",
+    "lifelog",
+    "weekly-summary"
+  ],
+  "author": "pw-software",
+  "created": "2024-08-30",
+  "updated": "2024-08-30",
+  "n8n_version": "1.45.0",
+  "requirements": {
+    "credentials": [
+      "Supabase account",
+      "OpenAi account",
+      "Telegram account"
+    ],
+    "nodes": [
+      "n8n-nodes-base.scheduleTrigger",
+      "n8n-nodes-base.supabase",
+      "n8n-nodes-base.set",
+      "@n8n/n8n-nodes-langchain.openAi",
+      "n8n-nodes-base.code",
+      "n8n-nodes-base.telegram"
+    ],
+    "environment_variables": []
+  },
+  "triggers": [
+    "schedule"
+  ],
+  "complexity": "medium",
+  "execution_time": "30-60 seconds",
+  "resources": {
+    "memory": "medium",
+    "cpu": "medium",
+    "storage": "minimal"
+  }
+}
