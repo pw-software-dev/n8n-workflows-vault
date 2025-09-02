@@ -1,0 +1,306 @@
+{
+  "name": "Process Limitless Lifelog Weekly",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        -96
+      ],
+      "id": "f1895d81-57da-47b6-8b71-41f1936c5295",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "lifelogs_daily_summaries",
+        "limit": 7,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "date",
+              "condition": "gte",
+              "keyValue": "={{ $json.start }}"
+            },
+            {
+              "keyName": "date",
+              "condition": "lte",
+              "keyValue": "={{ $json.end }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -96
+      ],
+      "id": "cc257af6-5313-47ed-b0fc-dd35dc45078f",
+      "name": "Supabase",
+      "alwaysOutputData": false,
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e87d1f74-bae6-405e-97ca-44c2223c949a",
+              "name": "start",
+              "value": "={{ $json.timestamp.toDateTime().minus(7, 'days').format('yyyy-MM-dd') }}",
+              "type": "string"
+            },
+            {
+              "id": "e2394f54-9add-4499-9cb6-d9841b290403",
+              "name": "end",
+              "value": "={{ $json.timestamp.toDateTime().minus(1, 'days').format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        -96
+      ],
+      "id": "00f390ca-0d64-470d-9361-86752db812ed",
+      "name": "Set Start and End Date"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Below is a JSON array where each object represents a daily summary from one week.\nEach entry includes a date, a title, and a detailed summary of the day’s activities, reflections, and emotions.\n\nPlease analyze the week as a whole. Your task is to write a informative, nuanced, and meaningful summary of the week, written in no bullet points and quite informal with a bit of fun and also brutally honest if you find unhealthy patterns.\n\nFocus on:\n\n- Main themes and patterns across the days\n- Emotional tone and personal growth or challenges\n- Notable events, habits, or turning points\n- Overall trajectory or mood of the week\n- Personal and business highlights\n- Wholesome moments\n\nBegin with a creative or insightful headline that reflects the essence of the week.\nDo not summarize or repeat the days individually; instead, synthesize the information and present an integrated, reflective weekly review. Your response is directed towards the author of the content that's why you use \"You\" a lot. Write the summary as if composing a weekly journal entry, offering insight, empathy, and perspective.\n\nOUTPUT FORMAT:\n{\n  \"title\": \"The title of the summary\",\n  \"text\": \"The summary itself without the title\"\n}\n\nAdd meaningful new lines into the `text` property by adding `\\n\\n`\n\nNEVER USE MORE THAN 2800 CHARACTERS. THATS NOT NEGOTIABLE!",
+              "role": "system"
+            },
+            {
+              "content": "={{ JSON.stringify($json.allItems) }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        432,
+        -96
+      ],
+      "id": "07bb2305-213c-4a1f-a32e-18f4464fa327",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "PMabRr0KYrwbyRKH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = [];\n\nfor (const item of $input.all()) {\n  allItems.push(item)\n}\n\nreturn {\n  json: {allItems}\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -96
+      ],
+      "id": "d49c1422-f659-43c8-bc24-aac07c7728bc",
+      "name": "Code",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "tableId": "lifelogs_weekly_summaries",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "title",
+              "fieldValue": "={{ $json.message.content.title }}"
+            },
+            {
+              "fieldId": "text",
+              "fieldValue": "={{ $json.message.content.text }}"
+            },
+            {
+              "fieldId": "week",
+              "fieldValue": "={{ $('Schedule Trigger').first().json.timestamp.toDateTime().format('nn') - 3 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -96
+      ],
+      "id": "b5490d11-76e7-48c1-ab3c-ba1f8bed8a9d",
+      "name": "Insert Weekly Summary",
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "4978196",
+        "text": "=Howdy! 🤠\n\nHere's your Lifelog weekly report for week {{ $('Schedule Trigger').first().json.timestamp.toDateTime().format('nn') - 3 }}:\n\n{{ $json.message.content.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1024,
+        -96
+      ],
+      "id": "91ff7646-c37b-46f8-a18e-e3a3bc57d788",
+      "name": "Telegram",
+      "webhookId": "8061a716-3c49-4ba8-8d75-484282432e84",
+      "credentials": {
+        "telegramApi": {
+          "id": "7SDBDDe3rcdZpYc8",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Start and End Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Start and End Date": {
+      "main": [
+        [
+          {
+            "node": "Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Insert Weekly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Weekly Summary": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "97793ef6-1f42-4cd0-bbc0-424dbb5d86e1",
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-06-16T04:00:22.031-04:00",
+          "Readable date": "June 16th 2025, 4:00:22 am",
+          "Readable time": "4:00:22 am",
+          "Day of week": "Monday",
+          "Year": "2025",
+          "Month": "June",
+          "Day of month": "16",
+          "Hour": "04",
+          "Minute": "00",
+          "Second": "22",
+          "Timezone": "America/New_York (UTC-04:00)"
+        }
+      }
+    ]
+  }
+}
