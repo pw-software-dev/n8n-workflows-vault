@@ -1,0 +1,128 @@
+{
+  "name": "PR from Daily Branch to Main",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "3ed34365-e10c-4f2e-b989-ae78c812bcd8",
+      "name": "Daily Backup Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1296,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5ab6c1a-2943-4217-a519-d5951736c97d",
+              "name": "branch_name",
+              "value": "={{ encodeURI(\"backup/\") }}{{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1072,
+        208
+      ],
+      "id": "b293075c-d694-4420-9b31-2f3b1b033de0",
+      "name": "Set Parameters"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.github.com/repos/pw-software-dev/n8n-workflows-vault/pulls",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "=Backup workflows from {{ $json.branch_name }}"
+            },
+            {
+              "name": "head",
+              "value": "={{ $json.branch_name }}"
+            },
+            {
+              "name": "base",
+              "value": "main"
+            },
+            {
+              "name": "body",
+              "value": "Pull request to merge backup workflows into main branch."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -848,
+        208
+      ],
+      "id": "d2ddeae1-3d2b-4d2c-b74a-ac04aede87f1",
+      "name": "Create Daily Backup PR",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "hNFWKactzuCtJJaM",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    }
+  ],
+  "connections": {
+    "Daily Backup Schedule": {
+      "main": [
+        [
+          {
+            "node": "Set Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Parameters": {
+      "main": [
+        [
+          {
+            "node": "Create Daily Backup PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "871d8e3b-6b31-4e60-9851-62e773949077"
+}
