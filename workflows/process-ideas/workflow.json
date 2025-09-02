@@ -1,0 +1,572 @@
+{
+  "name": "Process Ideas",
+  "nodes": [
+    {
+      "parameters": {
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1376,
+        1600
+      ],
+      "id": "e8b4abac-f1ef-4505-9235-423c47586484",
+      "name": "Set Response"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        1744
+      ],
+      "id": "6f665282-0c94-4ad4-82b7-d90a8135e656",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "transcript"
+            },
+            {
+              "name": "description"
+            },
+            {
+              "name": "title"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2048,
+        1600
+      ],
+      "id": "a530dc63-70eb-410d-9735-027e5a1da4cc",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f42bc7bc-0027-498f-8775-1144f23dd3bb",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": "observation",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1152,
+        1600
+      ],
+      "id": "227a0a4f-a366-45e8-82c4-cdd4f8ee54dd",
+      "name": "Is Success?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8216d532-4d28-45ef-81b7-79df30e3b51d",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "idea",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -928,
+        1504
+      ],
+      "id": "a705730b-f04e-40f2-b5d4-6733ba686ae0",
+      "name": "Is New Item?"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"enhancedIdea\": {\n    \"originalConcept\": \"[Restate the core idea clearly and concisely]\",\n    \"expandedVision\": \"[Rich, detailed expansion of the concept incorporating research insights and creative dimensions. Should be comprehensive and inspiring, showing the full potential of the idea.]\",\n    \"creativeVariations\": [\n      \"[First major variation or alternative approach to the core concept, informed by research and cross-domain insights]\",\n      \"[Second creative variation exploring different angle, scale, or application of the idea]\",\n      \"[Third variation that adds unexpected twist or innovative element to make the idea more distinctive]\"\n    ],\n    \"crossDomainInsights\": [\n      \"[How this concept succeeds in different industry/domain with specific examples and lessons]\",\n      \"[Second domain application showing transferable principles and creative adaptations]\",\n      \"[Third cross-domain insight revealing unexpected applications or creative connections]\"\n    ],\n    \"innovationOpportunities\": [\n      \"[Specific way to make the idea more cutting-edge based on current trends and research]\",\n      \"[Second innovation angle that could differentiate the concept from existing approaches]\",\n      \"[Third breakthrough opportunity that could transform the idea into something truly unique]\"\n    ]\n  }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        1568
+      ],
+      "id": "9921052f-97d3-4f69-8996-d72562cda173",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexityTool",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        1568
+      ],
+      "id": "14d5126a-c20b-46a4-b555-8301934ee02a",
+      "name": "Message a model in Perplexity",
+      "credentials": {
+        "perplexityApi": {
+          "id": "9gjABC7ATNyqt5z1",
+          "name": "Perplexity account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        1568
+      ],
+      "id": "e02ebcfe-6d98-4773-9648-08699722eeed",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "mSg8lJLM2ZMLC08K",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        1568
+      ],
+      "id": "9d7b4270-b567-44c6-a236-1ace78e34a86",
+      "name": "4.1-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "BenZIub6jMcJ7DX4",
+          "name": "Portkey OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://xnbxczlaowxhgriihyjs.supabase.co/rest/v1/rpc/ingest_item",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "p_content",
+              "value": "={{ $('When Executed by Another Workflow').item.json.description }}"
+            },
+            {
+              "name": "p_type",
+              "value": "idea"
+            },
+            {
+              "name": "p_source_type",
+              "value": "voice"
+            },
+            {
+              "name": "p_transcript",
+              "value": "={{ $('When Executed by Another Workflow').item.json.transcript }}"
+            },
+            {
+              "name": "p_embedding",
+              "value": "={{ $json.data[0].embedding }}"
+            },
+            {
+              "name": "p_embedding_model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "p_idea_title",
+              "value": "={{ $('When Executed by Another Workflow').item.json.title }}"
+            },
+            {
+              "name": "p_idea_description",
+              "value": "={{ $('When Executed by Another Workflow').item.json.description }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1600,
+        1600
+      ],
+      "id": "0957e0ff-e6b2-47db-810c-9545b9417bcc",
+      "name": "RPC Ingest Idea",
+      "executeOnce": false,
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "S4NUiiUkjnM1PDRf",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When Executed by Another Workflow').item.json.description }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Enhance Creative Ideas\n\n## Role and Objective\n\nYou are an expert creative strategist and innovation consultant. Your objective is to transform raw creative ideas into enriched, multi-dimensional concepts that are more valuable, compelling, and actionable through creative expansion, cross-domain insights, and innovative refinements.\n\n## Primary Instructions\n\n### Input Processing\n- Analyze the provided idea description (extracted from memo analysis)\n- Identify the core creative concept and its domain\n- Determine the idea's potential scope, applications, and creative dimensions\n\n### Research Requirements\nBefore generating enhancements, you MUST conduct research using web_search to:\n1. **Explore the creative domain** - Find current trends, innovations, and cutting-edge approaches\n2. **Research analogous concepts** - Look for similar ideas in different industries or contexts\n3. **Identify successful implementations** - Find real-world examples of related creative concepts\n4. **Discover cross-domain applications** - Search for how similar concepts work in other fields\n5. **Gather creative inspiration** - Find innovative approaches, unique perspectives, and breakthrough examples\n\n**Research Query Pattern Examples:**\n- \"[concept] innovative examples 2025\"\n- \"[domain] creative breakthroughs\" \n- \"[idea type] cross-industry applications\"\n- \"[concept] unconventional approaches\"\n- \"creative implementations of [idea]\"\n\n### Creative Enhancement Criteria\n\n**Enhancement Requirements:**\n- **Depth**: Expand the core concept with rich details and nuanced understanding\n- **Breadth**: Explore multiple dimensions, applications, and variations of the idea\n- **Innovation**: Add creative twists, unique angles, or novel approaches\n- **Inspiration**: Incorporate insights from successful examples and cross-domain learning\n- **Refinement**: Make the idea more compelling, distinctive, and memorable\n\n**Creative Expansion Types:**\n- **Concept Variations** - Different ways to implement or express the core idea\n- **Cross-Domain Applications** - How the idea could work in different industries or contexts\n- **Creative Analogies** - Metaphors, comparisons, or parallel concepts that illuminate the idea\n- **Scenario Exploration** - Different contexts, scales, or environments where the idea could thrive\n- **Innovation Angles** - Unique twists, unexpected combinations, or breakthrough approaches\n\n## Step-by-Step Reasoning Process\n\nFollow this reasoning chain for each idea:\n\n1. **Core Concept Analysis**: What is the fundamental creative principle? What makes this idea unique or valuable?\n\n2. **Domain Research**: What successful examples exist? What innovations are happening in this space?\n\n3. **Cross-Pollination Discovery**: How do related concepts work in other domains? What can be learned?\n\n4. **Creative Expansion**: What variations, applications, or refinements would make this idea more compelling?\n\n5. **Value Enhancement**: How can research insights be integrated to make the idea more innovative and valuable?\n\n## Output Format\n\nReturn JSON with exactly this structure:\n\n```json\n{\n  \"enhancedIdea\": {\n    \"originalConcept\": \"[Restate the core idea clearly and concisely]\",\n    \"expandedVision\": \"[Rich, detailed expansion of the concept incorporating research insights and creative dimensions. Should be comprehensive and inspiring, showing the full potential of the idea.]\",\n    \"creativeVariations\": [\n      \"[First major variation or alternative approach to the core concept, informed by research and cross-domain insights]\",\n      \"[Second creative variation exploring different angle, scale, or application of the idea]\",\n      \"[Third variation that adds unexpected twist or innovative element to make the idea more distinctive]\"\n    ],\n    \"crossDomainInsights\": [\n      \"[How this concept succeeds in different industry/domain with specific examples and lessons]\",\n      \"[Second domain application showing transferable principles and creative adaptations]\",\n      \"[Third cross-domain insight revealing unexpected applications or creative connections]\"\n    ],\n    \"innovationOpportunities\": [\n      \"[Specific way to make the idea more cutting-edge based on current trends and research]\",\n      \"[Second innovation angle that could differentiate the concept from existing approaches]\",\n      \"[Third breakthrough opportunity that could transform the idea into something truly unique]\"\n    ]\n  }\n}\n```\n\n## Examples\n\n### Example 1: Interactive Learning Concept\n**Input:** \"Gamified interactive onboarding tutorial that guides new users through key features using progress badges and achievement unlocks, modeled after successful mobile game tutorial mechanics\"\n\n**Output:**\n```json\n{\n  \"enhancedIdea\": {\n    \"originalConcept\": \"Gamified interactive onboarding tutorial using progress badges and achievement unlocks based on mobile game tutorial mechanics\",\n    \"expandedVision\": \"A comprehensive adaptive learning ecosystem that transforms user onboarding from passive information consumption into an engaging, personalized journey. The system would use AI-driven personalization to adapt tutorial paths based on user behavior, learning style, and expertise level. Instead of static badges, it would feature dynamic achievement systems with meaningful rewards like exclusive features, customization options, or community recognition. The experience would include social elements where users can share achievements, compete in friendly challenges, or collaborate on advanced tutorials, creating a community-driven learning environment that extends beyond individual onboarding.\",\n    \"creativeVariations\": [\n      \"Narrative-driven onboarding that tells an evolving story where users become the protagonist, with each feature mastery advancing their character's journey through different themed worlds or scenarios\",\n      \"Collaborative onboarding where new users are paired with experienced 'mentors' in a buddy system, earning joint achievements and creating lasting community connections\",\n      \"Micro-learning approach with 30-second daily challenges that gradually build expertise over weeks, making onboarding feel effortless and habit-forming rather than overwhelming\"\n    ],\n    \"crossDomainInsights\": [\n      \"Educational technology shows that spaced repetition and progressive disclosure (like Duolingo's approach) create better long-term retention than intensive single-session tutorials\",\n      \"Fitness apps demonstrate how personal challenges and streak mechanics (like Nike Run Club) create emotional investment and daily engagement habits\",\n      \"Video game design reveals that meaningful choices and branching paths (like RPG character builds) make users feel more invested in their learning journey\"\n    ],\n    \"innovationOpportunities\": [\n      \"Integrate AI-powered real-time assistance that provides contextual hints and celebrates micro-achievements, making the learning feel more human and responsive\",\n      \"Create augmented reality elements that overlay tutorial guidance directly onto the interface, allowing users to learn while actually using the product in real contexts\",\n      \"Develop cross-platform achievement systems that carry progress across different products or services, creating a unified learning identity that users want to develop\"\n    ]\n  }\n}\n```\n\n### Example 2: Creative Collaboration System\n**Input:** \"Platform for remote creative collaboration that allows multiple designers to work simultaneously on the same project with real-time feedback and version control\"\n\n**Output:**\n```json\n{\n  \"enhancedIdea\": {\n    \"originalConcept\": \"Remote creative collaboration platform enabling simultaneous work by multiple designers with real-time feedback and version control\",\n    \"expandedVision\": \"An intelligent creative workspace that transcends traditional collaboration by creating a living, breathing creative ecosystem. The platform would use AI to understand creative intent and suggest complementary contributions, while maintaining each creator's unique voice. It would feature contextual collaboration where team members can join specific aspects of a project (colors, typography, layout) without interfering with others. The system would include an innovative 'creative DNA' tracking that shows how ideas evolve and merge, giving creators credit for conceptual contributions that influence the final work. Advanced conflict resolution would use AI to suggest creative compromises when team members have different visions, turning potential friction into creative synthesis.\",\n    \"creativeVariations\": [\n      \"Asynchronous creativity mode where contributors work in different time zones but leave 'creative breadcrumbs' - video messages, voice notes, and visual annotations that guide the next person's contributions\",\n      \"Role-based creative collaboration where team members take on specific creative personas (The Visionary, The Refiner, The Devil's Advocate) that rotate throughout the project to ensure diverse perspectives\",\n      \"Creative simulation environment where teams can rapidly prototype multiple versions of concepts in parallel universes, then merge the best elements using AI-assisted creative synthesis\"\n    ],\n    \"crossDomainInsights\": [\n      \"Music production software like Ableton Live shows how layered, non-destructive editing allows multiple contributors to experiment without fear of ruining others' work\",\n      \"Scientific research collaboration demonstrates how attribution systems and contribution tracking (like Git for code) can fairly recognize different types of creative input\",\n      \"Improvisational theater techniques reveal how 'yes, and...' principles can be systematized into collaboration tools that build on rather than replace others' ideas\"\n    ],\n    \"innovationOpportunities\": [\n      \"Develop emotion-aware collaboration that uses voice analysis and interaction patterns to detect creative tension or enthusiasm, adjusting workflow and suggesting breaks or brainstorming sessions\",\n      \"Create AI creative assistants that learn each team member's style and can continue their work when they're offline, maintaining creative momentum across time zones\",\n      \"Build immersive VR creative spaces where remote team members can manipulate 3D creative elements together, making digital collaboration feel as natural as being in the same physical room\"\n    ]\n  }\n}\n```\n\n### Example 3: Sustainable Innovation Concept\n**Input:** \"Community-driven sustainability initiative where neighborhoods compete in friendly challenges to reduce environmental impact through creative solutions and shared resources\"\n\n**Output:**\n```json\n{\n  \"enhancedIdea\": {\n    \"originalConcept\": \"Community-driven sustainability initiative featuring neighborhood competitions and creative environmental solutions through shared resources\",\n    \"expandedVision\": \"A comprehensive community transformation platform that gamifies environmental stewardship while building stronger social connections. The system would create neighborhood 'eco-leagues' with seasonal challenges that adapt to local climate, resources, and cultural contexts. Beyond competition, it would facilitate resource sharing networks where community members can lend tools, share knowledge, and collaborate on larger sustainability projects. The platform would include impact visualization showing how individual actions contribute to neighborhood and global environmental health, with AR experiences that let people see the long-term effects of their choices. Success would be measured not just in environmental metrics but in community resilience, social connections, and local economic benefits.\",\n    \"creativeVariations\": [\n      \"Intergenerational sustainability mentorship where older community members with traditional conservation knowledge partner with younger members who bring technology skills, creating cross-generational learning and innovation\",\n      \"Neighborhood transformation themes where communities choose annual focuses like 'Pollinator Paradise' or 'Zero Waste Zone,' creating cohesive community identity around environmental goals\",\n      \"Micro-economy development where sustainability actions earn local currency that can only be spent at participating neighborhood businesses, creating economic incentives for both environmental action and local commerce\"\n    ],\n    \"crossDomainInsights\": [\n      \"Sports leagues demonstrate how season structures, playoffs, and ceremonial recognition create sustained engagement and community pride that could motivate long-term environmental behavior\",\n      \"Social media platforms show how progress sharing, peer recognition, and group challenges can make individual actions feel more meaningful and socially rewarded\",\n      \"Urban planning research reveals how community gardens and shared spaces don't just improve environment but create social capital and neighborhood resilience that makes communities more sustainable long-term\"\n    ],\n    \"innovationOpportunities\": [\n      \"Integrate IoT sensors and smart city infrastructure to automatically track community environmental metrics, making progress visible through public displays and neighborhood dashboards\",\n      \"Develop AI-powered challenge customization that adapts to each neighborhood's unique characteristics, climate challenges, and resource availability for maximum local relevance\",\n      \"Create virtual reality experiences where communities can preview the long-term results of their sustainability efforts, seeing their neighborhood transform over decades and inspiring continued commitment\"\n    ]\n  }\n}\n```\n\n## Quality Validation Framework\n\nBefore generating your final response, validate each enhancement against these criteria:\n\n### Creative Enhancement Checklist\n- ✓ Expands original concept with rich details and nuanced understanding\n- ✓ Incorporates research insights from multiple domains and successful examples\n- ✓ Provides three distinct creative variations that explore different dimensions\n- ✓ Identifies meaningful cross-domain applications with specific examples\n- ✓ Suggests concrete innovation opportunities based on current trends\n- ✓ Makes the idea more compelling and distinctive than the original\n- ✓ Maintains creative integrity while adding practical value\n- ✓ Includes specific examples, techniques, and approaches rather than vague concepts\n\n### Creative Quality Standards\n**Enhanced Vision Should:**\n- Transform the original idea into something more comprehensive and inspiring\n- Include specific details about how the concept would work in practice\n- Demonstrate deep understanding of the creative domain through research integration\n- Show clear value enhancement over the original concept\n\n**Variations Should:**\n- Explore genuinely different approaches to the core concept\n- Be implementable as distinct alternatives, not just minor modifications\n- Each variation should appeal to different contexts, audiences, or creative approaches\n- Include specific examples of how each variation would work differently\n\n**Cross-Domain Insights Should:**\n- Reference specific, real examples from other industries or contexts\n- Explain the transferable principles, not just surface similarities\n- Show how lessons from other domains could improve or expand the original idea\n- Demonstrate creative thinking about unexpected applications\n\n**Innovation Opportunities Should:**\n- Be grounded in current technology, trends, or emerging possibilities\n- Offer specific ways to differentiate the idea from existing approaches\n- Include concrete suggestions for implementation or development\n- Push the creative boundaries while remaining achievable\n\n## Final Instructions\n\n1. **Always conduct research first** using web_search before generating enhancements\n2. **Focus on creative expansion** rather than practical implementation steps\n3. **Maintain creative inspiration** while adding substantive value\n4. **Integrate research insights** throughout all enhancement elements\n5. **Provide specific examples** rather than abstract concepts\n6. **Balance innovation with feasibility** - push boundaries while remaining grounded\n\nRemember: The goal is to transform basic creative ideas into rich, multi-dimensional concepts that inspire action and provide clear creative direction for development. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -592,
+        1344
+      ],
+      "id": "77086bc3-7053-454a-936c-2d784a7bcb2a",
+      "name": "Enhance Idea"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "223d0eff-6a00-8098-b592-fc33640e1c3a",
+          "mode": "list",
+          "cachedResultName": "Ideas",
+          "cachedResultUrl": "https://www.notion.so/223d0eff6a008098b592fc33640e1c3a"
+        },
+        "title": "={{ $('When Executed by Another Workflow').item.json.title }}",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Description|rich_text",
+              "textContent": "={{ $('When Executed by Another Workflow').item.json.description }}"
+            },
+            {
+              "key": "External ID|rich_text",
+              "textContent": "={{ $('Set Response').item.json.item_id }}"
+            },
+            {
+              "key": "Transcript|rich_text",
+              "textContent": "={{ $('When Executed by Another Workflow').item.json.transcript }}"
+            }
+          ]
+        },
+        "blockUi": {
+          "blockValues": [
+            {
+              "type": "heading_2",
+              "textContent": "Description"
+            },
+            {
+              "textContent": "={{ $('When Executed by Another Workflow').item.json.description }}"
+            },
+            {
+              "type": "heading_2",
+              "textContent": "Vision"
+            },
+            {
+              "textContent": "={{ $json.output.enhancedIdea.expandedVision }}"
+            },
+            {
+              "type": "heading_2",
+              "textContent": "Variations"
+            },
+            {
+              "type": "numbered_list_item",
+              "textContent": "={{ $json.output.enhancedIdea.creativeVariations[0] }}"
+            },
+            {
+              "type": "numbered_list_item",
+              "textContent": "={{ $json.output.enhancedIdea.creativeVariations[1] }}"
+            },
+            {
+              "type": "numbered_list_item",
+              "textContent": "={{ $json.output.enhancedIdea.creativeVariations[2] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        1456
+      ],
+      "id": "fb3be00c-af9f-4785-b644-145b9be52bc0",
+      "name": "Create Idea",
+      "credentials": {
+        "notionApi": {
+          "id": "RP3bJ33HVXDb5pa4",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.portkey.ai/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "text-embedding-3-small"
+            },
+            {
+              "name": "input",
+              "value": "={{ $json.title }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1824,
+        1600
+      ],
+      "id": "fec069fe-47c7-40e4-a4c6-5c67ae803e26",
+      "name": "Create Embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "BenZIub6jMcJ7DX4",
+          "name": "Portkey OpenAI"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Set Response": {
+      "main": [
+        [
+          {
+            "node": "Is Success?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Create Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Success?": {
+      "main": [
+        [
+          {
+            "node": "Is New Item?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Item?": {
+      "main": [
+        [
+          {
+            "node": "Enhance Idea",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Enhance Idea",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model in Perplexity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Enhance Idea",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "Enhance Idea",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Enhance Idea",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RPC Ingest Idea": {
+      "main": [
+        [
+          {
+            "node": "Set Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance Idea": {
+      "main": [
+        [
+          {
+            "node": "Create Idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Embeddings": {
+      "main": [
+        [
+          {
+            "node": "RPC Ingest Idea",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "2f22b83b-58a6-4b63-9e1f-f0e6d2d3df7e",
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "transcript": "I just had the idea to create a system that utilizes a receipt printer, one of these thermal printers and that printer is hooked to a Raspberry Pi and I can print,stuff on it remotely. That's basically the service running on the Raspberry Pi. I want to use it to print tasks. Right now I use my notebook in the evening to write down tasks for the next day. In the future with that system, I would like to have a list of tasks that are in my notion tasks database and I want to set the due date. So basically what it should do is I set the due date of a notion task item to a specific day and in the evening at 9:00 or 8:00 in the evening, this there's a script that prints all the tasks that have the due date for that day and I can then in the morning or in the evening before going to sleep, put all the tasks in with with magnets on my whiteboard into the to-do column and while doing the tasks in there, I can move them to in progress or to done. And in the end of the day, I review all of them.,All of them that are done or that might not be done. If they are done, I throw them into the bin and I mark them done in the notion task database. All items that I could not finish can stay in the column to do or in progress for the next day. If there hasn't been any any scope change or whatsoever, so they get pushed back to back backlog or whatever, but I don't think that will happen a lot. Um right. So I would mark these items as not completed and they should automatically move to the next day as the due date, but they should not be print again because I already printed them. Uh that's why I would not need that, but they should be updated in my calendar or in notion that the due date should just be then next day that would with that configuration that would mean that",
+          "description": "A comprehensive task management system using a thermal receipt printer connected to a Raspberry Pi for remote printing. The system integrates with Notion task database to automatically print daily tasks based on due dates at scheduled times (8-9 PM), enabling physical task management on a whiteboard with magnetic task cards that can be moved between to-do, in-progress, and done columns. Includes automatic date progression for incomplete tasks without reprinting, syncing completion status back to Notion, and providing a hybrid digital-physical workflow for daily task organization and review.",
+          "title": "Raspberry Pi Task Printer"
+        }
+      }
+    ]
+  }
+}
