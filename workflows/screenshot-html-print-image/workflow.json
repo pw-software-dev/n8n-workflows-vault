@@ -1,0 +1,254 @@
+{
+  "name": "Screenshot HTML & Print Image",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "html"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1328,
+        880
+      ],
+      "id": "4e128153-15a5-465d-b154-378656f8954f",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "url",
+        "key": "piNgrokUrl",
+        "keyType": "string",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        880
+      ],
+      "id": "cc31abe0-6006-471b-bf6c-b2920fde412f",
+      "name": "Get ngrok URL",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Get ngrok URL').item.json.url }}/print",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -432,
+        784
+      ],
+      "id": "6205e2af-5426-4c58-9b0d-4ab171114161",
+      "name": "PRINT 🖨️",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -656,
+        784
+      ],
+      "id": "84863755-d2c1-439f-b827-1b077f68dd67",
+      "name": "Get Test File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hcti.io/v1/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "={{ $('When Executed by Another Workflow').item.json.html }}"
+            },
+            {
+              "name": "device_scale",
+              "value": "3"
+            },
+            {
+              "name": "viewport_width",
+              "value": "580"
+            },
+            {
+              "name": "viewport_height",
+              "value": "750"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        880
+      ],
+      "id": "e0fad0e4-3cd7-43d0-81c8-e7b753ae34aa",
+      "name": "Screenshot HTML",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "vpIXAYPkfgBRXcbk",
+          "name": "HTMLToImage"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Image is empty"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        976
+      ],
+      "id": "b07ad11b-1302-4a2a-8629-712e1928b512",
+      "name": "Screenshot API Error"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Image is empty"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        784
+      ],
+      "id": "24a23999-9ec9-495a-90b4-2b8c808269bc",
+      "name": "Print API Error"
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get ngrok URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get ngrok URL": {
+      "main": [
+        [
+          {
+            "node": "Screenshot HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PRINT 🖨️": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Print API Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Test File": {
+      "main": [
+        [
+          {
+            "node": "PRINT 🖨️",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Screenshot HTML": {
+      "main": [
+        [
+          {
+            "node": "Get Test File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Screenshot API Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "d6b246a9-2047-4568-9cf4-15904ed75bd8",
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=580, initial-scale=1, maximum-scale=1, user-scalable=no\">\n<title>Task Receipt</title>\n<script src=\"https://cdn.tailwindcss.com\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js\" integrity=\"sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<script src=\"https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\"></script>\n<style>\n    html, body {\n        margin: 0;\n        padding: 0;\n    }\n    body {\n        width: 580px;\n        height: auto;\n        margin-left: auto;\n        margin-right: auto;\n    }\n    .receipt {\n        width: 580px;\n        height: auto;\n    }\n    .text-2xs {\n        font-size: 1.5rem; /* 24px - actually double of original xs (12px) */\n        font-weight: 700; /* Bold for better print legibility */\n        letter-spacing: 0.01em;\n    }\n    .text-base-2x {\n        font-size: 1.75rem; /* 28px - actually double of original sm (14px) */\n        font-weight: 700; /* Bold */\n    }\n    .text-2xl-2x {\n        font-size: 2.25rem; /* 36px - double of original lg */\n        font-weight: 900; /* Extra bold for the main title */\n    }\n    /* Slightly larger/bolder than headings for parent task value */\n    .text-parent-value {\n        font-size: 1.75rem; /* slightly larger than heading (1.5rem) */\n        font-weight: 800;    /* slightly heavier than heading (700) */\n    }\n    /* QR rendering improvements */\n    #qrcode canvas {\n        image-rendering: pixelated;\n    }\n    #qrcode svg {\n        width: 100%;\n        height: 100%;\n        shape-rendering: crispEdges;\n    }\n    @media print {\n        body {\n            -webkit-print-color-adjust: exact;\n            print-color-adjust: exact;\n        }\n    }\n</style>\n</head>\n<body class=\"bg-white\">\n<div class=\"receipt mx-auto font-mono text-black\">\n    <!-- Receipt Header -->\n    <div class=\"text-center border-b-4 border-dashed border-black pb-6 mb-8\">\n        <div class=\"text-2xs text-black mb-2\">TASK RECEIPT</div>\n        <div class=\"text-2xs text-black\">\n            <span class=\"ml-2\" id=\"timestamp\"></span>\n        </div>\n    </div>\n\n    <!-- Task Title -->\n    <div class=\"mb-8\">\n        <h1 class=\"text-2xl-2x font-bold text-black leading-tight break-words\">\n            Check First Salary Income from Adtribute\n        </h1>\n    </div>\n\n\n\n    <!-- Due Date -->\n    <div class=\"mb-8\">\n        <div class=\"text-2xs text-black uppercase tracking-wide mb-2\">Due Date:</div>\n        <p class=\"text-base-2x font-semibold text-black\" id=\"due-date\">\n            Mon 11.08.2025\n        </p>\n    </div>\n\n    <!-- Parent Task -->\n    <div>\n        <div class=\"text-2xs text-black uppercase tracking-wide mb-2\">Parent Task:</div>\n        <div class=\"text-parent-value\">Complete 2023 Tax Form</div>\n    </div>\n\n         <!-- QR Code -->\n     <div class=\"text-center -mt-4\">\n         <div class=\"mx-auto w-64 h-64 border-0 flex items-center justify-center relative\">\n             <div id=\"qrcode\"></div>\n         </div>\n         <div class=\"text-2xs text-black mb-4 -mt-8\">Scan to set complete</div>\n     </div>\n\n    <!-- Footer -->\n    <div class=\"border-t-4 border-dashed border-black pt-6 text-center\"></div>\n</div>\n <script>\n     // Set current timestamp\n     document.getElementById('timestamp').textContent = moment().locale('de').format('DD.MM.YYYY HH:mm');\n     \n     // Generate QR code (SVG, error correction level M for less density)\n     (function() {\n         var container = document.getElementById(\"qrcode\");\n         container.innerHTML = \"\";\n         var text = \"https://n8n-vy8rb-u45542.vm.elestio.app/webhook/tasks/complete?taskId=249d0eff-6a00-805d-882b-d21de41bb08a\";\n         var qr = qrcode(0, 'M'); // 0 auto type, 'M' error correction\n         qr.addData(text);\n         qr.make();\n         // Create SVG with module size and quiet zone\n         var svgTag = qr.createSvgTag(4, 4);\n         container.innerHTML = svgTag;\n     })();\n </script>\n</body>\n</html>"
+        }
+      }
+    ]
+  }
+}
