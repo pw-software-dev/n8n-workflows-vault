@@ -1,0 +1,389 @@
+{
+  "name": "Fetch Lifelogs Every 10 Minutes",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://api.limitless.ai/v1/lifelogs",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "includeHeadings",
+              "value": "false"
+            },
+            {
+              "name": "limit",
+              "value": "10"
+            },
+            {
+              "name": "start",
+              "value": "={{$json.lastItemFetchedTimestamp}}"
+            },
+            {
+              "name": "end",
+              "value": "={{ $now.toLocal('Europe/Berlin').toUTC().format('yyyy-MM-dd HH:mm:ss') }}"
+            },
+            {
+              "name": "includeContents",
+              "value": "false"
+            },
+            {
+              "name": "direction",
+              "value": "asc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "sk-6b348912-3aed-4e74-b43e-ed9b00cca878"
+            }
+          ]
+        },
+        "options": {
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "cursor",
+                    "value": "={{ $response.body[\"meta\"][\"lifelogs\"][\"nextCursor\"] }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ $response.body[\"meta\"][\"lifelogs\"][\"nextCursor\"] === null || $response.body[\"meta\"][\"lifelogs\"][\"count\"] === 0 }}",
+              "requestInterval": 1000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        336
+      ],
+      "id": "5862d2e0-4362-4203-a0c2-0177c478c496",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        336
+      ],
+      "id": "91c12a8d-898c-4e96-a21e-32689a3c4dcd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "lastItemFetchedTimestamp",
+        "key": "lastItemFetchedTimestamp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        336
+      ],
+      "id": "ee362c1c-2091-4241-90e2-cf8221f8e606",
+      "name": "Get Las Item Fetched Timestamp",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=lastItemFetchedTimestamp",
+        "value": "={{ $json.endTime }}",
+        "keyType": "string"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        880,
+        240
+      ],
+      "id": "9927b97d-2c02-4bdb-9970-831a8bb2c9e7",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "K35e8m7a61rYsfMm",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc1143e5-e9d2-48e7-bc6a-1d5dc135b41c",
+              "leftValue": "={{ $json.meta.lifelogs.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        336
+      ],
+      "id": "efb67680-9d80-47d8-a4c0-0a3f1f5c06d8",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "fJM9spTXj46Ka700",
+          "mode": "list",
+          "cachedResultName": "Process with Tools"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        432
+      ],
+      "id": "549d35ae-8f87-40ee-ba31-d6202b327952",
+      "name": "Process Items",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "chatId": "4978196",
+        "text": "Oh no 💩 I failed to process your logs.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        656
+      ],
+      "id": "94a01f52-8b82-464a-b301-ff57a5e066b0",
+      "name": "Telegram",
+      "webhookId": "956d837a-ddf1-4481-9085-98b92ef84bb1",
+      "credentials": {
+        "telegramApi": {
+          "id": "7SDBDDe3rcdZpYc8",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\n// Get all paginated results\nlet latestEndTime = null;\n\n// Process all pages to find the latest endTime\nfor (const pageItem of allItems) {\n  if (pageItem.json?.data?.lifelogs) {\n    for (const log of pageItem.json.data.lifelogs) {\n      if (log.endTime) {\n        if (!latestEndTime || log.endTime > latestEndTime) {\n          latestEndTime = log.endTime;\n        }\n      }\n    }\n  }\n}\n\nif (latestEndTime) {\n  // Extract just the datetime part without timezone conversion\n  // This preserves the original timezone\n  let formattedTime = latestEndTime\n    .replace('T', ' ')\n    .replace(/[+-]\\d{2}:\\d{2}$/, ''); // Remove timezone offset\n  \n  // If you want to add a buffer, do it manually without Date conversion\n  if (true) { // Set to true if you want the 30-second buffer\n    // Parse the time components\n    const match = formattedTime.match(/(\\d{4})-(\\d{2})-(\\d{2}) (\\d{2}):(\\d{2}):(\\d{2})/);\n    if (match) {\n      let [_, year, month, day, hours, minutes, seconds] = match.map(Number);\n      \n      // Format back to string\n      formattedTime = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ` +\n                     `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;\n    }\n  }\n  \n  return {\n    json: {\n      endTime: formattedTime,\n      originalEndTime: latestEndTime,\n      itemsProcessed: allItems.length\n    }\n  };\n} else {\n  return {\n    json: {\n      endTime: $input.last().json.lastItemFetchedTimestamp || null,\n      itemsProcessed: allItems.length\n    }\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        240
+      ],
+      "id": "f7dae481-f3b3-477b-89bf-fec11ec2e46d",
+      "name": "Calculate Last Item Fetched Timtestamp",
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        320
+      ],
+      "id": "dec5e99c-9e5a-472e-b5bf-63ba8dfa9c41",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data.lifelogs",
+        "options": {
+          "disableDotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        656,
+        432
+      ],
+      "id": "14dc19e9-8488-4fe8-9a57-cb093333a6ce",
+      "name": "Split Out"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Las Item Fetched Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Las Item Fetched Timestamp": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Calculate Last Item Fetched Timtestamp",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Items": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Calculate Last Item Fetched Timtestamp": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Process Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 1,
+  "versionId": "2d918631-dbcf-43a1-a48e-166e39eae3be",
+  "pinData": {
+    "Schedule Trigger": [
+      {
+        "json": {
+          "timestamp": "2025-08-13T03:40:48.013-04:00",
+          "Readable date": "August 13th 2025, 3:40:48 am",
+          "Readable time": "3:40:48 am",
+          "Day of week": "Wednesday",
+          "Year": "2025",
+          "Month": "August",
+          "Day of month": "13",
+          "Hour": "03",
+          "Minute": "40",
+          "Second": "48",
+          "Timezone": "America/New_York (UTC-04:00)"
+        }
+      }
+    ],
+    "Get Las Item Fetched Timestamp": [
+      {
+        "json": {
+          "lastItemFetchedTimestamp": "2025-08-19 14:10:24"
+        }
+      }
+    ]
+  }
+}
