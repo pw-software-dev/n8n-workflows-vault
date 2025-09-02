@@ -1,13 +1,13 @@
-# Screenshot HTML Print Image
+# Create Task in Initiative
 
 > **Version**: 1.0.0 | **Author**: pw-software  
 > **Created**: 2024-08-30 | **Updated**: 2024-08-30
 
 ## Overview
 
-This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+This workflow creates a task in Notion based on incoming webhook data.
 
-**Tags**: html, screenshot, print, http  
+**Tags**: notion, webhook, task-creation  
 **Complexity**: medium  
 **Estimated Runtime**: 30-60 seconds  
 **Compatible n8n Version**: 1.45.0
@@ -16,7 +16,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Input Requirements
 
-- **Trigger Type**: **n8n-nodes-base.execute Workflow Trigger**
+- **Trigger Type**: Manual trigger
 - **Input Data Structure**:
 
   ```json
@@ -32,12 +32,9 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Processing Logic
 
-1. **Get ngrok URL** (n8n-nodes-base.redis)
-2. **PRINT 🖨️** (n8n-nodes-base.http Request)
-3. **Get Test File** (n8n-nodes-base.http Request)
-4. **Screenshot HTML** (n8n-nodes-base.http Request)
-5. **Screenshot API Error** (n8n-nodes-base.stop And Error)
-6. **Print API Error** (n8n-nodes-base.stop And Error)
+1. **Webhook** (n8n-nodes-base.webhook)
+2. **Create a database page** (n8n-nodes-base.notion)
+3. **Set Fields** (n8n-nodes-base.set)
 
 ### Output Specification
 
@@ -61,8 +58,8 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Dependencies
 
-**Credentials**: Redis account, HTMLToImage
-**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError
+**Credentials**: Notion account
+**Nodes**: n8n-nodes-base.webhook, n8n-nodes-base.notion, n8n-nodes-base.set
 
 ### Configuration
 
@@ -226,7 +223,7 @@ This section provides structured information for AI/foundation models to underst
 
 ### Intent
 
-**Primary Goal**: This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+**Primary Goal**: This workflow creates a task in Notion based on incoming webhook data.
 
 **Business Value**: Describe the business value and impact of this workflow
 

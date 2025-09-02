@@ -24,7 +24,7 @@ class DocumentationGenerator {
   "description": "Brief description of what this workflow does",
   "version": "1.0.0",
   "tags": ["tag1", "tag2"],
-  "author": "your-team",
+  "author": "pw-software",
   "created": "2024-08-30",
   "updated": "2024-08-30",
   "n8n_version": "1.45.0",
@@ -52,7 +52,7 @@ INSTRUCTIONS:
 2. Write descriptive summary (10-500 characters)
 3. Keep version as "1.0.0" unless workflow name indicates otherwise (e.g., "v2")
 5. Tags MUST be lowercase kebab-case only (e.g., "html", "redis", "webhook" NOT "HTML", "Redis", "Webhook")
-6. Keep author as "your-team"
+6. Keep author as "pw-software"
 7. Keep dates as "2024-08-30"
 8. Keep n8n_version as "1.45.0"
 9. Requirements:

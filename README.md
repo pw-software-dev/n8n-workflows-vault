@@ -108,7 +108,7 @@ pnpm generate-readme
      "version": "1.0.0",
 
      "tags": ["tag1", "tag2"],
-     "author": "your-team",
+     "author": "pw-software",
      "created": "2024-08-30",
      "updated": "2024-08-30",
      "n8n_version": "1.45.0",

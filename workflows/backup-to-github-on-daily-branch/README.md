@@ -1,22 +1,22 @@
-# Screenshot HTML Print Image
+# Backup to GitHub on Daily Branch
 
 > **Version**: 1.0.0 | **Author**: pw-software  
 > **Created**: 2024-08-30 | **Updated**: 2024-08-30
 
 ## Overview
 
-This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+This workflow automates the daily backup of workflows to a GitHub repository, creating a new branch for each day.
 
-**Tags**: html, screenshot, print, http  
-**Complexity**: medium  
-**Estimated Runtime**: 30-60 seconds  
+**Tags**: backup, github, daily  
+**Complexity**: complex  
+**Estimated Runtime**: 1-2 minutes  
 **Compatible n8n Version**: 1.45.0
 
 ## Technical Specification
 
 ### Input Requirements
 
-- **Trigger Type**: **n8n-nodes-base.execute Workflow Trigger**
+- **Trigger Type**: **n8n-nodes-base.schedule Trigger**
 - **Input Data Structure**:
 
   ```json
@@ -32,12 +32,23 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Processing Logic
 
-1. **Get ngrok URL** (n8n-nodes-base.redis)
-2. **PRINT 🖨️** (n8n-nodes-base.http Request)
-3. **Get Test File** (n8n-nodes-base.http Request)
-4. **Screenshot HTML** (n8n-nodes-base.http Request)
-5. **Screenshot API Error** (n8n-nodes-base.stop And Error)
-6. **Print API Error** (n8n-nodes-base.stop And Error)
+1. **Get All Workflows** (n8n-nodes-base.n8n)
+2. **Get Workflow Details** (n8n-nodes-base.n8n)
+3. **Prepare Workflow Data** (n8n-nodes-base.code)
+4. **Update GitHub File** (n8n-nodes-base.github)
+5. **Create Backup Summary** (n8n-nodes-base.code)
+6. **Check Backup Success** (n8n-nodes-base.if)
+7. **Create a file** (n8n-nodes-base.github)
+8. **Set Parameters** (n8n-nodes-base.set)
+9. **Get Backup Branch of Today** (n8n-nodes-base.http Request)
+10. **Branch Not Found?** (n8n-nodes-base.if)
+11. **Create Backup Branch of Today** (n8n-nodes-base.http Request)
+12. **Get Latest SHA** (n8n-nodes-base.http Request)
+13. **No Operation, do nothing** (n8n-nodes-base.no Op)
+14. **No Operation, do nothing1** (n8n-nodes-base.no Op)
+15. **Get Timestamp Last Fetched** (n8n-nodes-base.redis)
+16. **Set Timestamp Last Fetched1** (n8n-nodes-base.redis)
+17. **Filter for Edited Workflow or Newly Added Tags** (n8n-nodes-base.code)
 
 ### Output Specification
 
@@ -61,8 +72,8 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Dependencies
 
-**Credentials**: Redis account, HTMLToImage
-**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError
+**Credentials**: n8n account, GitHub account, Redis account
+**Nodes**: n8n-nodes-base.scheduleTrigger, n8n-nodes-base.n8n, n8n-nodes-base.code, n8n-nodes-base.github, n8n-nodes-base.if, n8n-nodes-base.set, n8n-nodes-base.httpRequest, n8n-nodes-base.noOp, n8n-nodes-base.redis
 
 ### Configuration
 
@@ -84,7 +95,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 ### Performance Characteristics
 
-- **Expected Runtime**: 30-60 seconds
+- **Expected Runtime**: 1-2 minutes
 - **Resource Usage**:
   - Memory: Low/Medium/High
   - CPU: Low/Medium/High
@@ -144,7 +155,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 
 - **Key Metrics**:
   - Execution success rate: > 95%
-  - Average execution time: < 30-60 seconds
+  - Average execution time: < 1-2 minutes
   - Error rate: < 5%
 - **Alerts**: Set up monitoring alerts for failures or performance degradation
 - **Logs**: Check n8n execution logs for detailed error information
@@ -226,7 +237,7 @@ This section provides structured information for AI/foundation models to underst
 
 ### Intent
 
-**Primary Goal**: This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
+**Primary Goal**: This workflow automates the daily backup of workflows to a GitHub repository, creating a new branch for each day.
 
 **Business Value**: Describe the business value and impact of this workflow
 

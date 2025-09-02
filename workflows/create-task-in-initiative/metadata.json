@@ -1,13 +1,11 @@
 {
-  "name": "Screenshot HTML Print Image",
-  "description": "This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.",
+  "name": "Create Task in Initiative",
+  "description": "This workflow creates a task in Notion based on incoming webhook data.",
   "version": "1.0.0",
-
   "tags": [
-    "html",
-    "screenshot",
-    "print",
-    "http"
+    "notion",
+    "webhook",
+    "task-creation"
   ],
   "author": "pw-software",
   "created": "2024-08-30",
@@ -15,19 +13,17 @@
   "n8n_version": "1.45.0",
   "requirements": {
     "credentials": [
-      "Redis account",
-      "HTMLToImage"
+      "Notion account"
     ],
     "nodes": [
-      "n8n-nodes-base.executeWorkflowTrigger",
-      "n8n-nodes-base.redis",
-      "n8n-nodes-base.httpRequest",
-      "n8n-nodes-base.stopAndError"
+      "n8n-nodes-base.webhook",
+      "n8n-nodes-base.notion",
+      "n8n-nodes-base.set"
     ],
     "environment_variables": []
   },
   "triggers": [
-    "manual"
+    "webhook"
   ],
   "complexity": "medium",
   "execution_time": "30-60 seconds",

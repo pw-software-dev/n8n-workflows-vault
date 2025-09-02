@@ -7,7 +7,7 @@
 
 This workflow captures a screenshot of HTML content and sends it to a printer via an HTTP request.
 
-**Tags**: html, screenshot, print, http  
+**Tags**: html, screenshot, http-request, redis  
 **Complexity**: medium  
 **Estimated Runtime**: 30-60 seconds  
 **Compatible n8n Version**: 1.45.0
@@ -38,6 +38,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 4. **Screenshot HTML** (n8n-nodes-base.http Request)
 5. **Screenshot API Error** (n8n-nodes-base.stop And Error)
 6. **Print API Error** (n8n-nodes-base.stop And Error)
+7. **No Operation, do nothing** (n8n-nodes-base.no Op)
 
 ### Output Specification
 
@@ -62,7 +63,7 @@ This workflow captures a screenshot of HTML content and sends it to a printer vi
 ### Dependencies
 
 **Credentials**: Redis account, HTMLToImage
-**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError
+**Nodes**: n8n-nodes-base.executeWorkflowTrigger, n8n-nodes-base.redis, n8n-nodes-base.httpRequest, n8n-nodes-base.stopAndError, n8n-nodes-base.noOp
 
 ### Configuration
 
