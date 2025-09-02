@@ -1,0 +1,587 @@
+{
+  "name": "Backup to GitHub on Daily Branch",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "id": "9a5b7a89-5daf-4c57-a186-eed986eec01e",
+      "name": "Daily Backup Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1296,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "filters": {},
+        "requestOptions": {}
+      },
+      "id": "e902aa91-f0f5-4ce6-92a4-0ff5ac3dcae5",
+      "name": "Get All Workflows",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        48,
+        240
+      ],
+      "credentials": {
+        "n8nApi": {
+          "id": "qg9xgI70vgIu2siF",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "workflowId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "requestOptions": {}
+      },
+      "id": "af7e6335-818d-4c12-b77d-084e0f642e51",
+      "name": "Get Workflow Details",
+      "type": "n8n-nodes-base.n8n",
+      "typeVersion": 1,
+      "position": [
+        272,
+        240
+      ],
+      "credentials": {
+        "n8nApi": {
+          "id": "qg9xgI70vgIu2siF",
+          "name": "n8n account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Prepare workflow data for GitHub backup\nconst workflowData = $input.item.json;\n\n// Create a clean workflow object without system-specific data\nconst cleanWorkflow = {\n  name: workflowData.name,\n  nodes: workflowData.nodes,\n  connections: workflowData.connections,\n  active: workflowData.active || false,\n  settings: workflowData.settings || {},\n  tags: workflowData.tags || [],\n  triggerCount: workflowData.triggerCount || 0,\n  versionId: workflowData.versionId\n};\n\n// If there's pinData, include it\nif (workflowData.pinData && Object.keys(workflowData.pinData).length > 0) {\n  cleanWorkflow.pinData = workflowData.pinData;\n}\n\n// Create file path using workflow name (sanitized for filesystem)\nconst sanitizedName = workflowData.name\n  .toLowerCase()\n  .replace(/[^a-z0-9-\\s]/g, '')\n  .replace(/\\s+/g, '-')\n  .replace(/-+/g, '-')\n  .trim();\n\nconst filePath = `workflows/${sanitizedName}/workflow.json`;\n\nreturn {\n  json: {\n    id: workflowData.id,\n    name: workflowData.name,\n    filePath: filePath,\n    content: JSON.stringify(cleanWorkflow, null, 2),\n    commitMessage: `Backup workflow: ${workflowData.name}`,\n    lastModified: workflowData.updatedAt || new Date().toISOString()\n  }\n};"
+      },
+      "id": "8f98771f-c4c2-4bfc-8115-911ff6b2a6db",
+      "name": "Prepare Workflow Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "operation": "edit",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $env.GITHUB_OWNER || 'pw-software-dev' }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $env.GITHUB_REPO || 'n8n-workflows-vault' }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $('Prepare Workflow Data').item.json.filePath }}",
+        "fileContent": "={{ $('Prepare Workflow Data').item.json.content }}",
+        "commitMessage": "={{ $('Prepare Workflow Data').item.json.commitMessage }}",
+        "additionalParameters": {
+          "branch": {
+            "branch": "={{ $('Set Parameters').item.json.branch_name }}"
+          }
+        }
+      },
+      "id": "9440027f-e79a-433f-b99b-6ea03b5f8d3d",
+      "name": "Update GitHub File",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        320
+      ],
+      "webhookId": "c13a4233-8b59-4126-a435-4e3808bee1a3",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "hNFWKactzuCtJJaM",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create backup summary\nconst processedWorkflows = $input.all().length;\nconst successfulBackups = $input.all().filter(item => !item.json.error).length;\nconst failedBackups = processedWorkflows - successfulBackups;\n\nconst summary = {\n  timestamp: new Date().toISOString(),\n  totalWorkflows: processedWorkflows,\n  successfulBackups: successfulBackups,\n  failedBackups: failedBackups,\n  status: failedBackups === 0 ? 'success' : 'partial_success'\n};\n\nconsole.log('Backup Summary:', JSON.stringify(summary, null, 2));\n\nreturn { json: summary };"
+      },
+      "id": "98a4ec39-00d8-4981-9e7a-4022c62a6a36",
+      "name": "Create Backup Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "error-exists",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1207467b-03c8-430e-82fe-e0fc1eb0d832",
+      "name": "Check Backup Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const backupItems = []\nfor (const item of $input.all())  {\n  const tags = item.json.tags\n  if (tags.length > 0) {\n    if (tags.some(obj => obj.name === \"backup\")) {\n      backupItems.push(item)\n    }\n  }\n}\n\nreturn backupItems"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        240
+      ],
+      "id": "78d8af79-d31d-4c42-af70-78f3d47f4424",
+      "name": "Filter for Backup Tags"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $env.GITHUB_OWNER || 'pw-software-dev' }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $env.GITHUB_REPO || 'n8n-workflows-vault' }}",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.filePath }}",
+        "fileContent": "={{ $json.content }}",
+        "commitMessage": "={{ $json.commitMessage }}",
+        "additionalParameters": {
+          "author": {
+            "name": "n8n",
+            "email": "n8n@pwsoftware.dev"
+          },
+          "branch": {
+            "branch": "={{ $('Set Parameters').item.json.branch_name }}"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        944,
+        240
+      ],
+      "id": "b5e1b2d2-2af9-44c0-aedc-34016808eeb1",
+      "name": "Create a file",
+      "webhookId": "364906bc-563c-4f84-b94c-e13cec962da4",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "hNFWKactzuCtJJaM",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5ab6c1a-2943-4217-a519-d5951736c97d",
+              "name": "branch_name",
+              "value": "={{ encodeURI(\"backup/\") }}{{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1072,
+        432
+      ],
+      "id": "7ef91464-0f84-4fd6-9cd2-961bcf415c29",
+      "name": "Set Parameters"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/pw-software-dev/n8n-workflows-vault/branches/{{ $json.branch_name }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -848,
+        432
+      ],
+      "id": "a66683e1-fedb-416b-b9e8-e9994133034e",
+      "name": "Get Backup Branch of Today",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "hNFWKactzuCtJJaM",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1ed58fa-fb6c-4097-b8eb-f709c5da7495",
+              "leftValue": "={{ $json.error.description }}",
+              "rightValue": "=Branch not found",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        512
+      ],
+      "id": "9cc5d270-896f-436f-b3df-1968354f1f84",
+      "name": "Branch Not Found?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.github.com/repos/pw-software-dev/n8n-workflows-vault/git/refs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubOAuth2Api",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "ref",
+              "value": "=refs/heads/{{ $('Set Parameters').item.json.branch_name }}"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.commit.sha }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -176,
+        368
+      ],
+      "id": "2834303c-8e77-45b5-ae7e-0939b0e1193b",
+      "name": "Create Backup Branch of Today",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "hNFWKactzuCtJJaM",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/repos/pw-software-dev/n8n-workflows-vault/branches/main",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -400,
+        432
+      ],
+      "id": "37acbf2f-7792-416a-b55c-05fbc78e1d4d",
+      "name": "Get Latest SHA",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "hNFWKactzuCtJJaM",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        48,
+        528
+      ],
+      "id": "af1ee23e-4924-4b81-8545-cac305bf4a8a",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        336
+      ],
+      "id": "18a9757d-d7de-4098-8398-573b83fcadb4",
+      "name": "No Operation, do nothing1"
+    }
+  ],
+  "connections": {
+    "Daily Backup Schedule": {
+      "main": [
+        [
+          {
+            "node": "Set Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Workflows": {
+      "main": [
+        [
+          {
+            "node": "Get Workflow Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Workflow Details": {
+      "main": [
+        [
+          {
+            "node": "Filter for Backup Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Workflow Data": {
+      "main": [
+        [
+          {
+            "node": "Create a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update GitHub File": {
+      "main": [
+        [
+          {
+            "node": "Check Backup Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Backup Success": {
+      "main": [
+        [
+          {
+            "node": "Create Backup Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter for Backup Tags": {
+      "main": [
+        [
+          {
+            "node": "Prepare Workflow Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Parameters": {
+      "main": [
+        [
+          {
+            "node": "Get Backup Branch of Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Backup Branch of Today": {
+      "main": [
+        [
+          {
+            "node": "Get All Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Branch Not Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Branch Not Found?": {
+      "main": [
+        [
+          {
+            "node": "Get Latest SHA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Latest SHA": {
+      "main": [
+        [
+          {
+            "node": "Create Backup Branch of Today",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Backup Branch of Today": {
+      "main": [
+        [
+          {
+            "node": "Get All Workflows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a file": {
+      "main": [
+        [
+          {
+            "node": "Check Backup Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update GitHub File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "createdAt": "2025-09-02T08:19:22.009Z",
+      "updatedAt": "2025-09-02T08:19:22.009Z",
+      "id": "SlCgFcqbm1uNayxM",
+      "name": "backup"
+    }
+  ],
+  "triggerCount": 0,
+  "versionId": "41f54d6c-ef4e-47bb-95c7-1a5962f19ec0"
+}
